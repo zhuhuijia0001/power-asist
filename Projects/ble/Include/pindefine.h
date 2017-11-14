@@ -1,0 +1,67 @@
+
+#ifndef _PINDEFINE_H_
+#define _PINDEFINE_H_
+
+#if defined( CC2541) || defined( CC2541S )
+#include <ioCC2541.h>
+#else // CC2540
+#include <ioCC2540.h>
+#endif // CC2541 || CC2541S
+
+#include "gpio.h"
+
+//pin define
+/* i2c pin */
+/* sda */
+#define PORT_PIN_SDA    1
+#define OFFSET_PIN_SDA  0
+#define PIN_SDA         MAKE_GPIO(PORT_PIN_SDA, OFFSET_PIN_SDA)
+#define DIR_PIN_SDA     PORT_DIR(PORT_PIN_SDA)
+/* scl */
+#define PORT_PIN_SCL    1
+#define OFFSET_PIN_SCL  1
+#define PIN_SCL         MAKE_GPIO(PORT_PIN_SCL, OFFSET_PIN_SCL)
+#define DIR_PIN_SCL     PORT_DIR(PORT_PIN_SCL)
+
+/* lcd pin */
+/* lamp */
+#define PORT_PIN_LCD_LAMP   2
+#define OFFSET_PIN_LCD_LAMP 0
+#define PIN_LCD_LAMP        MAKE_GPIO(PORT_PIN_LCD_LAMP, OFFSET_PIN_LCD_LAMP)
+#define DIR_PIN_LCD_LAMP    PORT_DIR(PORT_PIN_LCD_LAMP)
+
+/* dc */
+#define PORT_PIN_LCD_DC     0
+#define OFFSET_PIN_LCD_DC   5
+#define PIN_LCD_DC          MAKE_GPIO(PORT_PIN_LCD_DC, OFFSET_PIN_LCD_DC)
+#define DIR_PIN_LCD_DC      PORT_DIR(PORT_PIN_LCD_DC)
+
+/* reset */
+#define PORT_PIN_LCD_RESET   0
+#define OFFSET_PIN_LCD_RESET 6
+#define PIN_LCD_RESET        MAKE_GPIO(PORT_PIN_LCD_RESET, OFFSET_PIN_LCD_RESET)
+#define DIR_PIN_LCD_RESET    PORT_DIR(PORT_PIN_LCD_RESET)
+
+/* qc driver pin */
+#define PORT_PIN_QC_DRIVE_A    1
+#define OFFSET_PIN_QC_DRIVE_A  3
+#define PIN_QC_DRIVE_A         MAKE_GPIO(PORT_PIN_QC_DRIVE_A, OFFSET_PIN_QC_DRIVE_A)
+#define DIR_PIN_QC_DRIVE_A     PORT_DIR(PORT_PIN_QC_DRIVE_A)
+
+#define PORT_PIN_QC_DRIVE_B    1
+#define OFFSET_PIN_QC_DRIVE_B  4
+#define PIN_QC_DRIVE_B         MAKE_GPIO(PORT_PIN_QC_DRIVE_B, OFFSET_PIN_QC_DRIVE_B)
+#define DIR_PIN_QC_DRIVE_B     PORT_DIR(PORT_PIN_QC_DRIVE_B)
+
+#define PORT_PIN_QC_DRIVE_C    1
+#define OFFSET_PIN_QC_DRIVE_C  6
+#define PIN_QC_DRIVE_C         MAKE_GPIO(PORT_PIN_QC_DRIVE_C, OFFSET_PIN_QC_DRIVE_C)
+#define DIR_PIN_QC_DRIVE_C     PORT_DIR(PORT_PIN_QC_DRIVE_C)
+
+#define PORT_PIN_QC_DRIVE_D    1
+#define OFFSET_PIN_QC_DRIVE_D  7
+#define PIN_QC_DRIVE_D         MAKE_GPIO(PORT_PIN_QC_DRIVE_D, OFFSET_PIN_QC_DRIVE_D)
+#define DIR_PIN_QC_DRIVE_D     PORT_DIR(PORT_PIN_QC_DRIVE_D)
+
+#endif
+

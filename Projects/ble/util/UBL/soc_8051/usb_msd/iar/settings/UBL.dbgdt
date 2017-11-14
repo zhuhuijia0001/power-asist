@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Project>
+  <Desktop>
+    <Static>
+      <Debug-Log>
+        
+        
+      <ColumnWidth0>20</ColumnWidth0><ColumnWidth1>1031</ColumnWidth1></Debug-Log>
+      <Build>
+        <ColumnWidth0>20</ColumnWidth0>
+        <ColumnWidth1>773</ColumnWidth1>
+        <ColumnWidth2>206</ColumnWidth2>
+        <ColumnWidth3>51</ColumnWidth3>
+      </Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>141</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Disassembly>
+        
+        
+        
+      <MixedMode>1</MixedMode><CodeCovShow>1</CodeCovShow><InstrProfShow>1</InstrProfShow></Disassembly>
+    <Watch><Format><struct_types><Fmt><Key>ublMetaData_t-crcRC</Key><Value>4</Value></Fmt><Fmt><Key>ublMetaData_t-crcShdw</Key><Value>4</Value></Fmt></struct_types><watch_formats/></Format><Column0>130</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Watch></Static>
+    <Windows>
+      
+      
+      
+    <Wnd0>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-20781-28759</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-20258-28769</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd3>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-31529-28762</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>UBL</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd3><Wnd4>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-9510-28765</Identity>
+            <TabName>Disassembly</TabName>
+            <Factory>Disassembly</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd4><Wnd5><Tabs><Tab><Identity>TabID-24890-28929</Identity><TabName>Watch</TabName><Factory>Watch</Factory><Session><Expressions><Expression><Expression>ublMD</Expression></Expression></Expressions><TabId>0</TabId><Column0>130</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd5></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>C:\Texas Instruments\BLE-CC254x-1.3.2\Projects\ble\util\UBL\soc_8051\usb_msd\app\ubl_main.c</Filename><XPos>0</XPos><YPos>132</YPos><SelStart>5348</SelStart><SelEnd>5348</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\Texas Instruments\BLE-CC254x-1.3.2\Projects\ble\util\UBL\soc_8051\usb_msd\app\ubl_exec.c</Filename><XPos>0</XPos><YPos>481</YPos><SelStart>16164</SelStart><SelEnd>16164</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\ubl_exec.c</Filename><XPos>0</XPos><YPos>481</YPos><SelStart>16397</SelStart><SelEnd>16397</SelEnd></Tab><ActiveTab>2</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\app\ubl_main.c</Filename><XPos>0</XPos><YPos>132</YPos><SelStart>5348</SelStart><SelEnd>5348</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-00ebd9a0><key>iaridepm.enu1</key></Toolbar-00ebd9a0></Sizes></Row0><Row1><Sizes><Toolbar-0504d898><key>debuggergui.enu1</key></Toolbar-0504d898></Sizes></Row1></Top><Left><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>474</Bottom><Right>215</Right><x>-2</x><y>-2</y><xscreen>217</xscreen><yscreen>195</yscreen><sizeHorzCX>183587</sizeHorzCX><sizeHorzCY>264946</sizeHorzCY><sizeVertCX>183587</sizeVertCX><sizeVertCY>646739</sizeVertCY></Rect></Wnd3></Sizes></Row0></Left><Right><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>474</Bottom><Right>145</Right><x>-2</x><y>-2</y><xscreen>217</xscreen><yscreen>195</yscreen><sizeHorzCX>183587</sizeHorzCX><sizeHorzCY>264946</sizeHorzCY><sizeVertCX>124365</sizeVertCX><sizeVertCY>646739</sizeVertCY></Rect></Wnd4></Sizes></Row0><Row1><Sizes><Wnd5><Rect><Top>-2</Top><Left>143</Left><Bottom>474</Bottom><Right>472</Right><x>143</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>169205</sizeHorzCX><sizeHorzCY>271739</sizeHorzCY><sizeVertCX>278342</sizeVertCX><sizeVertCY>646739</sizeVertCY></Rect></Wnd5></Sizes></Row1></Right><Bottom><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>193</Bottom><Right>1184</Right><x>-2</x><y>-2</y><xscreen>1186</xscreen><yscreen>195</yscreen><sizeHorzCX>1003384</sizeHorzCX><sizeHorzCY>264946</sizeHorzCY><sizeVertCX>183587</sizeVertCX><sizeVertCY>264946</sizeVertCY></Rect></Wnd0></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Project>
+
+
