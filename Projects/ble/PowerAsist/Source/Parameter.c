@@ -15,7 +15,6 @@
 
 StoreVector g_storeVector;
 
-
 static const Parameter s_defaultParameter = 
 {
 	.currentCaliValue = CALIBRATION_VAL,
@@ -43,35 +42,20 @@ bool LoadParameter()
 {
 	uint16 addr = PARAMETER_START_ADDR;
 
-	uint8 dat;	
-	
-	//header
-	if (!ReadEEPROM(addr, &dat))
-	{		
+	//read
+	if (!ReadEEPROMData(addr, (uint8 *)&g_storeVector, sizeof(g_storeVector), NULL))
+	{
 		return false;
 	}
 
-	if (dat != HEADER)
-	{	
+	//header
+	if (g_storeVector.header != HEADER)
+	{
 		return false;
 	}
 
 	//size
-	uint16 size;
-	addr += sizeof(dat);
-	if (!ReadEEPROMData(addr, (uint8 *)&size, sizeof(size), NULL))
-	{		
-		return false;
-	}
-
-	if (size != sizeof(Parameter))
-	{		
-		return false;
-	}
-
-	//parameter
-	addr += sizeof(size);
-	if (!ReadEEPROMData(addr, (uint8 *)&g_storeVector.parameter, size, NULL))
+	if (g_storeVector.size != sizeof(Parameter))
 	{
 		return false;
 	}
@@ -79,20 +63,13 @@ bool LoadParameter()
 	//sum
 	uint8 sum = 0x00;
 	uint8 *p = (uint8 *)&g_storeVector.parameter;
-	int i;
-	for (i = 0; i < size; i++)
+	for (int i = 0; i < g_storeVector.size; i++)
 	{
 		sum ^= *p++;
 	}
 	
-	addr += size;
-	if (!ReadEEPROM(addr, &dat))
-	{		
-		return false;
-	}
-	
-	if (sum != dat)
-	{		
+	if (sum != g_storeVector.sum)
+	{
 		return false;
 	}
 
