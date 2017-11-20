@@ -36,11 +36,7 @@
 static uint8 s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 
 static void RefreshMainMenuMeasure()
-{
-	uint8 buf[20];
-	uint8 index = 0;
-	buf[index++] = 0x11;
-		
+{		
 	uint8 integer;
 	uint16 frac;
 	
@@ -50,16 +46,13 @@ static void RefreshMainMenuMeasure()
 		TRACE("shunt voltage:%d.%04dmV\r\n", integer, frac);
 	}
 	*/
+	
 	if (GetBusVoltage(&integer, &frac))
 	{
 		//TRACE("bus voltage:%d.%04dV\r\n", integer, frac);
 
 		DrawMainVoltage(integer, frac);
 	}
-
-	buf[index++] = integer;
-	buf[index++] = frac & 0xff;
-	buf[index++] = (frac >> 8) & 0xff;
 	
 	if (GetLoadCurrent(&integer, &frac))
 	{
@@ -67,10 +60,6 @@ static void RefreshMainMenuMeasure()
 
 		DrawMainCurrent(integer, frac);
 	}
-
-	buf[index++] = integer;
-	buf[index++] = frac & 0xff;
-	buf[index++] = (frac >> 8) & 0xff;
 	
 	if (GetLoadPower(&integer, &frac))
 	{
@@ -78,29 +67,12 @@ static void RefreshMainMenuMeasure()
 
 		DrawMainPower(integer, frac);
 	}
-
-	buf[index++] = integer;
-	buf[index++] = frac & 0xff;
-	buf[index++] = (frac >> 8) & 0xff;
 	
 	GetDPVoltage(&integer, &frac);
 	//TRACE("dp voltage:%d.%02dV\r\n", integer, frac);
-		
-	buf[index++] = integer;
-	buf[index++] = frac & 0xff;
-	buf[index++] = (frac >> 8) & 0xff;
 	
 	GetDMVoltage(&integer, &frac);
 	//TRACE("dm voltage:%d.%02dV\r\n", integer, frac);
-	
-	buf[index++] = integer;
-	buf[index++] = frac & 0xff;
-	buf[index++] = (frac >> 8) & 0xff;
-	
-	{
-		//transfer over bt
-		PowerAsistProfile_Notify(buf, index);
-	}
 }
 
 static void RefreshMainMenuRTC()

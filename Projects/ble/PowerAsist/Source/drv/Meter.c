@@ -48,7 +48,7 @@ void InitMeter(uint16 cali)
 	WriteINA226Data(INA226_REG_CONFIG, config);
 	
 	WriteINA226Data(INA226_REG_CALIBRATION, cali);
-
+	
 	//init adc to measure d+ & d-
 	HalAdcInit();
 }
@@ -66,7 +66,7 @@ bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
 
 	uint32 voltage = val;
 	//LSB = 1.25mV
-	voltage = (voltage * 1250);
+	voltage *= 1250;
 
 	if (VInt != NULL)
 	{
@@ -124,14 +124,15 @@ bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
 	{
 		return false;
 	}
-
+	
 	if (val & 0x8000)
 	{
 		val = ~val + 1;
 	}
 	
 	//LSB = 0.1mA
-	uint32 current = val * 100;
+	uint32 current = val;
+	current *= 100;
 	
 	if (AInt != NULL)
 	{

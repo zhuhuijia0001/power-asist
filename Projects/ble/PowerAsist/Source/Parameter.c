@@ -44,6 +44,7 @@ bool LoadParameter()
 	uint16 addr = PARAMETER_START_ADDR;
 
 	uint8 dat;	
+	
 	//header
 	if (!ReadEEPROM(addr, &dat))
 	{		
@@ -109,40 +110,19 @@ bool SaveParameter()
 {
   	uint16 addr = PARAMETER_START_ADDR;
 
-	uint8 dat;
+	g_storeVector.header = HEADER;
+	g_storeVector.size = sizeof(g_storeVector.parameter);
 
-	//header
-	dat = HEADER;
-	if (!WriteEEPROM(addr, dat))
-	{
-		return false;
-	}
-
-	//size
-	addr += sizeof(dat);
-	uint16 size = sizeof(g_storeVector.parameter);
-	if (!WriteEEPROMData(addr, (uint8 *)&size, sizeof(size)))
-	{
-		return false;
-	}
-
-	//parameter
-	addr += sizeof(size);
-	if (!WriteEEPROMData(addr, (uint8 *)&g_storeVector.parameter, sizeof(g_storeVector.parameter)))
-	{
-		return false;
-	}
-	
 	uint8 *p = (uint8 *)&g_storeVector.parameter;
-	int i;
 	uint8 sum = 0x00;
-	for (i = 0; i < size; i++)
+	for (int i = 0; i < sizeof(g_storeVector.parameter); i++)
 	{	
 		sum ^= *p++;
 	}
 
-	addr += size;
-	if (!WriteEEPROM(addr, sum))
+	g_storeVector.sum = sum;
+
+	if (!WriteEEPROMData(addr, (uint8 *)&g_storeVector, sizeof(g_storeVector)))
 	{
 		return false;
 	}
@@ -151,4 +131,5 @@ bool SaveParameter()
 	
 	return true;
 }
+
 

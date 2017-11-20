@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=-142158686
+Checksum=815446404
 [DisAssemblyWindow]
 NumStates=_ 1
 State 1=_ 1
@@ -17,13 +17,6 @@ UseTrigger=1
 TriggerName=main
 LimitSize=0
 ByteLimit=50
-[Log file]
-LoggingEnabled=_ 0
-LogFile=_ ""
-Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
 [Stack]
 FillEnabled=0
 OverflowWarningsEnabled=1
@@ -34,6 +27,13 @@ UseTrigger=1
 TriggerName=main
 LimitSize=0
 ByteLimit=50
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
 [Breakpoints]
 Count=0
 [ChipconEmu]
