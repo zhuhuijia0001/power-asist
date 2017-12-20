@@ -142,6 +142,8 @@ static void OnMenuTimeout(uint16 timerId)
 		{
 			GetBusVoltage(&integer, &frac);
 
+			//TRACE("bus voltage:%d.%04dV\r\n", integer, frac);
+
 			s_dataItem[index].dec = integer;
 			s_dataItem[index].frac = frac;
 			
@@ -151,7 +153,9 @@ static void OnMenuTimeout(uint16 timerId)
 		if (s_curDataBitmap & DATA_CURRENT_MASK)
 		{
 			GetLoadCurrent(&integer, &frac);
-	
+
+			//TRACE("current:%d.%04dA\r\n", integer, frac);
+			
 			s_dataItem[index].dec = integer;
 			s_dataItem[index].frac = frac;
 			
@@ -162,6 +166,8 @@ static void OnMenuTimeout(uint16 timerId)
 		{
 			GetLoadPower(&integer, &frac);
 
+			//TRACE("power:%d.%04dW\r\n", integer, frac);
+			
 			s_dataItem[index].dec = integer;
 			s_dataItem[index].frac = frac;
 			
@@ -192,6 +198,8 @@ static void OnMenuTimeout(uint16 timerId)
 		{ 
 			GetDPVoltage(&integer, &frac);
 
+			//TRACE("dp voltage:%d.%02dV\r\n", integer, frac);
+			
 			s_dataItem[index].dec = integer;
 			s_dataItem[index].frac = frac;
 			
@@ -202,6 +210,8 @@ static void OnMenuTimeout(uint16 timerId)
 		{ 
 			GetDMVoltage(&integer, &frac);
 
+			//TRACE("dm voltage:%d.%02dV\r\n", integer, frac);
+			
 			s_dataItem[index].dec = integer;
 			s_dataItem[index].frac = frac;
 			

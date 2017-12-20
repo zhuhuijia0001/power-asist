@@ -160,7 +160,7 @@ bool GetLoadPower(uint8 *WInt, uint16 *WFrac)
 	
 	//LSB = 2.5mW
 	uint32 power = val;
-	power = (power * 2500);
+	power *= 2500;
 	
 	if (WInt != NULL)
 	{
