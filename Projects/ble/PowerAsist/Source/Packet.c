@@ -41,8 +41,7 @@ static uint8 BuildPacket(uint8 *buf, uint8 maxBufLen, const uint8 *data, uint8 l
 	buf[index++] = (len + 1);
 
 	uint8 sum = 0;
-	uint8 i;
-	for (i = 0; i < len; i++)
+	for (uint8 i = 0; i < len; i++)
 	{
 		buf[index++] = *data;
 
@@ -186,8 +185,7 @@ uint8 BuildEnablePdRetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 re
 	dataBuf[index++] = result;
 	dataBuf[index++] = itemCount;
 
-	uint8 i;
-	for (i = 0; i < itemCount; i++)
+	for (uint8 i = 0; i < itemCount; i++)
 	{
 		dataBuf[index++] = pd[i].voltage;
 
@@ -241,7 +239,6 @@ uint8 BuildSetTimeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 
 uint8 BuildQueryParamRetPacket(uint8 *buf, uint8 maxBufLen, 
 										uint8 sampleRate, uint8 peakDuration,
-										const uint8 bleName[MAX_BLE_NAME_LEN],
 										const uint8 version[FIRMWARE_VER_LEN])
 {
 	uint8 dataBuf[MAX_PACKET_LEN];
@@ -250,14 +247,8 @@ uint8 BuildQueryParamRetPacket(uint8 *buf, uint8 maxBufLen,
 	dataBuf[index++] = TYPE_QUERY_PARAM;
 	dataBuf[index++] = sampleRate;
 	dataBuf[index++] = peakDuration;
-
-	uint8 i;
-	for (i = 0; i < MAX_BLE_NAME_LEN; i++)
-	{
-		dataBuf[index++] = bleName[i];
-	}
 	
-	for (i = 0; i < FIRMWARE_VER_LEN; i++)
+	for (uint8 i = 0; i < FIRMWARE_VER_LEN; i++)
 	{
 		dataBuf[index++] = version[i];
 	}
@@ -276,6 +267,17 @@ uint8 BuildSetSampleRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 	return BuildPacket(buf, maxBufLen, dataBuf, index);
 }
 
+uint8 BuildSetPeakDurationRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
+{
+	uint8 dataBuf[MAX_PACKET_LEN];
+	
+	uint8 index = 0;
+	dataBuf[index++] = TYPE_SET_PEAK_DURATION;
+	dataBuf[index++] = result;
+
+	return BuildPacket(buf, maxBufLen, dataBuf, index);
+}
+
 uint8 BuildSetBleNameRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 {
 	uint8 dataBuf[MAX_PACKET_LEN];
@@ -287,20 +289,31 @@ uint8 BuildSetBleNameRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 	return BuildPacket(buf, maxBufLen, dataBuf, index);
 }
 
+uint8 BuildQueryChargeModeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 mode, uint8 voltage, uint8 result)
+{
+	uint8 dataBuf[MAX_PACKET_LEN];
+	
+	uint8 index = 0;
+	dataBuf[index++] = TYPE_QUERY_CHARGE_MODE;
+	dataBuf[index++] = mode;
+	dataBuf[index++] = voltage;
+	dataBuf[index++] = result;
+
+	return BuildPacket(buf, maxBufLen, dataBuf, index);
+}
+
 uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen)
 {
 	static uint16 length = 0;
 	static uint16 dataLeft = 0;
 
 	static uint8 sum = 0;
-	
-	uint8 i;
 
 	uint8 count = 0;
 	
 	uint8 res = PACKET_NOT_COMPLETE;
 	
-	for (i = 0; i < len; i++)
+	for (uint8 i = 0; i < len; i++)
 	{
 		uint8 dat = *buf++;
 		count++;
@@ -374,7 +387,7 @@ uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen)
 			{
 				res = PACKET_OK;
 
-				TRACE("packet OK\r\n");
+				//TRACE("packet OK\r\n");
 			}
 			else
 			{
@@ -570,8 +583,7 @@ bool ParseSetTimePacket(const uint8 *data, uint8 len, TimeStruct *time)
 	return true;
 }
 
-bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate,
-									uint8 *peakDuration)
+bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate)
 {
 	if (len != SIZE_SET_SAMPLE)
 	{
@@ -590,6 +602,22 @@ bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate,
 	{
 		*sampleRate = dat;
 	}
+
+	return true;
+}
+
+bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peakDuration)
+{
+	if (len != SIZE_SET_PEAK_DURATION)
+	{
+		return false;
+	}
+	
+	uint8 index = 0;
+		
+	uint8 dat;
+	
+	index++;
 
 	//peakDuration
 	dat = data[index++];
@@ -612,8 +640,7 @@ bool ParseSetBleNamePacket(const uint8 *data, uint8 len, uint8 bleName[MAX_BLE_N
 
 	index++;
 
-	uint8 i;
-	for (i = 0; i < MAX_BLE_NAME_LEN; i++)
+	for (uint8 i = 0; i < MAX_BLE_NAME_LEN; i++)
 	{
 		bleName[i] = data[index++];
 	}

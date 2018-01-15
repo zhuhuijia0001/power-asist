@@ -10,14 +10,20 @@
 #define LOCK_MIN  10
 #define LOCK_MAX  60
 
-#define SAMPLE_MIN  1
-#define SAMPLE_MAX  10
+//sample rate
+#define SAMPLE_RATE_20              20
+#define SAMPLE_RATE_10              10
+#define SAMPLE_RATE_5               5
+#define SAMPLE_RATE_2               2
+#define SAMPLE_RATE_1               1
+
+#define DEFAULT_SAMPLE_RATE         SAMPLE_RATE_10
 
 #define SAMPLE_DURATION_MIN   10
 #define SAMPLE_DURATION_MAX   60
 
 #define FIRMWARE_VER_LEN  8
-#define FIRMWARE_VER      "0.00.001"
+#define FIRMWARE_VER      "0.1"
 
 #define WEB_SITE          "https://pcb-layout.taobao.com"
 
@@ -37,11 +43,10 @@ typedef struct
 
 	uint8   screenAngle;  //screen angle
 
-	uint8   sampleRate;  //sample rate
+	uint8   sampleRate;  //sample rate, counts per second
 
 	uint8   peakValleySampleDuration; //peak & valley sample suration	
 } Parameter;
-
 
 typedef struct
 {

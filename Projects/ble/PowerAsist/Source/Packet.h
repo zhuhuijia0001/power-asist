@@ -44,12 +44,15 @@ extern uint8 BuildSetTimeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result);
 
 extern uint8 BuildQueryParamRetPacket(uint8 *buf, uint8 maxBufLen, 
 										uint8 sampleRate, uint8 peakDuration,
-										const uint8 bleName[MAX_BLE_NAME_LEN],
 										const uint8 version[FIRMWARE_VER_LEN]);
 
 extern uint8 BuildSetSampleRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result);
 
+extern uint8 BuildSetPeakDurationRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result);
+
 extern uint8 BuildSetBleNameRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result);
+
+extern uint8 BuildQueryChargeModeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 mode, uint8 voltage, uint8 result);
 
 extern uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen);
 
@@ -69,8 +72,9 @@ extern bool ParseTriggerPacket(const uint8 *data, uint8 len, uint8 *mode, uint8 
 
 extern bool ParseSetTimePacket(const uint8 *data, uint8 len, TimeStruct *time);
 
-extern bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate,
-									uint8 *peakDuration);
+extern bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate);
+									
+extern bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peakDuration);
 
 extern bool ParseSetBleNamePacket(const uint8 *data, uint8 len, uint8 bleName[MAX_BLE_NAME_LEN]);
 

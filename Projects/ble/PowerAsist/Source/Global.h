@@ -16,6 +16,9 @@ typedef enum
 extern SnifferStatus GetCurrentSnifferStatus();
 extern void SetCurrentSnifferStatus(SnifferStatus status);
 
+extern uint8 GetCurrentSnifferTargetVoltage();
+extern void SetCurrentSnifferTargetVoltage(uint8 voltage);
+
 extern MENU_ID GetMainMenu(uint8 index);
 
 extern uint8 GetNextMainMenuIndex(uint8 curIndex);

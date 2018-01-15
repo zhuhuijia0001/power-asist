@@ -33,7 +33,7 @@ static const Parameter s_defaultParameter =
 
  	.screenAngle = ORIENTATION_0,
 
- 	.sampleRate = SAMPLE_MIN,
+ 	.sampleRate = DEFAULT_SAMPLE_RATE,
 
  	.peakValleySampleDuration = SAMPLE_DURATION_MAX,
 };

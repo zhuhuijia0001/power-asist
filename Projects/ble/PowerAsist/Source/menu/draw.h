@@ -29,7 +29,17 @@ extern void DrawDetailWh(uint16 dec, uint16 frac);
 extern void DrawDetailAh(uint16 dec, uint16 frac);
 
 //peak menu
+extern void DrawPeakMenu();
+extern void DrawPeakVoltage(uint8 dec, uint16 frac);
+extern void DrawPeakCurrent(uint8 dec, uint16 frac);
+extern void DrawPeakPower(uint8 dec, uint16 frac);
 
+extern void DrawPeakValueVoltage(uint8 dec, uint16 frac);
+extern void DrawValleyValueVoltage(uint8 dec, uint16 frac);
+extern void DrawPeakValueCurrent(uint8 dec, uint16 frac);
+extern void DrawValleyValueCurrent(uint8 dec, uint16 frac);
+extern void DrawPeakValuePower(uint8 dec, uint16 frac);
+extern void DrawValleyValuePower(uint8 dec, uint16 frac);
 
 
 //sniffer menu
@@ -251,4 +261,3 @@ extern void DrawMessageSelYes();
 extern void DrawMessageSelNo();
 
 #endif
-

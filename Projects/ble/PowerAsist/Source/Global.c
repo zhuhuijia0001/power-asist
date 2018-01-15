@@ -18,6 +18,8 @@ static const MENU_ID s_mainMenus[] =
 
 static SnifferStatus s_snifferStatus = SNIFFER_NONE;
 
+static uint8 s_snifferVoltage = 0;
+
 SnifferStatus GetCurrentSnifferStatus()
 {
 	return s_snifferStatus;
@@ -26,6 +28,16 @@ SnifferStatus GetCurrentSnifferStatus()
 void SetCurrentSnifferStatus(SnifferStatus status)
 {
 	s_snifferStatus = status;
+}
+
+uint8 GetCurrentSnifferTargetVoltage()
+{
+	return s_snifferVoltage;
+}
+
+void SetCurrentSnifferTargetVoltage(uint8 voltage)
+{
+	s_snifferVoltage = voltage;
 }
 
 MENU_ID GetMainMenu(uint8 index)

@@ -13,12 +13,14 @@
 
 #include "AutoDetect.h"
 
+#include "Protocol.h"
+
 #include "npi.h"
 
 static void (*s_callback)(DetectType type, bool support) = NULL;
 
-#define AUTO_DETECT_INTERVAL    1000
-#define AUTO_DETECT_RELEASE_INTERVAL  500
+#define AUTO_DETECT_INTERVAL          1000ul
+#define AUTO_DETECT_RELEASE_INTERVAL  500ul
 
 //unit 100uV
 #define QC30_STEP     2000
@@ -41,6 +43,7 @@ typedef enum
 	status_detect_pd,
 } DetectStatus;
 
+//current detect status
 static DetectStatus s_status = status_detect_none;
 
 //usb pd callback
@@ -176,6 +179,12 @@ void StartAutoDetect(void (*callback)(DetectType type, bool support))
 	StartDetectDType(DetectDcpCallback);
 }
 
+//qc2.0 target voltage delta(V)
+static const uint8 QC20_TARGET_VOLTAGE_DELTA = 1u;
+
+//qc3.0 target voltage delta(0.1mV)
+static const uint16 QC30_TARGET_VOLTAGE_DELTA = 500ul;
+
 void AutoDetectTimeout()
 {
 	static uint32 qc30VoltageSaved = 0;
@@ -189,7 +198,7 @@ void AutoDetectTimeout()
 	{
 	case status_detect_qc20_9V:
 		TRACE("voltage:%d.%d\r\n", integer, frac);
-		if (integer >= 8 && integer <= 10)
+		if (integer >= QC20_9V - QC20_TARGET_VOLTAGE_DELTA && integer <= QC20_9V + QC20_TARGET_VOLTAGE_DELTA)
 		{
 			//qc2.0 9V OK
 			TRACE("qc2.0 9V supported\r\n");
@@ -217,7 +226,7 @@ void AutoDetectTimeout()
 
 	case status_detect_qc20_12V:
 		TRACE("voltage:%d.%d\r\n", integer, frac);
-		if (integer >= 11 && integer <= 13)
+		if (integer >= QC20_12V - QC20_TARGET_VOLTAGE_DELTA && integer <= QC20_12V + QC20_TARGET_VOLTAGE_DELTA)
 		{
 			//qc2.0 12V OK
 			TRACE("qc2.0 12V supported\r\n");
@@ -245,7 +254,7 @@ void AutoDetectTimeout()
 
 	case status_detect_qc20_20V:
 		TRACE("voltage:%d.%d\r\n", integer, frac);
-		if (integer >= 19 && integer <= 21)
+		if (integer >= QC20_20V - QC20_TARGET_VOLTAGE_DELTA && integer <= QC20_20V + QC20_TARGET_VOLTAGE_DELTA)
 		{
 			//qc2.0 20V OK
 			TRACE("qc2.0 20V supported\r\n");
@@ -294,8 +303,8 @@ void AutoDetectTimeout()
 			uint32 voltage = integer * 10000 + frac;
 
 			TRACE("qc3.0 now voltage:%d.%d\r\n", integer, frac);
-			if (voltage <= qc30VoltageSaved + QC30_STEP + 500
-				&& voltage + 500 >=  qc30VoltageSaved + QC30_STEP)
+			if (voltage >=  qc30VoltageSaved + QC30_STEP - QC30_TARGET_VOLTAGE_DELTA
+				&& voltage <= qc30VoltageSaved + QC30_STEP + QC30_TARGET_VOLTAGE_DELTA)
 			{
 				TRACE("qc3.0 supported\r\n");
 

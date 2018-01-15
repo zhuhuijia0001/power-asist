@@ -29,13 +29,21 @@ typedef enum
 static SampleItem s_curSelItem = Sample_Item_None;
 static SampleItem s_curEditItem = Sample_Item_None;
 
-static uint8 s_sampleRate = SAMPLE_MIN;
+static uint8 s_validSampleRates[] = 
+{
+	[0] = SAMPLE_RATE_1,
+	[1] = SAMPLE_RATE_2,
+	[2] = SAMPLE_RATE_5,
+	[3] = SAMPLE_RATE_10,
+	[4] = SAMPLE_RATE_20,
+};
+static uint8 s_validSampleRateIndex = 0;
 
 static uint8 s_sampleDuration = SAMPLE_DURATION_MIN;
 
 static void DrawNormalADC()
 {
-	DrawSampleNormalADC(s_sampleRate);
+	DrawSampleNormalADC(s_validSampleRates[s_validSampleRateIndex]);
 }
 
 static void DrawNormalDuration()
@@ -54,7 +62,7 @@ static void (*const s_drawSampleNormalItemFun[])() =
 
 static void DrawSelADC()
 {
-	DrawSampleSelADC(s_sampleRate);
+	DrawSampleSelADC(s_validSampleRates[s_validSampleRateIndex]);
 }
 
 static void DrawSelDuration()
@@ -74,7 +82,7 @@ static void (*const s_drawSampleSelItemFun[])() =
 //enter edit
 static void EnterEditADC()
 {
-	DrawSampleEditADC(s_sampleRate);
+	DrawSampleEditADC(s_validSampleRates[s_validSampleRateIndex]);
 }
 
 static void EnterEditDuration()
@@ -93,15 +101,17 @@ static void EditADC(uint8 key)
 {
 	if (key == KEY_LEFT)
 	{
-		s_sampleRate = (s_sampleRate - SAMPLE_MIN + (SAMPLE_MAX - SAMPLE_MIN + 1) - 1) % (SAMPLE_MAX - SAMPLE_MIN + 1) + SAMPLE_MIN;
-
-		DrawSampleEditADC(s_sampleRate);
+		s_validSampleRateIndex += sizeof(s_validSampleRates) / sizeof(s_validSampleRates[0]) - 1;
+		s_validSampleRateIndex %= sizeof(s_validSampleRates) / sizeof(s_validSampleRates[0]);
+		
+		DrawSampleEditADC(s_validSampleRates[s_validSampleRateIndex]);
 	}
 	else if (key == KEY_RIGHT)
 	{
-		s_sampleRate = (s_sampleRate - SAMPLE_MIN + 1) % (SAMPLE_MAX - SAMPLE_MIN + 1) + SAMPLE_MIN;
-
-		DrawSampleEditADC(s_sampleRate);
+		s_validSampleRateIndex++;
+		s_validSampleRateIndex %= sizeof(s_validSampleRates) / sizeof(s_validSampleRates[0]);
+		
+		DrawSampleEditADC(s_validSampleRates[s_validSampleRateIndex]);
 	}
 }
 
@@ -135,11 +145,30 @@ static void (*const s_editSampleItemFun[])(uint8 key) =
 
 static MENU_ID s_prevMenuId = MENU_ID_NONE;
 
+static uint8 FindSampleRateIndex(uint8 sample)
+{
+	for (uint8 i = 0; i < sizeof(s_validSampleRates) / sizeof(s_validSampleRates[0]); i++)
+	{
+		if (s_validSampleRates[i] == sample)
+		{
+			return i;
+		}
+	}
+
+	return 0xff;
+}
+
 static void OnMenuCreate(MENU_ID prevId)
 {
 	s_prevMenuId = prevId;
+
+	uint8 index = FindSampleRateIndex(g_sampleRate);
+	if (index == 0xff)
+	{
+		index = 0;
+	}
+	s_validSampleRateIndex = index;
 	
-	s_sampleRate = g_sampleRate;
 	s_sampleDuration = g_peakValleySampleDuration;
 	
 	DrawSampleMenu();
@@ -195,10 +224,10 @@ static void OnMenuKey(uint8 key, uint8 type)
 			if (s_curSelItem == Sample_Item_OK)
 			{
 				//save
-				if (s_sampleRate != g_sampleRate
+				if (s_validSampleRates[s_validSampleRateIndex] != g_sampleRate
 					|| s_sampleDuration != g_peakValleySampleDuration)
 				{
-				 	g_sampleRate = s_sampleRate;
+				 	g_sampleRate = s_validSampleRates[s_validSampleRateIndex];
 				 	g_peakValleySampleDuration = s_sampleDuration;
 				 	
 					SaveParameter();

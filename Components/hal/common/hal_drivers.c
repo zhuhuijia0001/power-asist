@@ -129,7 +129,7 @@ void HalDriverInit (void)
 #if (defined HAL_UART) && (HAL_UART == TRUE)
 	HalUARTInit();
 #endif
-
+
 #ifdef DEBUG_PRINT
 	NPI_InitTransport(NULL);
 #endif
@@ -377,4 +377,3 @@ void Hal_ProcessPoll ()
 
 /**************************************************************************************************
 **************************************************************************************************/
-

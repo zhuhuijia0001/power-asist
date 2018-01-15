@@ -39,7 +39,7 @@ void InitMeter(uint16 cali)
 {
 	//Init ina226
 	uint16 config = (0x04 << 12)
-					| (0x03 << 9)   //number of average is 64
+					| (0x02 << 9)   //number of average is 16
 					| (0x04 << 6)   //vbus conversion time 1.1ms
 					| (0x04 << 3)   //shunt conversion time is 1.1ms
 					| (0x07 << 0)   //shunt and bus, continuous
@@ -64,9 +64,11 @@ bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
 		return false;
 	}
 
-	uint32 voltage = val;
+	//TRACE("voltage adc:0x%04X\r\n", val);
+	
+	uint32 voltage = val ;
 	//LSB = 1.25mV
-	voltage *= 1250;
+	voltage *= 1250ul;
 
 	if (VInt != NULL)
 	{
@@ -99,7 +101,7 @@ bool GetShuntVoltage(uint8 *mVInt, uint16 *mVFrac)
 	
 	//LSB = 2.5uV
 	uint32 voltage = val;
-	voltage = (voltage * 250 + 5) / 10;
+	voltage = (voltage * 250ul + 5) / 10;
 	
 	if (mVInt != NULL)
 	{
@@ -132,7 +134,7 @@ bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
 	
 	//LSB = 0.1mA
 	uint32 current = val;
-	current *= 100;
+	current *= 100ul;
 	
 	if (AInt != NULL)
 	{
@@ -160,7 +162,7 @@ bool GetLoadPower(uint8 *WInt, uint16 *WFrac)
 	
 	//LSB = 2.5mW
 	uint32 power = val;
-	power *= 2500;
+	power *= 2500ul;
 	
 	if (WInt != NULL)
 	{

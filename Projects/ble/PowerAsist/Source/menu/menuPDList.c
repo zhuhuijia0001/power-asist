@@ -44,6 +44,7 @@ static void CapsCallback(uint8 res, const CapabilityList *list)
 		s_curIndex = 0;
 
 		SetCurrentSnifferStatus(SNIFFER_PD);
+		SetCurrentSnifferTargetVoltage(s_caps[s_curIndex].voltage / 1000ul);
 		
 		DrawPDCapabilityList(s_caps, s_capCnt);
 

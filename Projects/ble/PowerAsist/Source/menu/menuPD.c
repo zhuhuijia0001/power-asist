@@ -27,8 +27,6 @@
 
 #define PD_MENU_TIMERID          (POWERASIST_FIRST_TIMERID + 0)
 
-#define PD_REFRESH_INTERVAL      200
-
 static uint8 s_curCapIndex = 0;
 
 static const CapabilityStruct *s_caps = NULL;
@@ -41,7 +39,7 @@ void SetPDCapIndex(uint8 index)
 	s_curCapIndex = index;
 }
 
-static void RequestCallback(uint8 res)
+static void RequestCallback(uint8 requestedVoltage, uint8 res)
 {
 	if (GetCurrentMenu() != MENU_ID_PD)
 	{
@@ -52,6 +50,8 @@ static void RequestCallback(uint8 res)
 	{
 		TRACE("request accept\r\n");
 
+		SetCurrentSnifferTargetVoltage(requestedVoltage);
+		
 		DrawPDTipAccept();
 	}
 	else if (res == REQUEST_PS_RDY)
@@ -100,8 +100,9 @@ static void OnMenuCreate(MENU_ID prevId)
 	DrawPDItem(s_curCapIndex, &s_caps[s_curCapIndex]);
 
 	RefreshPDMenuContent();
-	
-	StartPowerAsistTimer(PD_MENU_TIMERID, PD_REFRESH_INTERVAL, true);
+
+	uint32 sampleInterval = 1000ul / g_sampleRate;
+	StartPowerAsistTimer(PD_MENU_TIMERID, sampleInterval, true);
 	
 	PdRequest(s_curCapIndex + 1, RequestCallback);
 	s_requesting = true;

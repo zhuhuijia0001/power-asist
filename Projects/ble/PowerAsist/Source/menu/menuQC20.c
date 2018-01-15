@@ -18,6 +18,7 @@
 
 #include "Global.h"
 
+#include "Protocol.h"
 #include "Parameter.h"
 
 #include "powerAsistGATTprofile.h"
@@ -26,8 +27,6 @@
 #include "npi.h"
 
 #define QC20_MENU_TIMERID          (POWERASIST_FIRST_TIMERID + 0)
-
-#define QC20_REFRESH_INTERVAL      200
 
 typedef enum
 {
@@ -106,6 +105,9 @@ static void QC20Callback(bool supported)
 		TRACE("qc2.0 supported\r\n");
 
 		SetCurrentSnifferStatus(SNIFFER_QC_20);
+
+		//default is 5V
+		SetCurrentSnifferTargetVoltage(QC20_5V);
 	}
 	else
 	{
@@ -127,7 +129,8 @@ static void OnMenuCreate(MENU_ID prevId)
 	
 	RefreshQC20MenuContent();
 
-	StartPowerAsistTimer(QC20_MENU_TIMERID, QC20_REFRESH_INTERVAL, true);
+	uint32 sampleInterval = 1000ul / g_sampleRate;
+	StartPowerAsistTimer(QC20_MENU_TIMERID, sampleInterval, true);
 
 	s_qcChecked = false;
 	StartQC20Sniffer(QC20Callback);
@@ -150,6 +153,7 @@ static void MessageCallback(uint8 result)
 		StopQC20Sniffer();
 
 		SetCurrentSnifferStatus(SNIFFER_NONE);
+		SetCurrentSnifferTargetVoltage(0);
 	}
 	
 	SwitchToMenu(GetMainMenu(g_mainMenu));
@@ -202,6 +206,28 @@ static void OnMenuKey(uint8 key, uint8 type)
 				if (GetCurrentSnifferStatus() == SNIFFER_QC_20)
 				{
 					s_snifferItemFun[s_curSelItem]();
+
+					uint8 voltage = 0;
+					switch (s_curSelItem)
+					{
+					case qc20_Item_5v:
+						voltage = QC20_5V;
+						break;
+						
+					case qc20_Item_9v:
+						voltage = QC20_9V;
+						break;
+						
+					case qc20_Item_12v:
+						voltage = QC20_12V;
+						break;
+						
+					case qc20_Item_20v:
+						voltage = QC20_20V;
+						break;
+					}
+
+					SetCurrentSnifferTargetVoltage(voltage);
 				}
 			}
 			

@@ -22,14 +22,18 @@
 #define TYPE_QUERY_PARAM            9
 #define TYPE_SET_SAMPLE             10
 #define TYPE_SET_BLE_NAME           11
+#define TYPE_SET_PEAK_DURATION      12
+#define TYPE_QUERY_CHARGE_MODE      13
 
 //packet data len
 #define SIZE_ENABLE_TRANSFER        2
 #define SIZE_ENABLE_QUICK_CHARGE    2
 #define SIZE_ENABLE_TRIGGER         3
 #define SIZE_SET_TIME               7
-#define SIZE_SET_SAMPLE             3
+#define SIZE_SET_SAMPLE             2
 #define SIZE_SET_BLE_NAME           21
+#define SIZE_SET_PEAK_DURATION      2
+
 
 //data bitmap
 #define DATA_VOLTAGE_POS            0

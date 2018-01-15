@@ -26,8 +26,6 @@
 
 #define QC30_MENU_TIMERID          (POWERASIST_FIRST_TIMERID + 0)
 
-#define QC30_REFRESH_INTERVAL      200
-
 typedef enum
 {
 	qc30_Item_decrease = 0,
@@ -78,6 +76,7 @@ static void QC20Callback(bool supported)
 		SetQC30Mode();
 
 		SetCurrentSnifferStatus(SNIFFER_QC_30);
+		SetCurrentSnifferTargetVoltage(0);
 		
 		TRACE("qc2.0 supported\r\n");
 	}
@@ -117,8 +116,9 @@ static void OnMenuCreate(MENU_ID prevId)
 	s_drawQC30SelItemFun[s_curSelItem]();
 
 	RefreshQC30MenuContent();
-	
-	StartPowerAsistTimer(QC30_MENU_TIMERID, QC30_REFRESH_INTERVAL, true);
+
+	uint32 sampleInterval = 1000ul / g_sampleRate;
+	StartPowerAsistTimer(QC30_MENU_TIMERID, sampleInterval, true);
 
 	s_qcChecked = false;
 	StartQC20Sniffer(QC20Callback);

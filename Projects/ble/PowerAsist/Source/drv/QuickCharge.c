@@ -137,6 +137,8 @@ void StopQC20Sniffer()
 
 	SET_GPIO_INPUT(PIN_QC_DRIVE_C);
 	SET_GPIO_INPUT(PIN_QC_DRIVE_D);
+
+	TRACE("release qc2.0\r\n");
 }
 
 void SetQC20Sniffer5V()

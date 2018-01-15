@@ -30,8 +30,7 @@
 
 #define MAIN_MENU_TIMERID_RTC          (POWERASIST_FIRST_TIMERID + 1)
 
-#define MAIN_REFRESH_INTERVAL      200
-#define MAIN_RTC_INTERVAL          1000
+#define MAIN_RTC_INTERVAL          1000ul
 
 static uint8 s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 
@@ -92,8 +91,9 @@ static void OnMenuCreate(MENU_ID prevId)
 
 	RefreshMainMenuMeasure();
 	RefreshMainMenuRTC();
-	
-	StartPowerAsistTimer(MAIN_MENU_TIMERID_MEASURE, MAIN_REFRESH_INTERVAL, true);
+
+	uint32 sampleInterval = 1000ul / g_sampleRate;
+	StartPowerAsistTimer(MAIN_MENU_TIMERID_MEASURE, sampleInterval, true);
 
 	StartPowerAsistTimer(MAIN_MENU_TIMERID_RTC, MAIN_RTC_INTERVAL, true);
 }

@@ -106,7 +106,7 @@ extern void ProcessUsbPdTimeout();
 
 extern void PdGetSourceCap(void (*callback)(uint8 res, const CapabilityList *list));
 
-extern void PdRequest(uint8 pos, void (*callback)(uint8 res));
+extern bool PdRequest(uint8 pos, void (*callback)(uint8 requestedVoltage, uint8 res));
 
 extern const CapabilityList *GetPDCaps();
 

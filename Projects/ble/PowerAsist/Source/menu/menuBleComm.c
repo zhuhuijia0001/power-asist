@@ -1,6 +1,7 @@
 #include "bcomdef.h"
 #include "hal_key.h"
 
+#include "OSAL.h"
 #include "menuOp.h"
 #include "menu.h"
 
@@ -29,8 +30,6 @@
 //timer id
 #define BLE_COM_MENU_TIMERID_MEASURE      (POWERASIST_FIRST_TIMERID + 0)
 
-#define BLE_COM_MENU_REFRESH_INTERVAL      100ul
-
 #define BLE_COM_MENU_TIMERID_PARSE_PACKET (POWERASIST_FIRST_TIMERID + 1)
 
 #define BLE_COM_MENU_PARSE_PACKET_TIMEOUT  5000ul
@@ -45,7 +44,7 @@ static uint8 s_curDataBitmap = 0x00;
 static uint8 s_curMode = MODE_NORMAL;
 
 //current voltage of mode 
-static uint8 s_curModeVoltage = 5;
+static uint8 s_curModeVoltage = 0;
 
 static MENU_ID s_prevId = MENU_ID_NONE;
 
@@ -62,6 +61,8 @@ static void OnMenuCreate(MENU_ID prevId)
 
 static void OnMenuDestroy(MENU_ID nextId)
 {
+	EnableBleAdvertise(false);
+	
 	ClearScreen(BLACK);
 }
 
@@ -75,8 +76,6 @@ static void OnMenuKey(uint8 key, uint8 type)
 
 			if (s_curBleStatus == BLE_STATUS_ADVERTISING)
 			{
-				EnableBleAdvertise(false);
-				
 				SwitchToMenu(s_prevId);
 			}
 			
@@ -136,8 +135,7 @@ static void OnMenuTimeout(uint16 timerId)
 		
 		uint16 frac;
 
-		uint8 index = 0;
-		
+		uint8 index = 0;		
 		if (s_curDataBitmap & DATA_VOLTAGE_MASK)
 		{
 			GetBusVoltage(&integer, &frac);
@@ -242,12 +240,15 @@ static void OnMenuBleStatusChanged(uint16 status)
 
 	case BLE_STATUS_DISCONNECTED:
 		TRACE("disconnected..\r\n");
+
+		StopPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE);
 		
 		break;
 	}
 
 	s_curBleStatus = status;
 }
+
 
 static bool s_qcEnabled = false;
 
@@ -257,6 +258,12 @@ static void QC20Callback(bool supported)
 	{
 		TRACE("qc2.0 supported\r\n");
 
+		SetCurrentSnifferStatus(SNIFFER_QC_20);
+
+		//default is 5V
+		SetCurrentSnifferTargetVoltage(QC20_5V);
+		s_curModeVoltage = QC20_5V;
+		
 		s_qcEnabled = true;
 	}
 	else
@@ -276,7 +283,12 @@ static void ProcessQc20Enable(uint8 enable)
 	else
 	{
 		StopQC20Sniffer();
-
+		
+		SetCurrentSnifferStatus(SNIFFER_NONE);
+		//default is 5V
+		SetCurrentSnifferTargetVoltage(QC20_5V);
+		s_curModeVoltage = 0;
+		
 		s_qcEnabled = false;
 	}
 
@@ -294,6 +306,11 @@ static void QC30Callback(bool supported)
 		TRACE("qc2.0 supported\r\n");
 
 		SetQC30Mode();
+
+		SetCurrentSnifferStatus(SNIFFER_QC_30);
+		SetCurrentSnifferTargetVoltage(0);
+
+		s_curModeVoltage = 0;
 		
 		s_qcEnabled = true;
 	}
@@ -315,6 +332,11 @@ static void ProcessQc30Enable(uint8 enable)
 	{
 		StopQC20Sniffer();
 
+		SetCurrentSnifferStatus(SNIFFER_NONE);
+		//default is 5V
+		SetCurrentSnifferTargetVoltage(QC20_5V);
+		s_curModeVoltage = 0;
+		
 		s_qcEnabled = false;
 	}
 
@@ -327,7 +349,6 @@ static void ProcessQc30Enable(uint8 enable)
 
 static PDItem s_pdItem[MAX_CAPABILITIES];
 static uint8 s_pdCnt = 0;
-static uint8 s_curPdTriggerVoltage = 0;
 
 static void PdCapsCallback(uint8 res, const CapabilityList *list)
 {
@@ -348,6 +369,12 @@ static void PdCapsCallback(uint8 res, const CapabilityList *list)
 			s_pdItem[i].current = list->caps[i].maxMa;
 		}
 		s_pdCnt = list->cnt;
+
+		SetCurrentSnifferStatus(SNIFFER_PD);
+		SetCurrentSnifferTargetVoltage(s_pdItem[0].voltage);
+
+		s_curModeVoltage = s_pdItem[0].voltage;
+		
 		len = BuildEnablePdRetPacket(buf, sizeof(buf), PD_ENABLE, RESULT_OK, s_pdItem, s_pdCnt);
 	}
 	else if (res == GET_CAPS_FAILED)
@@ -371,6 +398,11 @@ static void ProcessPdEnable(uint8 enable)
 	{
 		ExitUsbPd();
 
+		SetCurrentSnifferStatus(SNIFFER_NONE);
+		SetCurrentSnifferTargetVoltage(QC20_5V);
+
+		s_curModeVoltage = 0;
+		
 		uint8 buf[MAX_PACKET_LEN];
 
 		uint8 len = BuildEnablePdRetPacket(buf, sizeof(buf), PD_DISABLE, RESULT_OK, NULL, 0);
@@ -378,7 +410,7 @@ static void ProcessPdEnable(uint8 enable)
 	}
 }
 
-static void PdRequestCallback(uint8 result)
+static void PdRequestCallback(uint8 requestedVoltage, uint8 result)
 {
 	uint8 ret;
 	bool needRet = false;
@@ -388,6 +420,9 @@ static void PdRequestCallback(uint8 result)
 	case REQUEST_ACCEPT:	
 		ret = RESULT_OK;
 		needRet = true;
+
+		SetCurrentSnifferTargetVoltage(requestedVoltage);
+		s_curModeVoltage = requestedVoltage;
 		
 		break;
 		
@@ -403,7 +438,7 @@ static void PdRequestCallback(uint8 result)
 	{
 		uint8 buf[MAX_PACKET_LEN];
 
-		uint8 len = BuildTriggerRetPacket(buf, sizeof(buf), MODE_PD, s_curPdTriggerVoltage, ret);
+		uint8 len = BuildTriggerRetPacket(buf, sizeof(buf), MODE_PD, requestedVoltage, ret);
 		SendBleData(buf, len);
 	}
 }
@@ -425,6 +460,9 @@ static void ProcessTrigger(uint8 mode, uint8 modeVoltage)
 			{
 				SetQC20Sniffer5V();
 
+				SetCurrentSnifferTargetVoltage(QC20_5V);
+				s_curModeVoltage = QC20_5V;
+
 				result = true;
 			}
 			
@@ -435,6 +473,9 @@ static void ProcessTrigger(uint8 mode, uint8 modeVoltage)
 			{
 				SetQC20Sniffer9V();
 
+				SetCurrentSnifferTargetVoltage(QC20_9V);
+				s_curModeVoltage = QC20_9V;
+				
 				result = true;
 			}
 			
@@ -445,6 +486,9 @@ static void ProcessTrigger(uint8 mode, uint8 modeVoltage)
 			{
 				SetQC20Sniffer12V();
 
+				SetCurrentSnifferTargetVoltage(QC20_12V);
+				s_curModeVoltage = QC20_12V;
+				
 				result = true;
 			}
 			
@@ -455,6 +499,9 @@ static void ProcessTrigger(uint8 mode, uint8 modeVoltage)
 			{
 				SetQC20Sniffer20V();
 
+				SetCurrentSnifferTargetVoltage(QC20_20V);
+				s_curModeVoltage = QC20_20V;
+				
 				result = true;
 			}
 			
@@ -503,16 +550,12 @@ static void ProcessTrigger(uint8 mode, uint8 modeVoltage)
 
 			if (i < s_pdCnt)
 			{
-				//can request
-				s_curPdTriggerVoltage = modeVoltage;
-				
+				//can request				
 				PdRequest(i + 1, PdRequestCallback);
 			}
 			else
 			{
 				//not found
-				s_curPdTriggerVoltage = 0;
-				
 				uint8 len = BuildTriggerRetPacket(buf, sizeof(buf), mode, modeVoltage, RESULT_FAILED);
 
 				SendBleData(buf, len);
@@ -632,10 +675,26 @@ static void ProcessAutoDetect()
 //process time setting
 static void ProcessSetTime(const TimeStruct *time)
 {
-	SetRTCTime(time);
+	uint8 result;
+
+	TRACE("%d-%d-%d %d:%d:%d\r\n", time->year, time->month, time->day,
+			time->hour, time->minute, time->second);
+			
+	if (SetRTCTime(time))
+	{
+		TRACE("set time OK\r\n");
+
+		result = RESULT_OK;
+	}
+	else
+	{
+		TRACE("set time failed\r\n");
+
+		result = RESULT_FAILED;
+	}
 
 	uint8 buf[MAX_PACKET_LEN];
-	uint8 len = BuildSetTimeRetPacket(buf, sizeof(buf), RESULT_OK);
+	uint8 len = BuildSetTimeRetPacket(buf, sizeof(buf), result);
 	SendBleData(buf, len);
 }
 
@@ -643,18 +702,44 @@ static void ProcessSetTime(const TimeStruct *time)
 static void ProcessQueryParam()
 {
 	uint8 buf[MAX_PACKET_LEN];
-	uint8 len = BuildQueryParamRetPacket(buf, sizeof(buf), g_sampleRate, g_peakValleySampleDuration,
-					g_bleName, FIRMWARE_VER);
+
+	uint8 ver[FIRMWARE_VER_LEN];
+	osal_memset(ver, 0, sizeof(ver));
+	osal_memcpy(ver, FIRMWARE_VER, osal_strlen(FIRMWARE_VER));
+	uint8 len = BuildQueryParamRetPacket(buf, sizeof(buf), g_sampleRate, g_peakValleySampleDuration, ver);
 	SendBleData(buf, len);				
 }
 
-//process set sample
-static void ProcessSetSample(uint8 sample, uint8 peakDuration)
+static bool IsValidSampleRate(uint8 sample)
 {
-	g_sampleRate = sample;
-	g_peakValleySampleDuration = peakDuration;
+	if (sample == SAMPLE_RATE_20
+		|| sample == SAMPLE_RATE_10
+		|| sample == SAMPLE_RATE_5
+		|| sample == SAMPLE_RATE_2
+		|| sample == SAMPLE_RATE_1)
+	{
+		return true;
+	}
 
-	SaveParameter();
+	return false;
+}
+
+//process set sample
+static void ProcessSetSample(uint8 sample)
+{
+	if (!IsValidSampleRate(sample))
+	{
+		sample = DEFAULT_SAMPLE_RATE;
+	}
+	
+	if (sample != g_sampleRate)
+	{
+		g_sampleRate = sample;
+		SaveParameter();
+
+		uint32 sampleInterval = 1000ul / g_sampleRate;
+		StartPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE, sampleInterval, true);
+	}
 
 	uint8 buf[MAX_PACKET_LEN];
 	uint8 len = BuildSetSampleRetPacket(buf, sizeof(buf), RESULT_OK);
@@ -664,15 +749,61 @@ static void ProcessSetSample(uint8 sample, uint8 peakDuration)
 //process set ble name
 static void ProcessSetBleName(const uint8 name[MAX_BLE_NAME_LEN])
 {
-	SetBleName(name);
+	UpdateBleName(name);
 
+	osal_memcpy(g_bleName, name, MAX_BLE_NAME_LEN);
+	SaveParameter();
+	
 	uint8 buf[MAX_PACKET_LEN];
 	uint8 len = BuildSetBleNameRetPacket(buf, sizeof(buf), RESULT_OK);
 	SendBleData(buf, len);
 }
 
+//process set peak duration
+static void ProcessSetPeakDuration(uint8 peakDuration)
+{
+	g_peakValleySampleDuration = peakDuration;
+
+	SaveParameter();
+
+	uint8 buf[MAX_PACKET_LEN];
+	uint8 len = BuildSetPeakDurationRetPacket(buf, sizeof(buf), RESULT_OK);
+	SendBleData(buf, len);
+}
+
+//process query charge mode
+static void ProcessQueryChargeMode()
+{
+	uint8 mode = MODE_NORMAL;
+	SnifferStatus status = GetCurrentSnifferStatus();
+	switch (status)
+	{
+	case SNIFFER_QC_20:
+		mode = MODE_QC20;
+		break;
+
+	case SNIFFER_QC_30:
+		mode = MODE_QC30;
+		break;
+
+	case SNIFFER_PD:
+		mode = MODE_PD;
+		break;
+	}
+	uint8 voltage = GetCurrentSnifferTargetVoltage();
+
+	uint8 buf[MAX_PACKET_LEN];
+	uint8 len = BuildQueryChargeModeRetPacket(buf, sizeof(buf), mode, voltage, RESULT_OK);
+	SendBleData(buf, len);
+}
+
 static void ProcessBleCom(const uint8 *buf, uint8 len)
 {
+	//for echo test
+#if 0
+	PowerAsistProfile_Notify(buf, len);
+#else
+
 	uint8 parsedLen;
 
 	uint8 res = ParsePacket(buf, len, &parsedLen);
@@ -684,7 +815,7 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 		uint8 dataLen = GetPacketDataLen();
 		const uint8 *data = GetPacketData();
 
-		TRACE("type:%d,dataLen:%d,data[0]:0x%02X\r\n", type, dataLen, data[0]);
+		//TRACE("type:%d,dataLen:%d,data[0]:0x%02X\r\n", type, dataLen, data[0]);
 		
 		switch (type)
 		{
@@ -698,17 +829,12 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 					
 					if (dataBitmap)
 					{
-						if (s_curDataBitmap == 0)
-						{
-							StartPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE, BLE_COM_MENU_REFRESH_INTERVAL, true);
-						}
+						uint32 sampleInterval = 1000ul / g_sampleRate;
+						StartPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE, sampleInterval, true);
 					}
 					else
 					{
-						if (s_curDataBitmap)
-						{
-							StopPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE);
-						}
+						StopPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE);
 					}
 
 					s_curDataBitmap = dataBitmap;
@@ -822,15 +948,37 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 		case TYPE_SET_SAMPLE:
 			{
 				uint8 sample;
-				uint8 peakDuration;
-				if (ParseSetSamplePacket(data, dataLen, &sample, &peakDuration))
+				if (ParseSetSamplePacket(data, dataLen, &sample))
 				{
-					ProcessSetSample(sample, peakDuration);
+					TRACE("Parse set sample OK\r\n");
+					
+					ProcessSetSample(sample);
+				}
+				else
+				{
+					TRACE("Parse set sample failed\r\n");
 				}
 			}
 			
 			break;
 
+		case TYPE_SET_PEAK_DURATION:
+			{
+				uint8 peakDuration;
+				if (ParseSetPeakDurationPacket(data, dataLen, &peakDuration))
+				{
+					TRACE("Parse set peak duration OK\r\n");
+
+					ProcessSetPeakDuration(peakDuration);
+				}
+				else
+				{
+					TRACE("Parse set peak duration failed\r\n");
+				}
+			}
+			
+			break;
+			
 		case TYPE_SET_BLE_NAME:
 			{
 				uint8 name[MAX_BLE_NAME_LEN];
@@ -844,6 +992,13 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 				{
 					TRACE("Parse set name failed\r\n");
 				}
+			}
+			
+			break;
+
+		case TYPE_QUERY_CHARGE_MODE:
+			{
+				ProcessQueryChargeMode();
 			}
 			
 			break;
@@ -861,6 +1016,7 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 
 		StartPowerAsistTimer(BLE_COM_MENU_TIMERID_PARSE_PACKET, BLE_COM_MENU_PARSE_PACKET_TIMEOUT, false);
 	}
+#endif
 }
 
 static void OnMenuBleDataReceived(uint8 *buf, uint8 len)

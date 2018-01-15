@@ -6,6 +6,7 @@
 
 #include "ISL1208.h"
 
+//default time
 TimeStruct g_defaultTime = 
 {
 	.second = 0,
@@ -39,25 +40,30 @@ bool SetRTCTime(const TimeStruct *time)
 		return false;
 	}
 	
-	uint8 dat[7];
-	dat[0] = IntToBcd(time->second);
-	dat[1] = IntToBcd(time->minute);
-	dat[2] = IntToBcd(time->hour) | 0x80;
-	dat[3] = IntToBcd(time->day);
-	dat[4] = IntToBcd(time->month);
-	dat[5] = IntToBcd(time->year - 2000);
-	dat[6] = IntToBcd(time->dayOfWeek);
+	uint8 dat[ISL1208_RTC_SECTION_LEN];
+	dat[ISL1208_REG_SC] = IntToBcd(time->second);
+	dat[ISL1208_REG_MN] = IntToBcd(time->minute);
+	dat[ISL1208_REG_HR] = IntToBcd(time->hour) | ISL1208_REG_HR_MIL;
+	dat[ISL1208_REG_DT] = IntToBcd(time->day);
+	dat[ISL1208_REG_MO] = IntToBcd(time->month);
+	dat[ISL1208_REG_YR] = IntToBcd(time->year - 2000);
+	dat[ISL1208_REG_DW] = IntToBcd(time->dayOfWeek & 7);
 
 	//enable write rtc
-	if (!WriteISL1208Byte(ISL1208_REG_SR, 0x90))
+	bool res = WriteISL1208Byte(ISL1208_REG_SR, ISL1208_REG_SR_ARST | ISL1208_REG_SR_WRTC);
+	if (!res)
 	{
 		return false;
 	}
 	
-	bool res = WriteISL1208Data(ISL1208_REG_SC, dat, sizeof(dat));
+	res = WriteISL1208Data(ISL1208_REG_SC, dat, sizeof(dat));
+	if (!res)
+	{
+		return false;
+	}
 
 	//disable write rtc
-	WriteISL1208Byte(ISL1208_REG_SR, 0x80);
+	res = WriteISL1208Byte(ISL1208_REG_SR, ISL1208_REG_SR_ARST);
 
 	return res;
 }
@@ -66,19 +72,34 @@ bool GetRTCTime(TimeStruct *time)
 {
 	if (time != NULL)
 	{
-		uint8 dat[7];
+		uint8 dat[ISL1208_RTC_SECTION_LEN];
 		if (!ReadISL1208Data(ISL1208_REG_SC, dat, sizeof(dat), NULL))
 		{
 			return false;
 		}
 		
-		time->second    = BcdToInt(dat[0]);
-		time->minute    = BcdToInt(dat[1]);
-		time->hour      = BcdToInt(dat[2] & 0x3f);
-		time->day       = BcdToInt(dat[3]);
-		time->month     = BcdToInt(dat[4]);
-		time->year      = BcdToInt(dat[5]) + 2000;
-		time->dayOfWeek = BcdToInt(dat[6]);
+		time->second = BcdToInt(dat[ISL1208_REG_SC]);
+		time->minute = BcdToInt(dat[ISL1208_REG_MN]);
+		if (dat[ISL1208_REG_HR] & ISL1208_REG_HR_MIL)
+		{
+			/* 24h format */
+			time->hour = BcdToInt(dat[ISL1208_REG_HR] & 0x3f);
+		}
+		else
+		{
+			/* 12h format */
+			time->hour = BcdToInt(dat[ISL1208_REG_HR] & 0x1f);
+			if (dat[ISL1208_REG_HR] & ISL1208_REG_HR_PM)
+			{
+				/* PM flag */
+				time->hour += 12;
+			}
+		}
+	
+		time->day       = BcdToInt(dat[ISL1208_REG_DT]);
+		time->month     = BcdToInt(dat[ISL1208_REG_MO]);
+		time->year      = BcdToInt(dat[ISL1208_REG_YR]) + 2000;
+		time->dayOfWeek = BcdToInt(dat[ISL1208_REG_DW]);
 
 		return true;
 	}

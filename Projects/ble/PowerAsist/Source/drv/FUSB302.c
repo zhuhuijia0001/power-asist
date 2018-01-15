@@ -334,10 +334,13 @@ void ProcessFUSB302Interrupt(void)
 	if (reg & FUSB302_REG_INTERRUPT_CRC_CHK)
 	{
 		uint8 buf[40];
+		
+		//read token(1B) + header(2B)
 		if (ReadFUSB302Data(FUSB302_REG_FIFOS, buf, 3, NULL))
 		{		
 			uint16 header = *(uint16 *)(buf + 1);
 			uint16 cnt = PD_HEADER_CNT(header);
+			//read data + crc(4B)
 			ReadFUSB302Data(FUSB302_REG_FIFOS, buf, (cnt + 1) * 4, NULL);
 
 			/*

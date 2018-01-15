@@ -16,7 +16,7 @@ static CapabilityList s_capsList;
 
 static void (*s_getCapsCallback)(uint8 res, const CapabilityList *list) = NULL;
 
-static void (*s_requestCallback)(uint8 res) = NULL;
+static void (*s_requestCallback)(uint8 requestedVoltage, uint8 res) = NULL;
 
 //usb pd status
 typedef enum
@@ -33,6 +33,8 @@ typedef enum
 } PD_STATUS;
 
 static PD_STATUS s_pd_status = pd_status_idle;
+
+static uint8 s_requestedVoltage = 0;
 
 static void IncreaseMsgID()
 {
@@ -66,7 +68,7 @@ static void ReceiveCallback(uint16 header, const uint32 *pdo, uint8 cnt)
 
 			if (s_requestCallback != NULL)
 			{
-				s_requestCallback(REQUEST_ACCEPT);
+				s_requestCallback(s_requestedVoltage, REQUEST_ACCEPT);
 			}
 			//osal_start_timerEx(Hal_TaskID, USB_PD_EVENT, 500);
 
@@ -79,7 +81,7 @@ static void ReceiveCallback(uint16 header, const uint32 *pdo, uint8 cnt)
 			
 			if (s_requestCallback != NULL)
 			{
-				s_requestCallback(REQUEST_PS_RDY);
+				s_requestCallback(s_requestedVoltage, REQUEST_PS_RDY);
 			}
 
 			s_pd_status = pd_status_idle;
@@ -93,7 +95,7 @@ static void ReceiveCallback(uint16 header, const uint32 *pdo, uint8 cnt)
 			
 			if (s_requestCallback != NULL)
 			{
-				s_requestCallback(REQUEST_REJECT);
+				s_requestCallback(s_requestedVoltage, REQUEST_REJECT);
 			}
 
 			s_pd_status = pd_status_idle;
@@ -117,8 +119,8 @@ static void ReceiveCallback(uint16 header, const uint32 *pdo, uint8 cnt)
 			
 			for (i = 0; i < cnt; i++)
 			{
-				s_capsList.caps[i].voltage = CAP_FPDO_VOLTAGE(*(pdo + i)) * 50;
-				s_capsList.caps[i].maxMa = CAP_FPDO_CURRENT(*(pdo + i)) * 10;
+				s_capsList.caps[i].voltage = CAP_FPDO_VOLTAGE(*(pdo + i)) * 50;  //unit is 50mV
+				s_capsList.caps[i].maxMa = CAP_FPDO_CURRENT(*(pdo + i)) * 10;    //unit is 10mA
 				s_capsList.caps[i].opMa = s_capsList.caps[i].maxMa;
 			}
 
@@ -155,21 +157,24 @@ void PdGetSourceCap(void (*callback)(uint8 res, const CapabilityList *list))
 	osal_start_timerEx(Hal_TaskID, USB_PD_EVENT, 200);
 }
 
-void PdRequest(uint8 pos, void (*callback)(uint8 res))
+bool PdRequest(uint8 pos, void (*callback)(uint8 requestedVoltage, uint8 res))
 {
 	if (pos < 1 || pos > MAX_CAPABILITIES)
 	{
-		callback(REQUEST_FAILED);
-		
-		return;
+		return false;
 	}
 
 	s_requestCallback = callback;
+
+	s_requestedVoltage = s_capsList.caps[pos - 1].voltage / 1000ul;
+	
 	uint32 rdo = RDO_FIXED(pos, s_capsList.caps[pos - 1].opMa, s_capsList.caps[pos - 1].maxMa, 0);
 	SendRequest(rdo);
 
 	s_pd_status = pd_status_wait_accept;
 	osal_start_timerEx(Hal_TaskID, USB_PD_EVENT, 500);
+
+	return true;
 }
 
 void EnterUsbPd(void (*callback)(uint8 res, const CapabilityList *list))
@@ -214,7 +219,7 @@ void ProcessUsbPdTimeout()
 	{
 		if (s_requestCallback != NULL)
 		{
-			s_requestCallback(REQUEST_FAILED);
+			s_requestCallback(s_requestedVoltage, REQUEST_FAILED);
 		}
 
 		s_pd_status = pd_status_idle;

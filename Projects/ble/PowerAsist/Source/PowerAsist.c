@@ -94,10 +94,10 @@
 #define DEFAULT_DISCOVERABLE_MODE             GAP_ADTYPE_FLAGS_GENERAL
 
 // Minimum connection interval (units of 1.25ms, 80=100ms) if automatic parameter update request is enabled
-#define DEFAULT_DESIRED_MIN_CONN_INTERVAL     24
+#define DEFAULT_DESIRED_MIN_CONN_INTERVAL     8
 
 // Maximum connection interval (units of 1.25ms, 800=1000ms) if automatic parameter update request is enabled
-#define DEFAULT_DESIRED_MAX_CONN_INTERVAL     40
+#define DEFAULT_DESIRED_MAX_CONN_INTERVAL     10
 
 // Slave latency to use if automatic parameter update request is enabled
 #define DEFAULT_DESIRED_SLAVE_LATENCY         0
@@ -239,17 +239,10 @@ static powerAsistProfileCBs_t powerAsistProfileCBs =
 /*********************************************************************
  * PUBLIC FUNCTIONS
  */
-
-void SetBleName(const uint8 *name)
+static void SetBleName(const uint8 name[MAX_BLE_NAME_LEN])
 {
-	int i;
-	for (i = 0; i < MAX_BLE_NAME_LEN; i++)
-	{
-	  	if (name[i] == '\0')
-		{
-		  	break;
-		}
-		
+	for (int i = 0; i < MAX_BLE_NAME_LEN; i++)
+	{	
 		scanRspData[2 + i] = name[i];
 
 		attDeviceName[i] = name[i];
@@ -373,8 +366,21 @@ void StartPowerAsistTimer(uint16 timerId, uint32 timeout, bool repeat)
 }
 
 void StopPowerAsistTimer(uint16 timerId)
-{
+{	
 	osal_stop_timerEx(powerAsist_TaskID, 1 << timerId);
+}
+
+void UpdateBleName(const uint8 *name)
+{
+	SetBleName(name);
+
+	GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);	
+  	GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
+
+  	GAP_UpdateAdvertisingData(powerAsist_TaskID,     
+                             FALSE,    
+                             sizeof(scanRspData),    
+                             scanRspData);
 }
 
 /*********************************************************************

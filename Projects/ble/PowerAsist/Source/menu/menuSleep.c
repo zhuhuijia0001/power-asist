@@ -17,8 +17,14 @@
 #include "powerAsistGATTprofile.h"
 #include "PowerAsist.h"
 
+#include "npi.h"
+
+static uint8 s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
+
 static void OnMenuCreate(MENU_ID prevId)
 {
+	s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
+	
 	EnableLcdBacklight(false);
 }
 
@@ -34,10 +40,27 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			g_mainMenu = GetNextMainMenuIndex(g_mainMenu);
-			SwitchToMenu(GetMainMenu(g_mainMenu));
+			s_keyMenuStatus = HAL_KEY_STATE_PRESS;
+
+			break;
 			
-			SaveParameter();
+		case HAL_KEY_STATE_LONG:
+			s_keyMenuStatus = HAL_KEY_STATE_LONG;
+
+			break;
+
+		case HAL_KEY_STATE_RELEASE:
+			if (s_keyMenuStatus == HAL_KEY_STATE_PRESS)
+			{
+				TRACE("key menu pressed\r\n");
+		
+				g_mainMenu = GetNextMainMenuIndex(g_mainMenu);
+				SwitchToMenu(GetMainMenu(g_mainMenu));
+				
+				SaveParameter();
+			}
+
+			s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 			
 			break;
 		}

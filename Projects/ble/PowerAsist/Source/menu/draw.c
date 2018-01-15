@@ -233,6 +233,128 @@ void DrawDetailAh(uint16 dec, uint16 frac)
 	DrawDetailAhWh(DETAIL_AH_LEFT, DETAIL_AH_TOP, dec, frac, GREEN);
 }
 
+//peak menu
+#define PEAK_VOLTAGE_TOP    4
+#define PEAK_VOLTAGE_LEFT   2
+#define PEAK_VOLTAGE_UNIT_LEFT  110
+
+#define PEAK_VALUE_VOLTAGE_TOP  26
+#define PEAK_VALUE_VOLTAGE_LEFT 0
+#define PEAK_VALUE_VOLTAGE_UNIT_LEFT   50
+
+#define VALLEY_VALUE_VOLTAGE_TOP  PEAK_VALUE_VOLTAGE_TOP
+#define VALLEY_VALUE_VOLTAGE_LEFT 64
+#define VALLEY_VALUE_VOLTAGE_UNIT_LEFT  114
+
+#define PEAK_CURRENT_TOP    44
+#define PEAK_CURRENT_LEFT   2
+#define PEAK_CURRENT_UNIT_LEFT  110
+
+#define PEAK_VALUE_CURRENT_TOP  66
+#define PEAK_VALUE_CURRENT_LEFT 0
+#define PEAK_VALUE_CURRENT_UNIT_LEFT  50
+
+#define VALLEY_VALUE_CURRENT_TOP  PEAK_VALUE_CURRENT_TOP
+#define VALLEY_VALUE_CURRENT_LEFT 64
+#define VALLEY_VALUE_CURRENT_UNIT_LEFT  114
+
+#define PEAK_POWER_TOP      84
+#define PEAK_POWER_LEFT     2
+#define PEAK_POWER_UNIT_LEFT 110
+
+#define PEAK_VALUE_POWER_TOP  106
+#define PEAK_VALUE_POWER_LEFT 0
+#define PEAK_VALUE_POWER_UNIT_LEFT  50
+
+#define VALLEY_VALUE_POWER_TOP  PEAK_VALUE_POWER_TOP
+#define VALLEY_VALUE_POWER_LEFT 64
+#define VALLEY_VALUE_POWER_UNIT_LEFT  114
+
+void DrawPeakMenu()
+{
+	//voltage
+	DrawString(font_24, PEAK_VOLTAGE_UNIT_LEFT, PEAK_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
+	//peak & valley
+	DrawString(font_16, PEAK_VALUE_VOLTAGE_UNIT_LEFT, PEAK_VALUE_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
+
+	DrawString(font_16, VALLEY_VALUE_VOLTAGE_UNIT_LEFT, VALLEY_VALUE_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
+
+	//current
+	DrawString(font_24, PEAK_CURRENT_UNIT_LEFT, PEAK_CURRENT_TOP, "A", WHITE, BACKGROUND_COLOR);
+	//peak & valley
+	DrawString(font_16, PEAK_VALUE_CURRENT_UNIT_LEFT, PEAK_VALUE_CURRENT_TOP, "A", WHITE, BACKGROUND_COLOR);
+
+	DrawString(font_16, VALLEY_VALUE_CURRENT_UNIT_LEFT, VALLEY_VALUE_CURRENT_TOP, "A", WHITE, BACKGROUND_COLOR);
+
+	//Power
+	DrawString(font_24, PEAK_POWER_UNIT_LEFT, PEAK_POWER_TOP, "W", YELLOW, BACKGROUND_COLOR);
+	//peak & valley
+	DrawString(font_16, PEAK_VALUE_POWER_UNIT_LEFT, PEAK_VALUE_POWER_TOP, "W", YELLOW, BACKGROUND_COLOR);
+
+	DrawString(font_16, VALLEY_VALUE_POWER_UNIT_LEFT, VALLEY_VALUE_POWER_TOP, "W", YELLOW, BACKGROUND_COLOR);
+	
+}
+ 
+void DrawPeakVoltage(uint8 dec, uint16 frac)
+{
+	DrawVBusValue(font_20, PEAK_VOLTAGE_LEFT, PEAK_VOLTAGE_TOP, dec, frac, CYAN);
+}
+
+void DrawPeakCurrent(uint8 dec, uint16 frac)
+{
+	DrawVBusValue(font_20, PEAK_CURRENT_LEFT, PEAK_CURRENT_TOP, dec, frac, WHITE);
+}
+
+void DrawPeakPower(uint8 dec, uint16 frac)
+{
+	DrawVBusValue(font_20, PEAK_POWER_LEFT, PEAK_POWER_TOP, dec, frac, YELLOW);
+}
+
+static void DrawPeakAndValleyBusValue(FONT font, uint16 x, uint16 y, uint8 dec, uint16 frac, uint16 fc)
+{
+	char buf[10];
+	if (dec < 10)
+	{
+		sprintf(buf, "% d.%03d", dec, frac / 10);
+	}
+	else
+	{
+		sprintf(buf, "%2d.%03d", dec, frac / 10);
+	}
+	
+	DrawString(font, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
+}
+
+void DrawPeakValueVoltage(uint8 dec, uint16 frac)
+{
+	DrawPeakAndValleyBusValue(font_16, PEAK_VALUE_VOLTAGE_LEFT, PEAK_VALUE_VOLTAGE_TOP, dec, frac, CYAN);
+}
+
+void DrawValleyValueVoltage(uint8 dec, uint16 frac)
+{
+	DrawPeakAndValleyBusValue(font_16, VALLEY_VALUE_VOLTAGE_LEFT, VALLEY_VALUE_VOLTAGE_TOP, dec, frac, CYAN);
+}
+
+void DrawPeakValueCurrent(uint8 dec, uint16 frac)
+{
+	DrawPeakAndValleyBusValue(font_16, PEAK_VALUE_CURRENT_LEFT, PEAK_VALUE_CURRENT_TOP, dec, frac, WHITE);
+}
+
+void DrawValleyValueCurrent(uint8 dec, uint16 frac)
+{
+	DrawPeakAndValleyBusValue(font_16, VALLEY_VALUE_CURRENT_LEFT, VALLEY_VALUE_CURRENT_TOP, dec, frac, WHITE);
+}
+
+void DrawPeakValuePower(uint8 dec, uint16 frac)
+{
+	DrawPeakAndValleyBusValue(font_16, PEAK_VALUE_POWER_LEFT, PEAK_VALUE_POWER_TOP, dec, frac, YELLOW);
+}
+
+void DrawValleyValuePower(uint8 dec, uint16 frac)
+{
+	DrawPeakAndValleyBusValue(font_16, VALLEY_VALUE_POWER_LEFT, VALLEY_VALUE_POWER_TOP, dec, frac, YELLOW);
+}
+
 //sniffer menu
 #define SNIFFER_TITLE_LEFT        8
 #define SNIFFER_TITLE_TOP         10
@@ -1447,7 +1569,7 @@ void DrawSampleSelCancel()
 void DrawSampleEditADC(uint8 fps)
 {
 	char buf[3];
-	sprintf(buf, "%02d", fps);
+	sprintf(buf, "%2d", fps);
 	DrawString(font_20, SAMPLE_ADC_VAL_LEFT, SAMPLE_ADC_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
@@ -1594,7 +1716,7 @@ void DrawBleNormalName(const uint8 *name)
 
 void DrawBleNormalSwitch(bool on)
 {
-	const uint8 *p;
+	const uint8 *p = NULL;
 	if (on)
 	{
 		p = str_on;
@@ -1619,7 +1741,7 @@ void DrawBleNormalCancel()
 
 void DrawBleSelSwitch(bool on)
 {
-	const uint8 *p;
+	const uint8 *p = NULL;
 	if (on)
 	{
 		p = str_on;
@@ -1644,7 +1766,7 @@ void DrawBleSelCancel()
 
 void DrawBleEditSwitch(bool on)
 {
-	const uint8 *p;
+	const uint8 *p = NULL;
 	if (on)
 	{
 		p = str_on;

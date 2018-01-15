@@ -74,9 +74,6 @@ extern "C"
 /*********************************************************************
  * FUNCTIONS
  */
-
-extern void SetBleName(const uint8 *name);
-
 extern void EnableBleAdvertise(bool enable);
 
 /*
@@ -91,6 +88,8 @@ extern uint16 PowerAsist_ProcessEvent( uint8 task_id, uint16 events );
 
 extern void StartPowerAsistTimer(uint16 timerId, uint32 timeout, bool repeat);
 extern void StopPowerAsistTimer(uint16 timerId);
+
+extern void UpdateBleName(const uint8 *name);
 
 /*********************************************************************
 *********************************************************************/

@@ -12,7 +12,7 @@
           
           
           
-        <Column0>151</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>150</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Build>
         
@@ -24,7 +24,7 @@
     <Windows>
       
       
-    <Wnd0>
+    <Wnd2>
         <Tabs>
           <Tab>
             <Identity>TabID-15307-30276</Identity>
@@ -32,11 +32,11 @@
             <Factory>Workspace</Factory>
             <Session>
               
-            <NodeDict><ExpandedNode>sbl</ExpandedNode><ExpandedNode>sbl/Application</ExpandedNode><ExpandedNode>sbl/Application/sbl_exec.c</ExpandedNode><ExpandedNode>sbl/HAL</ExpandedNode><ExpandedNode>sbl/HAL/Target</ExpandedNode><ExpandedNode>sbl/HAL/Target/CC2540EB</ExpandedNode></NodeDict></Session>
+            <NodeDict><ExpandedNode>sbl</ExpandedNode><ExpandedNode>sbl/HAL</ExpandedNode></NodeDict></Session>
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
         <Tabs>
           <Tab>
             <Identity>TabID-25533-30289</Identity>
@@ -46,20 +46,20 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd1></Windows>
+      <SelectedTab>0</SelectedTab></Wnd3></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\app\sbl_main.c</Filename><XPos>0</XPos><YPos>87</YPos><SelStart>4388</SelStart><SelEnd>4388</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\app\sbl_exec.c</Filename><XPos>0</XPos><YPos>129</YPos><SelStart>7191</SelStart><SelEnd>7191</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\app\cc254x\_sbl_uart.c</Filename><XPos>0</XPos><YPos>192</YPos><SelStart>7955</SelStart><SelEnd>7955</SelEnd></Tab><ActiveTab>2</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\app\cc254x\sbl_ivec.s51</Filename><XPos>0</XPos><YPos>39</YPos><SelStart>2834</SelStart><SelEnd>2834</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\app\sbl_app.h</Filename><XPos>0</XPos><YPos>78</YPos><SelStart>3884</SelStart><SelEnd>3884</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\app\sbl_exec.h</Filename><XPos>0</XPos><YPos>43</YPos><SelStart>2925</SelStart><SelEnd>2925</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\..\Components\hal\include\hal_rpc.h</Filename><XPos>0</XPos><YPos>104</YPos><SelStart>5251</SelStart><SelEnd>5251</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane/><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-0021db40><key>iaridepm.enu1</key></Toolbar-0021db40></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>569</Bottom><Right>242</Right><x>-2</x><y>-2</y><xscreen>225</xscreen><yscreen>206</yscreen><sizeHorzCX>228426</sizeHorzCX><sizeHorzCY>266150</sizeHorzCY><sizeVertCX>247716</sizeVertCX><sizeVertCY>737726</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>160</Bottom><Right>987</Right><x>-2</x><y>-2</y><xscreen>989</xscreen><yscreen>162</yscreen><sizeHorzCX>1004061</sizeHorzCX><sizeHorzCY>209302</sizeHorzCY><sizeVertCX>228426</sizeVertCX><sizeVertCY>266150</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-0029dbb0><key>iaridepm.enu1</key></Toolbar-0029dbb0></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>436</Bottom><Right>224</Right><x>-2</x><y>-2</y><xscreen>256</xscreen><yscreen>200</yscreen><sizeHorzCX>228776</sizeHorzCX><sizeHorzCY>265604</sizeHorzCY><sizeVertCX>201966</sizeVertCX><sizeVertCY>581673</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>272</Bottom><Right>1121</Right><x>-2</x><y>-2</y><xscreen>1123</xscreen><yscreen>274</yscreen><sizeHorzCX>1003575</sizeHorzCX><sizeHorzCY>363878</sizeHorzCY><sizeVertCX>228776</sizeVertCX><sizeVertCY>265604</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

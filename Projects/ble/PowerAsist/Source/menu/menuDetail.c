@@ -23,7 +23,8 @@
 #include "npi.h"
 
 #define DETAIL_MENU_TIMERID          (POWERASIST_FIRST_TIMERID + 0)
-#define DETAIL_REFRESH_INTERVAL      200
+
+static uint8 s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 
 static void RefreshDetailMenuContent()
 {	
@@ -80,52 +81,31 @@ static void RefreshDetailMenuContent()
 static void DrawSnifferType()
 {
 	SnifferStatus sniffer = GetCurrentSnifferStatus();
-	uint8 volt = 0;
-		
-	uint8 integer;
+	uint8 voltage = 0;
 
 	if (sniffer != SNIFFER_NONE)
 	{
-		GetBusVoltage(&integer, NULL);
-
-		if (integer >= 4 && integer <= 6)
+		if (sniffer == SNIFFER_QC_20 || sniffer == SNIFFER_PD)
 		{
-			volt = 5;
-		}
-		else if (integer >= 8 && integer <= 10)
-		{
-			volt = 9;
-		}
-		else if (integer >= 11 && integer <= 13)
-		{
-			volt = 12;
-		}
-		else if (integer >= 14 && integer <= 16)
-		{
-			volt = 15;
-		}
-		else if (integer >= 19 && integer <= 21)
-		{
-			volt = 20;
-		}
-		else
-		{
-			volt = integer;
+			voltage = GetCurrentSnifferTargetVoltage();
 		}
 	}
 	
-	DrawDetailSniffer(sniffer, volt);
+	DrawDetailSniffer(sniffer, voltage);
 }
 
 static void OnMenuCreate(MENU_ID prevId)
 {
+	s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
+		
 	DrawDetailMenu();
 
 	DrawSnifferType();
 	
 	RefreshDetailMenuContent();
-	
-	StartPowerAsistTimer(DETAIL_MENU_TIMERID, DETAIL_REFRESH_INTERVAL, true);
+
+	uint32 sampleInterval = 1000ul / g_sampleRate;
+	StartPowerAsistTimer(DETAIL_MENU_TIMERID, sampleInterval, true);
 }
 
 static void OnMenuDestroy(MENU_ID nextId)
@@ -189,12 +169,29 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			TRACE("key menu pressed\r\n");
+			s_keyMenuStatus = HAL_KEY_STATE_PRESS;
 
-			g_mainMenu = GetNextMainMenuIndex(g_mainMenu);
-			SwitchToMenu(GetMainMenu(g_mainMenu));
+			break;
 			
-			SaveParameter();
+		case HAL_KEY_STATE_LONG:
+			s_keyMenuStatus = HAL_KEY_STATE_LONG;
+
+			SwitchToMenu(MENU_ID_BLE_COMM);
+			
+			break;
+
+		case HAL_KEY_STATE_RELEASE:
+			if (s_keyMenuStatus == HAL_KEY_STATE_PRESS)
+			{
+				TRACE("key menu pressed\r\n");
+		
+				g_mainMenu = GetNextMainMenuIndex(g_mainMenu);
+				SwitchToMenu(GetMainMenu(g_mainMenu));
+				
+				SaveParameter();
+			}
+
+			s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 			
 			break;
 		}
