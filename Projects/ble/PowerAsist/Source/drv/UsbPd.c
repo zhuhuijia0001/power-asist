@@ -38,7 +38,8 @@ static uint8 s_requestedVoltage = 0;
 
 static void IncreaseMsgID()
 {
-	s_msg_id = (s_msg_id + 1) & 0x07;
+	s_msg_id++;
+	s_msg_id &= 0x07; // max msg_id is 0x07
 }
 
 static void ReceiveCallback(uint16 header, const uint32 *pdo, uint8 cnt)

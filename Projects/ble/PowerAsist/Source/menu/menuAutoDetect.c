@@ -156,14 +156,11 @@ static void AutoDetectCallback(DetectType type, bool support)
 
 static void OnMenuCreate(MENU_ID prevId)
 {
+	g_autoDetect = AUTO_DETECT_ON;
+	SaveParameter();
+				
 	//stop accumulate
 	StopAccumulateWhAndAh();
-	
-	if (!g_autoDetect)
-	{
-		g_autoDetect = 1;
-		SaveParameter();
-	}
 	
 	DrawAutoDetectMenu();
 
@@ -188,7 +185,7 @@ static void OnMenuKey(uint8 key, uint8 type)
 		case HAL_KEY_STATE_PRESS:
 			if (s_detectComplete)
 			{
-				g_autoDetect = 0;
+				g_autoDetect = AUTO_DETECT_OFF;
 				SaveParameter();
 		
 				SwitchToMenu(GetMainMenu(g_mainMenu));

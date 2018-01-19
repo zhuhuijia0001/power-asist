@@ -36,6 +36,7 @@ static void OnMenuCreate(MENU_ID prevId)
 	EnableLcdBacklight(true);
 	
 	//start accumulate Wh & Ah
+	//test
 	StartAccumulateWhAndAh();
 	
 	s_logoX = (GetScreenWidth() - g_Logo.width) / 2;
@@ -75,9 +76,13 @@ static void OnMenuTimeout(uint16 timerId)
 	}
 	else if (timerId == WELCOME_MENU_TIMERID_EXPIRED)
 	{
-		if (g_autoDetect)
+		if (g_autoDetect == AUTO_DETECT_ON)
 		{
 			SwitchToMenu(MENU_ID_AUTO);
+		}
+		else if (g_bleOn == BLE_ON)
+		{
+			SwitchToMenu(MENU_ID_BLE_COMM);
 		}
 		else
 		{

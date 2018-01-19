@@ -9,11 +9,11 @@
 
 #include "GUI.h"
 
-static MENU_ID s_prevId = MENU_ID_NONE;
+static MENU_ID s_prevMenuId = MENU_ID_NONE;
 
 static void OnMenuCreate(MENU_ID prevId)
 {
-	s_prevId = prevId;
+	s_prevMenuId = prevId;
 	
 	DrawVersionMenu();
 }
@@ -30,7 +30,7 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			SwitchToMenu(s_prevId);
+			SwitchToMenu(s_prevMenuId);
 
 			break;
 		}

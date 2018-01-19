@@ -24,15 +24,51 @@
 
 #define DETAIL_MENU_TIMERID          (POWERASIST_FIRST_TIMERID + 0)
 
+//key state
+static uint8 s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
+static uint8 s_keyRightStatus = HAL_KEY_STATE_RELEASE;
 static uint8 s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
+
+static void DrawDetailMenuContent()
+{	
+	uint8 integer;
+	uint16 integer16;
+
+	uint16 frac;
+
+	GetDPVoltage(&integer, &frac);
+	DrawDetailDp(integer, frac);
+	
+	GetDMVoltage(&integer, &frac);
+	DrawDetailDm(integer, frac);
+	
+	if (GetBusVoltage(&integer, &frac))
+	{
+		DrawDetailVoltage(integer, frac);
+	}
+	
+	if (GetLoadCurrent(&integer, &frac))
+	{
+		DrawDetailCurrent(integer, frac);
+	}
+	
+	if (GetLoadPower(&integer, &frac))
+	{
+		DrawDetailPower(integer, frac);
+	}
+
+	GetLoadWh(&integer16, &frac);
+	DrawDetailWh(integer16, frac);
+
+	GetLoadAh(&integer16, &frac);
+	DrawDetailAh(integer16, frac);
+}
 
 static void RefreshDetailMenuContent()
 {	
 	uint8 integer;
 	uint16 integer16;
 
-	uint8 frac8;
-	
 	uint16 frac;
 
 	GetDPVoltage(&integer, &frac);
@@ -43,30 +79,25 @@ static void RefreshDetailMenuContent()
 	//TRACE("dm voltage:%d.%02dV\r\n", integer, frac);
 	DrawDetailDm(integer, frac);
 
-	if (GetADCTemperature(&integer, &frac8))
-	{
-		TRACE("temp:%d.%01d degree\r\n", integer, frac8);
-	}
-	
 	if (GetBusVoltage(&integer, &frac))
 	{
 		//TRACE("bus voltage:%d.%04dV\r\n", integer, frac);
 
-		DrawDetailVoltage(integer, frac);
+		DrawDetailVoltageDelta(integer, frac);
 	}
 	
 	if (GetLoadCurrent(&integer, &frac))
 	{
 		//TRACE("current:%d.%04dA\r\n", integer, frac);
 
-		DrawDetailCurrent(integer, frac);
+		DrawDetailCurrentDelta(integer, frac);
 	}
 	
 	if (GetLoadPower(&integer, &frac))
 	{
 		//TRACE("power:%d.%04dW\r\n", integer, frac);
 
-		DrawDetailPower(integer, frac);
+		DrawDetailPowerDelta(integer, frac);
 	}
 
 	GetLoadWh(&integer16, &frac);
@@ -96,13 +127,15 @@ static void DrawSnifferType()
 
 static void OnMenuCreate(MENU_ID prevId)
 {
+	s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
+	s_keyRightStatus = HAL_KEY_STATE_RELEASE;
 	s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 		
 	DrawDetailMenu();
 
 	DrawSnifferType();
 	
-	RefreshDetailMenuContent();
+	DrawDetailMenuContent();
 
 	uint32 sampleInterval = 1000ul / g_sampleRate;
 	StartPowerAsistTimer(DETAIL_MENU_TIMERID, sampleInterval, true);
@@ -150,16 +183,44 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			TRACE("key left pressed\r\n");
+			s_keyLeftStatus = HAL_KEY_STATE_PRESS;
+			
+			break;
 
-			if (GetCurrentSnifferStatus() != SNIFFER_NONE)
+		case HAL_KEY_STATE_LONG:
+			s_keyLeftStatus = HAL_KEY_STATE_LONG;
+
+			//rotate
+			ClearScreen(BACKGROUND_COLOR);
+
+			g_screenAngle += ORIENTATION_COUNT - 1;
+			g_screenAngle %= ORIENTATION_COUNT;
+			SetLcdOrientation((Orientation)g_screenAngle);
+
+			SaveParameter();
+			
+			DrawDetailMenu();
+			DrawSnifferType();
+			DrawDetailMenuContent();
+	
+			break;
+
+		case HAL_KEY_STATE_RELEASE:
+			if (s_keyLeftStatus == HAL_KEY_STATE_PRESS)
 			{
-				EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+				TRACE("key left pressed\r\n");
+
+				if (GetCurrentSnifferStatus() != SNIFFER_NONE)
+				{
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+				}
+				else
+				{
+					SwitchToMenu(MENU_ID_SNIFFER);
+				}
 			}
-			else
-			{
-				SwitchToMenu(MENU_ID_SNIFFER);
-			}
+
+			s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
 			
 			break;
 		}
@@ -201,9 +262,37 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			TRACE("key right pressed\r\n");
+			s_keyRightStatus = HAL_KEY_STATE_PRESS;
+			
+			break;
 
-			SwitchToMenu(MENU_ID_SETTING);
+		case HAL_KEY_STATE_LONG:
+			s_keyRightStatus = HAL_KEY_STATE_LONG;
+
+			//rotate
+			ClearScreen(BACKGROUND_COLOR);
+
+			g_screenAngle++;
+			g_screenAngle %= ORIENTATION_COUNT;
+			SetLcdOrientation((Orientation)g_screenAngle);
+
+			SaveParameter();
+			
+			DrawDetailMenu();
+			DrawSnifferType();
+			DrawDetailMenuContent();
+	
+			break;
+
+		case HAL_KEY_STATE_RELEASE:
+			if (s_keyRightStatus == HAL_KEY_STATE_PRESS)
+			{
+				TRACE("key right pressed\r\n");
+				
+				SwitchToMenu(MENU_ID_SETTING);
+			}
+
+			s_keyRightStatus = HAL_KEY_STATE_RELEASE;
 			
 			break;
 		}

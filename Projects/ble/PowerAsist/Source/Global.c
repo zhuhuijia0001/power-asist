@@ -11,8 +11,6 @@ static const MENU_ID s_mainMenus[] =
 
 	MENU_ID_DETAIL,
 
-	MENU_ID_PEAK,
-
 	MENU_ID_SLEEP,
 };
 

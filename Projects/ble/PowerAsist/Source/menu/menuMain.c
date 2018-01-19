@@ -32,46 +32,66 @@
 
 #define MAIN_RTC_INTERVAL          1000ul
 
+//key state
+static uint8 s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
+static uint8 s_keyRightStatus = HAL_KEY_STATE_RELEASE;
 static uint8 s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
+
+static void DrawMainMenuMeasure()
+{
+	uint8 integer;
+	uint16 frac;
+	
+	if (GetBusVoltage(&integer, &frac))
+	{
+		DrawMainVoltage(integer, frac);
+	}
+	
+	if (GetLoadCurrent(&integer, &frac))
+	{
+		DrawMainCurrent(integer, frac);
+	}
+	
+	if (GetLoadPower(&integer, &frac))
+	{
+		DrawMainPower(integer, frac);
+	}
+}
 
 static void RefreshMainMenuMeasure()
 {		
 	uint8 integer;
 	uint16 frac;
 	
-	/*
-	if (GetShuntVoltage(&integer, &frac))
-	{
-		TRACE("shunt voltage:%d.%04dmV\r\n", integer, frac);
-	}
-	*/
-	
 	if (GetBusVoltage(&integer, &frac))
 	{
 		//TRACE("bus voltage:%d.%04dV\r\n", integer, frac);
 
-		DrawMainVoltage(integer, frac);
+		DrawMainVoltageDelta(integer, frac);
 	}
 	
 	if (GetLoadCurrent(&integer, &frac))
 	{
 		//TRACE("current:%d.%04dA\r\n", integer, frac);
 
-		DrawMainCurrent(integer, frac);
+		DrawMainCurrentDelta(integer, frac);
 	}
 	
 	if (GetLoadPower(&integer, &frac))
 	{
 		//TRACE("power:%d.%04dW\r\n", integer, frac);
 
-		DrawMainPower(integer, frac);
+		DrawMainPowerDelta(integer, frac);
 	}
-	
-	GetDPVoltage(&integer, &frac);
-	//TRACE("dp voltage:%d.%02dV\r\n", integer, frac);
-	
-	GetDMVoltage(&integer, &frac);
-	//TRACE("dm voltage:%d.%02dV\r\n", integer, frac);
+}
+
+static void DrawMainMenuRTC()
+{
+	TimeStruct time;
+	if (GetRTCTime(&time))
+	{
+		DrawMainDateTime(&time);
+	}
 }
 
 static void RefreshMainMenuRTC()
@@ -79,18 +99,20 @@ static void RefreshMainMenuRTC()
 	TimeStruct time;
 	if (GetRTCTime(&time))
 	{
-		DrawDateTime(&time);
+		DrawMainDateTimeDelta(&time);
 	}
 }
 
 static void OnMenuCreate(MENU_ID prevId)
 {
+	s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
+	s_keyRightStatus = HAL_KEY_STATE_RELEASE;
 	s_keyMenuStatus = HAL_KEY_STATE_RELEASE;
 	
 	DrawMainMenu();
 
-	RefreshMainMenuMeasure();
-	RefreshMainMenuRTC();
+	DrawMainMenuMeasure();
+	DrawMainMenuRTC();
 
 	uint32 sampleInterval = 1000ul / g_sampleRate;
 	StartPowerAsistTimer(MAIN_MENU_TIMERID_MEASURE, sampleInterval, true);
@@ -142,16 +164,45 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			TRACE("key left pressed\r\n");
+			s_keyLeftStatus = HAL_KEY_STATE_PRESS;
+			
+			break;
 
-			if (GetCurrentSnifferStatus() != SNIFFER_NONE)
+		case HAL_KEY_STATE_LONG:
+			s_keyLeftStatus = HAL_KEY_STATE_LONG;
+
+			//rotate
+			ClearScreen(BACKGROUND_COLOR);
+
+			g_screenAngle += ORIENTATION_COUNT - 1;
+			g_screenAngle %= ORIENTATION_COUNT;
+			SetLcdOrientation((Orientation)g_screenAngle);
+
+			SaveParameter();
+			
+			DrawMainMenu();
+
+			DrawMainMenuMeasure();
+			DrawMainMenuRTC();
+	
+			break;
+
+		case HAL_KEY_STATE_RELEASE:
+			if (s_keyLeftStatus == HAL_KEY_STATE_PRESS)
 			{
-				EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+				TRACE("key left pressed\r\n");
+
+				if (GetCurrentSnifferStatus() != SNIFFER_NONE)
+				{
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+				}
+				else
+				{
+					SwitchToMenu(MENU_ID_SNIFFER);
+				}
 			}
-			else
-			{
-				SwitchToMenu(MENU_ID_SNIFFER);
-			}
+
+			s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
 			
 			break;
 		}
@@ -193,9 +244,38 @@ static void OnMenuKey(uint8 key, uint8 type)
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
-			TRACE("key right pressed\r\n");
+			s_keyRightStatus = HAL_KEY_STATE_PRESS;
+			
+			break;
 
-			SwitchToMenu(MENU_ID_SETTING);
+		case HAL_KEY_STATE_LONG:
+			s_keyRightStatus = HAL_KEY_STATE_LONG;
+
+			//rotate
+			ClearScreen(BACKGROUND_COLOR);
+
+			g_screenAngle++;
+			g_screenAngle %= ORIENTATION_COUNT;
+			SetLcdOrientation((Orientation)g_screenAngle);
+
+			SaveParameter();
+			
+			DrawMainMenu();
+
+			DrawMainMenuMeasure();
+			DrawMainMenuRTC();
+	
+			break;
+
+		case HAL_KEY_STATE_RELEASE:
+			if (s_keyRightStatus == HAL_KEY_STATE_PRESS)
+			{
+				TRACE("key right pressed\r\n");
+				
+				SwitchToMenu(MENU_ID_SETTING);
+			}
+
+			s_keyRightStatus = HAL_KEY_STATE_RELEASE;
 			
 			break;
 		}

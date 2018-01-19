@@ -79,3 +79,4 @@ extern bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peak
 extern bool ParseSetBleNamePacket(const uint8 *data, uint8 len, uint8 bleName[MAX_BLE_NAME_LEN]);
 
 #endif
+

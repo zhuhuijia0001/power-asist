@@ -73,7 +73,7 @@
 				RDO_BATT_OP_POWER(op_mw) | \
 				RDO_BATT_MAX_POWER(max_mw))
 
-#define MAX_CAPABILITIES     6
+#define MAX_CAPABILITIES    7
 
 typedef struct 
 {

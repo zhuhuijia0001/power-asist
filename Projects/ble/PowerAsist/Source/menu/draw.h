@@ -7,13 +7,28 @@
 #include "menuOp.h"
 #include "Global.h"
 
+//menu color
+#define BACKGROUND_COLOR       BLACK
+
+#define NORMAL_COLOR           ORANGE
+#define SELECTED_COLOR         WHITE
+#define EDIT_COLOR             MAGENTA
+#define PRESSED_COLOR          WHITE
+
+
 //main menu
 extern void DrawMainMenu();
 extern void DrawMainVoltage(uint8 dec, uint16 frac);
-extern void DrawMainCurrent(uint8 dec, uint16 frac);
-extern void DrawMainPower(uint8 dec, uint16 frac);
+extern void DrawMainVoltageDelta(uint8 dec, uint16 frac);
 
-extern void DrawDateTime(const TimeStruct *tm);
+extern void DrawMainCurrent(uint8 dec, uint16 frac);
+extern void DrawMainCurrentDelta(uint8 dec, uint16 frac);
+
+extern void DrawMainPower(uint8 dec, uint16 frac);
+extern void DrawMainPowerDelta(uint8 dec, uint16 frac);
+
+extern void DrawMainDateTime(const TimeStruct *tm);
+extern void DrawMainDateTimeDelta(const TimeStruct *time);
 
 //detail menu
 extern void DrawDetailMenu();
@@ -22,24 +37,16 @@ extern void DrawDetailDm(uint8 dec, uint16 frac);
 extern void DrawDetailSniffer(SnifferStatus sniffer, uint8 voltage);
 
 extern void DrawDetailVoltage(uint8 dec, uint16 frac);
-extern void DrawDetailCurrent(uint8 dec, uint16 frac);
+extern void DrawDetailVoltageDelta(uint8 dec, uint16 frac);
+
+extern void DrawDetailCurrent(uint8 dec, uint16 frac);
+extern void DrawDetailCurrentDelta(uint8 dec, uint16 frac);
+
 extern void DrawDetailPower(uint8 dec, uint16 frac);
+extern void DrawDetailPowerDelta(uint8 dec, uint16 frac);
 
 extern void DrawDetailWh(uint16 dec, uint16 frac);
 extern void DrawDetailAh(uint16 dec, uint16 frac);
-
-//peak menu
-extern void DrawPeakMenu();
-extern void DrawPeakVoltage(uint8 dec, uint16 frac);
-extern void DrawPeakCurrent(uint8 dec, uint16 frac);
-extern void DrawPeakPower(uint8 dec, uint16 frac);
-
-extern void DrawPeakValueVoltage(uint8 dec, uint16 frac);
-extern void DrawValleyValueVoltage(uint8 dec, uint16 frac);
-extern void DrawPeakValueCurrent(uint8 dec, uint16 frac);
-extern void DrawValleyValueCurrent(uint8 dec, uint16 frac);
-extern void DrawPeakValuePower(uint8 dec, uint16 frac);
-extern void DrawValleyValuePower(uint8 dec, uint16 frac);
 
 
 //sniffer menu

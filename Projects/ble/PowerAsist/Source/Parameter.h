@@ -10,6 +10,9 @@
 #define LOCK_MIN  10
 #define LOCK_MAX  60
 
+#define AUTO_DETECT_ON       1
+#define AUTO_DETECT_OFF      0
+
 //sample rate
 #define SAMPLE_RATE_20              20
 #define SAMPLE_RATE_10              10
@@ -19,8 +22,7 @@
 
 #define DEFAULT_SAMPLE_RATE         SAMPLE_RATE_10
 
-#define SAMPLE_DURATION_MIN   10
-#define SAMPLE_DURATION_MAX   60
+#define SAMPLE_DURATION_MAX        10
 
 #define FIRMWARE_VER_LEN  8
 #define FIRMWARE_VER      "0.1"
@@ -44,8 +46,6 @@ typedef struct
 	uint8   screenAngle;  //screen angle
 
 	uint8   sampleRate;  //sample rate, counts per second
-
-	uint8   peakValleySampleDuration; //peak & valley sample suration	
 } Parameter;
 
 typedef struct
@@ -69,7 +69,6 @@ extern StoreVector g_storeVector;
 #define g_screenLockTime     g_storeVector.parameter.screenLockTime
 #define g_screenAngle        g_storeVector.parameter.screenAngle
 #define g_sampleRate         g_storeVector.parameter.sampleRate
-#define g_peakValleySampleDuration  g_storeVector.parameter.peakValleySampleDuration
 
 extern bool LoadParameter();
 extern void LoadDefaultParameter();

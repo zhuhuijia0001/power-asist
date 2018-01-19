@@ -46,13 +46,12 @@ static uint8 s_curMode = MODE_NORMAL;
 //current voltage of mode 
 static uint8 s_curModeVoltage = 0;
 
-static MENU_ID s_prevId = MENU_ID_NONE;
-
 static void OnMenuCreate(MENU_ID prevId)
 {
 	s_curBleStatus = BLE_STATUS_INIT;
-	
-	s_prevId = prevId;
+
+	g_bleOn = BLE_ON;
+	SaveParameter();
 	
 	DrawBleComMenu();
 
@@ -61,8 +60,6 @@ static void OnMenuCreate(MENU_ID prevId)
 
 static void OnMenuDestroy(MENU_ID nextId)
 {
-	EnableBleAdvertise(false);
-	
 	ClearScreen(BLACK);
 }
 
@@ -76,7 +73,12 @@ static void OnMenuKey(uint8 key, uint8 type)
 
 			if (s_curBleStatus == BLE_STATUS_ADVERTISING)
 			{
-				SwitchToMenu(s_prevId);
+				g_bleOn = BLE_OFF;
+				SaveParameter();
+
+				EnableBleAdvertise(false);
+				
+				SwitchToMenu(GetMainMenu(g_mainMenu));
 			}
 			
 			break;
@@ -706,7 +708,7 @@ static void ProcessQueryParam()
 	uint8 ver[FIRMWARE_VER_LEN];
 	osal_memset(ver, 0, sizeof(ver));
 	osal_memcpy(ver, FIRMWARE_VER, osal_strlen(FIRMWARE_VER));
-	uint8 len = BuildQueryParamRetPacket(buf, sizeof(buf), g_sampleRate, g_peakValleySampleDuration, ver);
+	uint8 len = BuildQueryParamRetPacket(buf, sizeof(buf), g_sampleRate, SAMPLE_DURATION_MAX, ver);
 	SendBleData(buf, len);				
 }
 
@@ -756,18 +758,6 @@ static void ProcessSetBleName(const uint8 name[MAX_BLE_NAME_LEN])
 	
 	uint8 buf[MAX_PACKET_LEN];
 	uint8 len = BuildSetBleNameRetPacket(buf, sizeof(buf), RESULT_OK);
-	SendBleData(buf, len);
-}
-
-//process set peak duration
-static void ProcessSetPeakDuration(uint8 peakDuration)
-{
-	g_peakValleySampleDuration = peakDuration;
-
-	SaveParameter();
-
-	uint8 buf[MAX_PACKET_LEN];
-	uint8 len = BuildSetPeakDurationRetPacket(buf, sizeof(buf), RESULT_OK);
 	SendBleData(buf, len);
 }
 
@@ -961,23 +951,6 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 			}
 			
 			break;
-
-		case TYPE_SET_PEAK_DURATION:
-			{
-				uint8 peakDuration;
-				if (ParseSetPeakDurationPacket(data, dataLen, &peakDuration))
-				{
-					TRACE("Parse set peak duration OK\r\n");
-
-					ProcessSetPeakDuration(peakDuration);
-				}
-				else
-				{
-					TRACE("Parse set peak duration failed\r\n");
-				}
-			}
-			
-			break;
 			
 		case TYPE_SET_BLE_NAME:
 			{
@@ -1001,6 +974,9 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 				ProcessQueryChargeMode();
 			}
 			
+			break;
+
+		default:
 			break;
 		}
 	}

@@ -2,7 +2,7 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>552824243</fileChecksum>
+  <fileChecksum>511494436</fileChecksum>
   <configuration>
     <name>CC2540</name>
     <outputs>
@@ -344,7 +344,7 @@
       <file>$PROJ_DIR$\CC2540\Obj\OSAL_PowerAsist.pbi</file>
       <file>$PROJ_DIR$\CC2540\Obj\menuWelcome.pbi</file>
       <file>$PROJ_DIR$\CC2540\Exe\PowerAsist.d51</file>
-      <file>$PROJ_DIR$\..\..\Include\PinDefine.h</file>
+      <file>$PROJ_DIR$\..\..\Include\pindefine.h</file>
       <file>$PROJ_DIR$\CC2540\Obj\SimpleBLEPeripheral.pbd</file>
       <file>$PROJ_DIR$\CC2540\Exe\SimpleBLEPeripheral.d51</file>
       <file>$PROJ_DIR$\CC2540\Obj\BleComOp.r51</file>
@@ -462,7 +462,7 @@
       <inputs>
         <tool>
           <name>BILINK</name>
-          <file> 301 300 189 332 303 299 30 322 321 31 205 323 320 41 8 27 335 4 288 17 242 277 226 318 236 0 292 327 287 281 228 270 195 11 308 231 28 193 35 46 243 24 244 47 274 319 268 37 192 265 326 331 241 227 269 45 257 266 52 336 251 278 34 297 29 197</file>
+          <file> 301 300 189 332 303 299 30 322 321 31 205 323 320 41 8 27 335 4 288 17 242 277 226 318 236 0 292 327 287 281 228 270 195 11 308 231 28 193 35 46 243 24 244 47 274 319 268 37 192 326 331 241 227 269 45 257 266 52 336 251 278 34 297 29 197</file>
         </tool>
       </inputs>
     </file>
@@ -2259,7 +2259,7 @@
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 314 110 111 334 15 200 49 275 240 36 214 16 295 44 207 233 313 211 333 219 249 252 26 298 261 253 276 230 302 223 190 262 293 194 224 279 258 328 237 14 284 218 234 250 267 273 216 23 259 203 21 191 217 206 263 238 285 12 311 43 305 160 344 3 204 312 221 1 246 280</file>
+          <file> 314 110 111 334 15 200 49 275 240 36 214 16 295 44 207 233 313 211 333 219 249 252 26 298 261 253 276 230 302 223 190 262 293 194 224 279 258 328 237 14 284 218 234 250 267 273 216 23 259 203 21 191 206 263 238 285 12 311 43 305 160 344 3 204 312 221 1 246 280</file>
         </tool>
       </inputs>
     </file>
@@ -2488,7 +2488,7 @@
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_tl.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_timer2.h</file>
       <file>$TOOLKIT_DIR$\inc\clib\sysmac.h</file>
-      <file>$PROJ_DIR$\..\..\Include\PinDefine.h</file>
+      <file>$PROJ_DIR$\..\..\Include\pindefine.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_data.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Clock.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_bufmgr.h</file>
@@ -4353,6 +4353,10 @@
         </tool>
       </inputs>
     </file>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>XLINK</tool>
+    </forcedrebuild>
   </configuration>
   <configuration>
     <name>CC2540-UBL</name>
@@ -4521,7 +4525,7 @@
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_timer2.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2540EB\_hal_uart_dma.c</file>
       <file>$TOOLKIT_DIR$\inc\clib\sysmac.h</file>
-      <file>$PROJ_DIR$\..\..\Include\PinDefine.h</file>
+      <file>$PROJ_DIR$\..\..\Include\pindefine.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_data.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Clock.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_bufmgr.h</file>
@@ -6390,6 +6394,10 @@
       <name>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2540EB\hal_lcd.c</name>
       <tool>ICC8051</tool>
     </forcedrebuild>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>XLINK</tool>
+    </forcedrebuild>
   </configuration>
   <configuration>
     <name>CC2540-release</name>
@@ -6548,7 +6556,7 @@
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_tl.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_timer2.h</file>
       <file>$TOOLKIT_DIR$\inc\clib\sysmac.h</file>
-      <file>$PROJ_DIR$\..\..\Include\PinDefine.h</file>
+      <file>$PROJ_DIR$\..\..\Include\pindefine.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_data.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Clock.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_bufmgr.h</file>
@@ -7355,10 +7363,6 @@
         </tool>
       </outputs>
       <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 89 148 46 28 31 27 38 48 150 73 64 62 21 23 2 15 108 113 104 116 17 19 72 57 36</file>
-        </tool>
         <tool>
           <name>ICC8051</name>
           <file> 102 105 89 148 46 28 31 27 38 48 150 73 64 62 21 23 2 15 108 113 104 116 17 19 72 57 36</file>
@@ -8227,7 +8231,7 @@
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 149 59 60 182 175 203 204 202 183 213 205 206 207 208 209 210 187 190 191 174 192 194 198 176 177 179 180 211 212 181 242 222 195 196 244 217 243 216 218 219 220 221 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 184 185 186 188 189 193 178 197 143</file>
+          <file> 149 59 60 182 175 203 204 202 183 213 205 206 207 208 209 210 187 190 191 174 192 194 198 176 177 179 180 211 212 181 242 222 195 196 244 217 243 216 218 219 220 221 223 224 225 226 227 228 229 230 231 232 234 235 236 237 238 239 240 241 184 185 186 188 189 193 178 197 143</file>
         </tool>
       </inputs>
     </file>
@@ -8236,7 +8240,7 @@
       <inputs>
         <tool>
           <name>BILINK</name>
-          <file> 164 165 166 167 168 200 199 169 170 171 172 173 245 278 281 282 201 283 285 289 159 158 161 162 214 215 163 246 255 286 287 248 249 247 250 251 252 253 254 256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 271 272 273 274 275 276 277 279 280 284 160 288</file>
+          <file> 164 165 166 167 168 200 199 169 170 171 172 173 245 278 281 282 201 283 285 289 159 158 161 162 214 215 163 246 255 286 287 248 249 247 250 251 252 253 254 256 257 258 259 260 261 262 263 264 265 267 268 269 270 271 272 273 274 275 276 277 279 280 284 160 288</file>
         </tool>
       </inputs>
     </file>

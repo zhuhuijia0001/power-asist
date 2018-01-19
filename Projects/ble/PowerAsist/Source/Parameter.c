@@ -23,19 +23,17 @@ static const Parameter s_defaultParameter =
  				 'A', 's', 'i', 's', 't', '\0', '\0', '\0', '\0', '\0', 
  				 '\0'},
 
- 	.bleOn = BLE_ON,
+ 	.bleOn = BLE_OFF,
 
 	.mainMenu = 0,
 
-	.autoDetect = 0,
-	
+	.autoDetect = AUTO_DETECT_OFF,
+
  	.screenLockTime = LOCK_MAX,
 
  	.screenAngle = ORIENTATION_0,
 
  	.sampleRate = DEFAULT_SAMPLE_RATE,
-
- 	.peakValleySampleDuration = SAMPLE_DURATION_MAX,
 };
 
 bool LoadParameter()

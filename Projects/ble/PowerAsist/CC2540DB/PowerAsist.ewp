@@ -4636,9 +4636,6 @@
       <name>$PROJ_DIR$\..\Source\menu\menuPDList.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Source\menu\menuPeak.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\Source\menu\menuQC20.c</name>
     </file>
     <file>

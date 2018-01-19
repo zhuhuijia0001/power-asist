@@ -6,7 +6,6 @@
 #include "menu.h"
 
 #include "draw.h"
-
 #include "GUI.h"
 
 #include "Parameter.h"
@@ -16,8 +15,7 @@
 typedef enum
 {
 	Sample_Item_Adc = 0,
-	Sample_Item_Duration,
-
+	
 	Sample_Item_OK,
 	Sample_Item_Cancel,
 	
@@ -39,41 +37,29 @@ static uint8 s_validSampleRates[] =
 };
 static uint8 s_validSampleRateIndex = 0;
 
-static uint8 s_sampleDuration = SAMPLE_DURATION_MIN;
-
+//draw normal adc
 static void DrawNormalADC()
 {
 	DrawSampleNormalADC(s_validSampleRates[s_validSampleRateIndex]);
 }
 
-static void DrawNormalDuration()
-{
-	DrawSampleNormalDuration(s_sampleDuration);
-}
-
 static void (*const s_drawSampleNormalItemFun[])() =
 {
 	[Sample_Item_Adc] = DrawNormalADC,
-	[Sample_Item_Duration] = DrawNormalDuration,
-
+	
 	[Sample_Item_OK] = DrawSampleNormalOK,
 	[Sample_Item_Cancel] = DrawSampleNormalCancel,
 };
 
+//draw sel adc
 static void DrawSelADC()
 {
 	DrawSampleSelADC(s_validSampleRates[s_validSampleRateIndex]);
 }
 
-static void DrawSelDuration()
-{
-	DrawSampleSelDuration(s_sampleDuration);
-}
-
 static void (*const s_drawSampleSelItemFun[])() =
 {
 	[Sample_Item_Adc] = DrawSelADC,
-	[Sample_Item_Duration] = DrawSelDuration,
 
 	[Sample_Item_OK] = DrawSampleSelOK,
 	[Sample_Item_Cancel] = DrawSampleSelCancel,
@@ -85,15 +71,9 @@ static void EnterEditADC()
 	DrawSampleEditADC(s_validSampleRates[s_validSampleRateIndex]);
 }
 
-static void EnterEditDuration()
-{
-	DrawSampleEditDuration(s_sampleDuration);
-}
-
 static void (*const s_enterSampleEditItemFun[])() =
 {
 	[Sample_Item_Adc] = EnterEditADC,
-	[Sample_Item_Duration] = EnterEditDuration,
 };
 
 //edit
@@ -114,33 +94,10 @@ static void EditADC(uint8 key)
 		DrawSampleEditADC(s_validSampleRates[s_validSampleRateIndex]);
 	}
 }
-
-static void EditDuration(uint8 key)
-{
-	if (key == KEY_LEFT)
-	{
-		s_sampleDuration -= SAMPLE_DURATION_MIN;
-		s_sampleDuration += (SAMPLE_DURATION_MAX - SAMPLE_DURATION_MIN + 1) - 1;
-		s_sampleDuration %= (SAMPLE_DURATION_MAX - SAMPLE_DURATION_MIN + 1);
-		s_sampleDuration += SAMPLE_DURATION_MIN;
-
-		DrawSampleEditDuration(s_sampleDuration);
-	}
-	else if (key == KEY_RIGHT)
-	{
-		s_sampleDuration -= SAMPLE_DURATION_MIN;
-		s_sampleDuration++;
-		s_sampleDuration %= (SAMPLE_DURATION_MAX - SAMPLE_DURATION_MIN + 1);
-		s_sampleDuration += SAMPLE_DURATION_MIN;
-
-		DrawSampleEditDuration(s_sampleDuration);
-	}
-}
 	
 static void (*const s_editSampleItemFun[])(uint8 key) =
 {
 	[Sample_Item_Adc] = EditADC,
-	[Sample_Item_Duration] = EditDuration,
 };
 
 static MENU_ID s_prevMenuId = MENU_ID_NONE;
@@ -168,16 +125,12 @@ static void OnMenuCreate(MENU_ID prevId)
 		index = 0;
 	}
 	s_validSampleRateIndex = index;
-	
-	s_sampleDuration = g_peakValleySampleDuration;
-	
+
 	DrawSampleMenu();
 
 	s_curEditItem = Sample_Item_None;
 	s_curSelItem = Sample_Item_Adc;
 	s_drawSampleSelItemFun[s_curSelItem]();
-
-	DrawNormalDuration();
 }
 
 static void OnMenuDestroy(MENU_ID nextId)
@@ -224,11 +177,9 @@ static void OnMenuKey(uint8 key, uint8 type)
 			if (s_curSelItem == Sample_Item_OK)
 			{
 				//save
-				if (s_validSampleRates[s_validSampleRateIndex] != g_sampleRate
-					|| s_sampleDuration != g_peakValleySampleDuration)
+				if (s_validSampleRates[s_validSampleRateIndex] != g_sampleRate)
 				{
 				 	g_sampleRate = s_validSampleRates[s_validSampleRateIndex];
-				 	g_peakValleySampleDuration = s_sampleDuration;
 				 	
 					SaveParameter();
 				}
@@ -296,4 +247,3 @@ ON_MENU_DESTROY()
 ON_MENU_KEY()
 
 END_MENU_HANDLER()
-

@@ -94,10 +94,10 @@
 #define DEFAULT_DISCOVERABLE_MODE             GAP_ADTYPE_FLAGS_GENERAL
 
 // Minimum connection interval (units of 1.25ms, 80=100ms) if automatic parameter update request is enabled
-#define DEFAULT_DESIRED_MIN_CONN_INTERVAL     8
+#define DEFAULT_DESIRED_MIN_CONN_INTERVAL     16
 
 // Maximum connection interval (units of 1.25ms, 800=1000ms) if automatic parameter update request is enabled
-#define DEFAULT_DESIRED_MAX_CONN_INTERVAL     10
+#define DEFAULT_DESIRED_MAX_CONN_INTERVAL     20
 
 // Slave latency to use if automatic parameter update request is enabled
 #define DEFAULT_DESIRED_SLAVE_LATENCY         0
@@ -357,17 +357,41 @@ void StartPowerAsistTimer(uint16 timerId, uint32 timeout, bool repeat)
 {
 	if (repeat)
 	{
-		osal_start_reload_timer(powerAsist_TaskID, 1 << timerId, timeout);
+		uint8 res = osal_start_reload_timer(powerAsist_TaskID, 1 << timerId, timeout);
+		if (res == SUCCESS)
+		{
+			TRACE("start repeat timer evt 0x%02X ok\r\n", 1 << timerId);
+		}
+		else
+		{
+			TRACE("start repeat timer evt 0x%02X failed\r\n", 1 << timerId);
+		}
 	}
 	else
 	{
-		osal_start_timerEx(powerAsist_TaskID, 1 << timerId, timeout);
+		uint8 res = osal_start_timerEx(powerAsist_TaskID, 1 << timerId, timeout);
+		if (res == SUCCESS)
+		{
+			TRACE("start timer evt 0x%02X ok\r\n", 1 << timerId);
+		}
+		else
+		{
+			TRACE("start timer evt 0x%02X failed\r\n", 1 << timerId);
+		}
 	}
 }
 
 void StopPowerAsistTimer(uint16 timerId)
 {	
-	osal_stop_timerEx(powerAsist_TaskID, 1 << timerId);
+	uint8 res = osal_stop_timerEx(powerAsist_TaskID, 1 << timerId);
+	if (res == SUCCESS)
+	{
+		TRACE("stop timer evt 0x%02X ok\r\n", 1 << timerId);
+	}
+	else
+	{
+		TRACE("stop timer evt 0x%02X failed\r\n", 1 << timerId);
+	}
 }
 
 void UpdateBleName(const uint8 *name)
