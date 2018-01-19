@@ -259,7 +259,7 @@ static void DrawString12(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 				}
 			}
 	
-			x += FULL_CHAR_WIDTH;	
+			x += FULL_CHAR_WIDTH;
 
 			if (x >= width)
 			{

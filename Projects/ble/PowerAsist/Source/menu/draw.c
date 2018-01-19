@@ -23,7 +23,7 @@
 #define MAIN_DATE_LEFT         45
 #define MAIN_DATE_TOP          95
 
-#define MAIN_TIME_LEFT         45
+#define MAIN_TIME_LEFT         61
 #define MAIN_TIME_TOP          112
 
 void DrawMainMenu()
@@ -284,7 +284,7 @@ void DrawMainDateTimeDelta(const TimeStruct *time)
 
 #define DETAIL_TYPE_VOLTAGE_LEFT 102
 
-#define DETAIL_UNIT_LEFT         105
+#define DETAIL_UNIT_LEFT         108
 
 #define DETAIL_VOLTAGE_LEFT      3
 #define DETAIL_VOLTAGE_TOP       32
@@ -1691,7 +1691,7 @@ void DrawSampleEditADC(uint8 fps)
 #define SCREEN_TITLE_TOP      10
 
 #define SCREEN_LOCK_LEFT      0
-#define SCREEN_LOCK_VAL_LEFT  72
+#define SCREEN_LOCK_VAL_LEFT  80
 #define SCREEN_LOCK_UNIT_LEFT 112
 #define SCREEN_LOCK_TOP       45
 
@@ -1711,7 +1711,7 @@ void DrawScreenMenu()
 	DrawString(font_20, SCREEN_TITLE_LEFT, SCREEN_TITLE_TOP, str_screen, CYAN, BACKGROUND_COLOR);
 
 	DrawString(font_20, SCREEN_LOCK_LEFT, SCREEN_LOCK_TOP, str_lock, CYAN, BACKGROUND_COLOR);
-	DrawString(font_20, SCREEN_LOCK_UNIT_LEFT, SCREEN_LOCK_TOP, "S", CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, SCREEN_LOCK_UNIT_LEFT, SCREEN_LOCK_TOP, "M", CYAN, BACKGROUND_COLOR);
 
 	DrawString(font_20, SCREEN_ANGLE_LEFT, SCREEN_ANGLE_TOP, str_angle, CYAN, BACKGROUND_COLOR);
 	DrawString(font_20, SCREEN_ANGLE_UNIT_LEFT, SCREEN_ANGLE_TOP, "D", CYAN, BACKGROUND_COLOR);
@@ -1720,11 +1720,22 @@ void DrawScreenMenu()
 	DrawScreenNormalCancel();
 }
 
-void DrawScreenNormalLock(uint8 second)
+void DrawScreenNormalLock(uint8 minute)
 {
-	char buf[3];
-	sprintf(buf, "%02d", second);
-	DrawString(font_20, SCREEN_LOCK_VAL_LEFT, SCREEN_LOCK_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	const uint8 *str;
+	if (minute == LOCK_NEVER)
+	{
+		str = " --";
+	}
+	else
+	{
+		char buf[3];
+		sprintf(buf, "%2d", minute);
+
+		str = (uint8 *)buf;
+	}
+	
+	DrawString(font_20, SCREEN_LOCK_VAL_LEFT, SCREEN_LOCK_TOP, str, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawScreenNormalAngle(uint16 angle)
@@ -1744,11 +1755,22 @@ void DrawScreenNormalCancel()
 	DrawString(font_16, SCREEN_CANCEL_LEFT, SCREEN_OK_TOP, str_cancel, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
-void DrawScreenSelLock(uint8 second)
+void DrawScreenSelLock(uint8 minute)
 {
-	char buf[3];
-	sprintf(buf, "%02d", second);
-	DrawString(font_20, SCREEN_LOCK_VAL_LEFT, SCREEN_LOCK_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	const uint8 *str;
+	if (minute == LOCK_NEVER)
+	{
+		str = " --";
+	}
+	else
+	{
+		char buf[3];
+		sprintf(buf, "%2d", minute);
+
+		str = (uint8 *)buf;
+	}
+
+	DrawString(font_20, SCREEN_LOCK_VAL_LEFT, SCREEN_LOCK_TOP, str, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawScreenSelAngle(uint16 angle)
@@ -1768,11 +1790,22 @@ void DrawScreenSelCancel()
 	DrawString(font_16, SCREEN_CANCEL_LEFT, SCREEN_OK_TOP, str_cancel, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
-void DrawScreenEditLock(uint8 second)
+void DrawScreenEditLock(uint8 minute)
 {
-	char buf[3];
-	sprintf(buf, "%02d", second);
-	DrawString(font_20, SCREEN_LOCK_VAL_LEFT, SCREEN_LOCK_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	const uint8 *str;
+	if (minute == LOCK_NEVER)
+	{
+		str = " --";
+	}
+	else
+	{
+		char buf[3];
+		sprintf(buf, "%2d", minute);
+
+		str = (uint8 *)buf;
+	}
+	
+	DrawString(font_20, SCREEN_LOCK_VAL_LEFT, SCREEN_LOCK_TOP, str, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawScreenEditAngle(uint16 angle)

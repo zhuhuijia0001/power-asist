@@ -26,7 +26,16 @@ static ScreenItem s_curSelItem = Screen_Item_None;
 
 static ScreenItem s_curEditItem = Screen_Item_None;
 
-static uint8 s_lock = LOCK_MAX;
+static uint8 s_validLockTime[] = 
+{
+	[0] = LOCK_1_MIN,
+	[1] = LOCK_2_MIN,
+	[2] = LOCK_3_MIN,
+	[3] = LOCK_4_MIN,
+	[4] = LOCK_5_MIN,
+	[5] = LOCK_NEVER,
+};
+static uint8 s_validLockTimeIndex = 0;
 
 static uint8 s_orientation = ORIENTATION_0;
 
@@ -40,7 +49,7 @@ static const uint16 s_orientationMap[] =
 
 static void DrawNormalLock()
 {
-	DrawScreenNormalLock(s_lock);
+	DrawScreenNormalLock(s_validLockTime[s_validLockTimeIndex]);
 }
 
 static void DrawNormalAngle()
@@ -59,7 +68,7 @@ static void (*const s_drawScreenNormalItemFun[])() =
 
 static void DrawSelLock()
 {
-	DrawScreenSelLock(s_lock);
+	DrawScreenSelLock(s_validLockTime[s_validLockTimeIndex]);
 }
 
 static void DrawSelAngle()
@@ -79,7 +88,7 @@ static void (*const s_drawScreenSelItemFun[])() =
 //enter edit
 static void EnterEditLock()
 {
-	DrawScreenEditLock(s_lock);
+	DrawScreenEditLock(s_validLockTime[s_validLockTimeIndex]);
 }
 
 static void EnterEditAngle()
@@ -99,15 +108,17 @@ static void EditLock(uint8 key)
 {
 	if (key == KEY_LEFT)
 	{
-		s_lock = (s_lock - LOCK_MIN + (LOCK_MAX - LOCK_MIN + 1) - 1) % (LOCK_MAX - LOCK_MIN + 1) + LOCK_MIN;
-
-		DrawScreenEditLock(s_lock);
+		s_validLockTimeIndex += sizeof(s_validLockTime) / sizeof(s_validLockTime[0]) - 1;
+		s_validLockTimeIndex %= sizeof(s_validLockTime) / sizeof(s_validLockTime[0]);
+		
+		DrawScreenEditLock(s_validLockTime[s_validLockTimeIndex]);
 	}
 	else if (key == KEY_RIGHT)
 	{
-		s_lock = (s_lock - LOCK_MIN + 1) % (LOCK_MAX - LOCK_MIN + 1) + LOCK_MIN;
+		s_validLockTimeIndex++;
+		s_validLockTimeIndex %= sizeof(s_validLockTime) / sizeof(s_validLockTime[0]);
 
-		DrawScreenEditLock(s_lock);
+		DrawScreenEditLock(s_validLockTime[s_validLockTimeIndex]);
 	}
 }
 
@@ -137,11 +148,30 @@ static void (*const s_editScreenItemFun[])(uint8 key) =
 
 static MENU_ID s_prevMenuId = MENU_ID_NONE;
 
+static uint8 FindLockTimeIndex(uint8 minute)
+{
+	for (uint8 i = 0; i < sizeof(s_validLockTime) / sizeof(s_validLockTime[0]); i++)
+	{
+		if (s_validLockTime[i] == minute)
+		{
+			return i;
+		}
+	}
+
+	return 0xff;
+}
+
 static void OnMenuCreate(MENU_ID prevId)
 {
 	s_prevMenuId = prevId;
 
-	s_lock = g_screenLockTime;
+	uint8 index = FindLockTimeIndex(g_screenLockTime);
+	if (index == 0xff)
+	{
+		index = 0;
+	}
+	s_validLockTimeIndex = index;
+	
 	s_orientation = g_screenAngle;
 	
 	DrawScreenMenu();
@@ -198,10 +228,10 @@ static void OnMenuKey(uint8 key, uint8 type)
 			if (s_curSelItem == Screen_Item_OK)
 			{
 				//save
-				if (s_lock != g_screenLockTime
+				if (s_validLockTime[s_validLockTimeIndex] != g_screenLockTime
 					|| s_orientation != g_screenAngle)
 				{
-					g_screenLockTime = s_lock;
+					g_screenLockTime = s_validLockTime[s_validLockTimeIndex];
 					g_screenAngle = s_orientation;
 					
 					SaveParameter();

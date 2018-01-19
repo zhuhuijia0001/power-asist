@@ -4618,6 +4618,9 @@
       <name>$PROJ_DIR$\..\Source\menu\menuDetail.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\Source\menu\menuLock.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\Source\menu\menuMain.c</name>
     </file>
     <file>

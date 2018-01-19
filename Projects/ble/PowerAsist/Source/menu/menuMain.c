@@ -30,6 +30,8 @@
 
 #define MAIN_MENU_TIMERID_RTC          (POWERASIST_FIRST_TIMERID + 1)
 
+#define MAIN_MENU_TIMERID_LOCK         (POWERASIST_FIRST_TIMERID + 2)
+
 #define MAIN_RTC_INTERVAL          1000ul
 
 //key state
@@ -118,6 +120,12 @@ static void OnMenuCreate(MENU_ID prevId)
 	StartPowerAsistTimer(MAIN_MENU_TIMERID_MEASURE, sampleInterval, true);
 
 	StartPowerAsistTimer(MAIN_MENU_TIMERID_RTC, MAIN_RTC_INTERVAL, true);
+
+	if (g_screenLockTime != LOCK_NEVER)
+	{
+		uint32 lockTime = g_screenLockTime * 60 * 1000ul;
+		StartPowerAsistTimer(MAIN_MENU_TIMERID_LOCK, lockTime, false);
+	}
 }
 
 static void OnMenuDestroy(MENU_ID nextId)
@@ -126,6 +134,11 @@ static void OnMenuDestroy(MENU_ID nextId)
 
 	StopPowerAsistTimer(MAIN_MENU_TIMERID_RTC);
 
+	if (g_screenLockTime != LOCK_NEVER)
+	{
+		StopPowerAsistTimer(MAIN_MENU_TIMERID_LOCK);
+	}
+	
 	ClearScreen(BLACK);
 }
 
@@ -291,6 +304,10 @@ static void OnMenuTimeout(uint16 timerId)
 	else if (timerId == MAIN_MENU_TIMERID_RTC)
 	{
 		RefreshMainMenuRTC();
+	}
+	else if (timerId == MAIN_MENU_TIMERID_LOCK)
+	{
+		SwitchToMenu(MENU_ID_LOCK);
 	}
 }
 

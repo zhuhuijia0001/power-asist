@@ -29,7 +29,7 @@ static const Parameter s_defaultParameter =
 
 	.autoDetect = AUTO_DETECT_OFF,
 
- 	.screenLockTime = LOCK_MAX,
+ 	.screenLockTime = DEFAULT_LOCK_MIN,
 
  	.screenAngle = ORIENTATION_0,
 

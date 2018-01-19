@@ -22,7 +22,9 @@
 
 #include "npi.h"
 
-#define DETAIL_MENU_TIMERID          (POWERASIST_FIRST_TIMERID + 0)
+#define DETAIL_MENU_TIMERID_REFRESH  (POWERASIST_FIRST_TIMERID + 0)
+
+#define DETAIL_MENU_TIMERID_LOCK     (POWERASIST_FIRST_TIMERID + 1)
 
 //key state
 static uint8 s_keyLeftStatus = HAL_KEY_STATE_RELEASE;
@@ -138,13 +140,24 @@ static void OnMenuCreate(MENU_ID prevId)
 	DrawDetailMenuContent();
 
 	uint32 sampleInterval = 1000ul / g_sampleRate;
-	StartPowerAsistTimer(DETAIL_MENU_TIMERID, sampleInterval, true);
+	StartPowerAsistTimer(DETAIL_MENU_TIMERID_REFRESH, sampleInterval, true);
+
+	if (g_screenLockTime != LOCK_NEVER)
+	{
+		uint32 lockTime = g_screenLockTime * 60 * 1000ul;
+		StartPowerAsistTimer(DETAIL_MENU_TIMERID_LOCK, lockTime, false);
+	}
 }
 
 static void OnMenuDestroy(MENU_ID nextId)
 {
-	StopPowerAsistTimer(DETAIL_MENU_TIMERID);
+	StopPowerAsistTimer(DETAIL_MENU_TIMERID_REFRESH);
 
+	if (g_screenLockTime != LOCK_NEVER)
+	{
+		StopPowerAsistTimer(DETAIL_MENU_TIMERID_LOCK);
+	}
+	
 	ClearScreen(BLACK);
 }
 
@@ -301,7 +314,14 @@ static void OnMenuKey(uint8 key, uint8 type)
 
 static void OnMenuTimeout(uint16 timerId)
 {
-	RefreshDetailMenuContent();
+	if (timerId == DETAIL_MENU_TIMERID_REFRESH)
+	{
+		RefreshDetailMenuContent();
+	}
+	else if (timerId == DETAIL_MENU_TIMERID_LOCK)
+	{
+		SwitchToMenu(MENU_ID_LOCK);
+	}
 }
 
 BEGIN_MENU_HANDLER(MENU_ID_DETAIL)

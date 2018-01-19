@@ -7,13 +7,21 @@
 #define BLE_ON     1
 #define BLE_OFF    0
 
-#define LOCK_MIN  10
-#define LOCK_MAX  60
+//minute
+#define LOCK_1_MIN   1
+#define LOCK_2_MIN   2
+#define LOCK_3_MIN   3
+#define LOCK_4_MIN   4
+#define LOCK_5_MIN   5
+#define LOCK_NEVER   0xff
+
+#define DEFAULT_LOCK_MIN     LOCK_5_MIN
 
 #define AUTO_DETECT_ON       1
 #define AUTO_DETECT_OFF      0
 
 //sample rate
+#define SAMPLE_RATE_50              50
 #define SAMPLE_RATE_20              20
 #define SAMPLE_RATE_10              10
 #define SAMPLE_RATE_5               5

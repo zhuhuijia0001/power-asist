@@ -34,6 +34,7 @@ static uint8 s_validSampleRates[] =
 	[2] = SAMPLE_RATE_5,
 	[3] = SAMPLE_RATE_10,
 	[4] = SAMPLE_RATE_20,
+	[5] = SAMPLE_RATE_50,
 };
 static uint8 s_validSampleRateIndex = 0;
 
@@ -247,3 +248,4 @@ ON_MENU_DESTROY()
 ON_MENU_KEY()
 
 END_MENU_HANDLER()
+
