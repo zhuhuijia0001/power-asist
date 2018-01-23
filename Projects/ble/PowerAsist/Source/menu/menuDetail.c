@@ -59,11 +59,27 @@ static void DrawDetailMenuContent()
 		DrawDetailPower(integer, frac);
 	}
 
+	wh_ah_status status = GetWhAndAhStatus();
+	
 	GetLoadWh(&integer16, &frac);
-	DrawDetailWh(integer16, frac);
-
+	if (status == WH_AH_STATUS_STOPPED)
+	{
+		DrawDetailWh(integer16, frac, RED);
+	}
+	else
+	{
+		DrawDetailWh(integer16, frac, GREEN);
+	}
+	
 	GetLoadAh(&integer16, &frac);
-	DrawDetailAh(integer16, frac);
+	if (status == WH_AH_STATUS_STOPPED)
+	{
+		DrawDetailAh(integer16, frac, RED);
+	}
+	else
+	{
+		DrawDetailAh(integer16, frac, GREEN);
+	}
 }
 
 static void RefreshDetailMenuContent()
@@ -102,13 +118,27 @@ static void RefreshDetailMenuContent()
 		DrawDetailPowerDelta(integer, frac);
 	}
 
+	wh_ah_status status = GetWhAndAhStatus();
+	
 	GetLoadWh(&integer16, &frac);
-	//TRACE("Wh:%d.%04dWh\r\n", integer16, frac);
-	DrawDetailWh(integer16, frac);
-
+	if (status == WH_AH_STATUS_STOPPED)
+	{
+		DrawDetailWhDelta(integer16, frac, RED);
+	}
+	else
+	{
+		DrawDetailWhDelta(integer16, frac, GREEN);
+	}
+	
 	GetLoadAh(&integer16, &frac);
-	//TRACE("Ah:%d.%04dAh\r\n", integer16, frac);
-	DrawDetailAh(integer16, frac);
+	if (status == WH_AH_STATUS_STOPPED)
+	{
+		DrawDetailAhDelta(integer16, frac, RED);
+	}
+	else
+	{
+		DrawDetailAhDelta(integer16, frac, GREEN);
+	}
 }
 
 static void DrawSnifferType()
@@ -161,7 +191,22 @@ static void OnMenuDestroy(MENU_ID nextId)
 	ClearScreen(BLACK);
 }
 
-static void MessageCallback(uint8 result)
+static const unsigned char *str_warning = "WARNING";
+
+static const unsigned char *s_str_sniffer_warning = "High voltage\nwill appear on\nload port in\nsniffering mode";
+
+#define MESSAGE_LEFT   0
+#define MESSAGE_TOP    22
+
+static void MessageCallbackWarning(uint8 result)
+{
+	if (result == MESSAGE_OK)
+	{
+		SwitchToMenu(MENU_ID_SNIFFER);
+	}
+}
+
+static void MessageCallbackSniffer(uint8 result)
 {
 	if (result == MESSAGE_YES)
 	{
@@ -178,7 +223,7 @@ static void MessageCallback(uint8 result)
 
 		SetCurrentSnifferStatus(SNIFFER_NONE);
 		
-		SwitchToMenu(MENU_ID_SNIFFER);
+		EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, s_str_sniffer_warning, str_warning, MSG_TYPE_OK | MSG_TYPE_WARNING, MessageCallbackWarning);
 	}
 	else
 	{
@@ -186,13 +231,12 @@ static void MessageCallback(uint8 result)
 	}
 }
 
-#define MESSAGE_LEFT   0
-#define MESSAGE_TOP    30
-
 static void OnMenuKey(uint8 key, uint8 type)
 {
 	if (key == KEY_LEFT)
 	{
+	  	wh_ah_status status;
+		
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
@@ -202,19 +246,14 @@ static void OnMenuKey(uint8 key, uint8 type)
 
 		case HAL_KEY_STATE_LONG:
 			s_keyLeftStatus = HAL_KEY_STATE_LONG;
-
-			//rotate
-			ClearScreen(BACKGROUND_COLOR);
-
-			g_screenAngle += ORIENTATION_COUNT - 1;
-			g_screenAngle %= ORIENTATION_COUNT;
-			SetLcdOrientation((Orientation)g_screenAngle);
-
-			SaveParameter();
 			
-			DrawDetailMenu();
-			DrawSnifferType();
-			DrawDetailMenuContent();
+			status = GetWhAndAhStatus();
+			if (status == WH_AH_STATUS_STOPPED)
+			{
+				StartAccumulateWhAndAh();
+
+				DrawDetailMenuContent();
+			}
 	
 			break;
 
@@ -225,11 +264,11 @@ static void OnMenuKey(uint8 key, uint8 type)
 
 				if (GetCurrentSnifferStatus() != SNIFFER_NONE)
 				{
-					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", NULL, MSG_TYPE_YES_NO, MessageCallbackSniffer);
 				}
 				else
 				{
-					SwitchToMenu(MENU_ID_SNIFFER);
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, s_str_sniffer_warning, str_warning, MSG_TYPE_OK | MSG_TYPE_WARNING, MessageCallbackWarning);
 				}
 			}
 
@@ -272,6 +311,8 @@ static void OnMenuKey(uint8 key, uint8 type)
 	}
 	else if (key == KEY_RIGHT)
 	{
+		wh_ah_status status;
+		
 		switch (type)
 		{
 		case HAL_KEY_STATE_PRESS:
@@ -282,18 +323,17 @@ static void OnMenuKey(uint8 key, uint8 type)
 		case HAL_KEY_STATE_LONG:
 			s_keyRightStatus = HAL_KEY_STATE_LONG;
 
-			//rotate
-			ClearScreen(BACKGROUND_COLOR);
+			status = GetWhAndAhStatus();
+			if (status == WH_AH_STATUS_STARTED)
+			{
+				StopAccumulateWhAndAh();
 
-			g_screenAngle++;
-			g_screenAngle %= ORIENTATION_COUNT;
-			SetLcdOrientation((Orientation)g_screenAngle);
-
-			SaveParameter();
-			
-			DrawDetailMenu();
-			DrawSnifferType();
-			DrawDetailMenuContent();
+				DrawDetailMenuContent();
+			}
+			else
+			{
+				FlushLoadWhAndAh();
+			}
 	
 			break;
 

@@ -243,11 +243,15 @@ bool GetADCTemperature(uint8 *TInt, uint8 *TFrac)
 #endif
 }
 
+static wh_ah_status s_wh_ah_status = WH_AH_STATUS_STOPPED;
+
 void StartAccumulateWhAndAh()
 {
 	s_prescaleCounter = SAVE_REAL_DATA_PRESCALE;
 	
 	osal_start_reload_timer(Hal_TaskID, SAMPLE_A_W_EVENT, 1000ul / SAMPLE_PER_SECOND);
+
+	s_wh_ah_status = WH_AH_STATUS_STARTED; 
 }
 
 void StopAccumulateWhAndAh()
@@ -255,6 +259,13 @@ void StopAccumulateWhAndAh()
 	s_prescaleCounter = 0;
 	
 	osal_stop_timerEx(Hal_TaskID, SAMPLE_A_W_EVENT);
+
+	s_wh_ah_status = WH_AH_STATUS_STOPPED;
+}
+
+wh_ah_status GetWhAndAhStatus()
+{
+	return s_wh_ah_status;
 }
 
 void GetSavedLoadWhAndAh()

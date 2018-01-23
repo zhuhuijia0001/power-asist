@@ -23,8 +23,17 @@ extern void GetDMVoltage(uint8 *VInt, uint16 *VFrac);
 
 extern bool GetADCTemperature(uint8 *TInt, uint8 *TFrac);
 
+//ah wh status
+typedef enum
+{
+	WH_AH_STATUS_STARTED = 0,
+	WH_AH_STATUS_STOPPED,
+} wh_ah_status;
+
 extern void StartAccumulateWhAndAh();
 extern void StopAccumulateWhAndAh();
+
+extern wh_ah_status GetWhAndAhStatus();
 
 extern void GetSavedLoadWhAndAh();
 extern void AccumulateLoadWhAndAh();

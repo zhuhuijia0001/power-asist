@@ -17,6 +17,7 @@
 #include "powerAsistGATTprofile.h"
 #include "PowerAsist.h"
 
+
 typedef enum
 {
 	Sniffer_Item_QC20 = 0,
@@ -63,9 +64,9 @@ static const MENU_ID s_menuId[] =
 static void OnMenuCreate(MENU_ID prevId)
 {	
 	DrawSnifferMenu();
-
+		
 	s_curSelItem = Sniffer_Item_QC20;
-	s_drawSnifferSelectedItemFun[s_curSelItem]();
+	s_drawSnifferSelectedItemFun[s_curSelItem]();		
 }
 
 static void OnMenuDestroy(MENU_ID nextId)

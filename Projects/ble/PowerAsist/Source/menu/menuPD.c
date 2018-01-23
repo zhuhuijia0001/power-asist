@@ -74,7 +74,7 @@ static void RequestCallback(uint8 requestedVoltage, uint8 res)
 	s_requesting = false;
 }
 
-static void RefreshPDMenuContent()
+static void DrawPDMenuContent()
 {	
 	uint8 integer;
 	uint16 frac;
@@ -90,6 +90,22 @@ static void RefreshPDMenuContent()
 	}
 }
 
+static void RefreshPDMenuContent()
+{	
+	uint8 integer;
+	uint16 frac;
+	
+	if (GetBusVoltage(&integer, &frac))
+	{
+		DrawPDVoltageDelta(integer, frac);
+	}
+	
+	if (GetLoadCurrent(&integer, &frac))
+	{
+		DrawPDCurrentDelta(integer, frac);
+	}
+}
+
 static void OnMenuCreate(MENU_ID prevId)
 {
 	const CapabilityList *list = GetPDCaps();
@@ -99,7 +115,7 @@ static void OnMenuCreate(MENU_ID prevId)
 	DrawPDMenu();
 	DrawPDItem(s_curCapIndex, &s_caps[s_curCapIndex]);
 
-	RefreshPDMenuContent();
+	DrawPDMenuContent();
 
 	uint32 sampleInterval = 1000ul / g_sampleRate;
 	StartPowerAsistTimer(PD_MENU_TIMERID, sampleInterval, true);
@@ -113,9 +129,6 @@ static void OnMenuDestroy(MENU_ID nextId)
 	StopPowerAsistTimer(PD_MENU_TIMERID);
 	
 	ClearScreen(BLACK);
-
-	//Start accumulate
-	StartAccumulateWhAndAh();
 }
 
 static void MessageCallback(uint8 result)
@@ -167,7 +180,7 @@ static void OnMenuKey(uint8 key, uint8 type)
 		case HAL_KEY_STATE_PRESS:
 			if (GetCurrentSnifferStatus() != SNIFFER_NONE)
 			{
-				EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+				EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", NULL, MSG_TYPE_YES_NO, MessageCallback);
 			}
 			else
 			{

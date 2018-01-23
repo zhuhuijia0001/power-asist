@@ -50,54 +50,96 @@ static void DrawVBusValue(FONT font, uint16 x, uint16 y, uint8 dec, uint16 frac,
 	DrawString(font, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
 }
 
-static void DrawVBusValueDec(FONT font, uint16 x, uint16 y, uint8 dec, uint16 fc)
+static void FormatVBusValueDec(uint8 *buf, uint8 dec)
 {
-	char buf[10];
 	if (dec < 10)
 	{
-		sprintf(buf, "% d", dec);
+		sprintf((char *)buf, "% d", dec);
 	}
 	else
 	{
-		sprintf(buf, "%2d", dec);
+		sprintf((char *)buf, "%2d", dec);
 	}
-	
-	DrawString(font, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
 }
 
-static void DrawVBusValueFrac(FONT font, uint16 x, uint16 y, uint16 frac, uint16 fc)
+static void FormatVBusValueFrac(uint8 *buf, uint16 frac)
 {
-	char buf[10];
-	sprintf(buf, "%04d", frac);
-	
-	DrawString(font, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
+	sprintf((char *)buf, "%04d", frac);
+}
+
+
+#define VBUS_VAL_DEC_DIGIT_WIDTH     2
+#define VBUS_VAL_FRAC_DIGIT_WIDTH    4
+
+static void DrawVBusValueDecDelta(FONT font, uint16 x, uint16 y, uint8 dec, uint8 *decDigit, uint16 fc)
+{
+	uint8 buf[VBUS_VAL_DEC_DIGIT_WIDTH + 1];
+	FormatVBusValueDec(buf, dec);
+
+	uint8 width = GetStringWidth(font, "0");
+	for (uint8 i = 0; i < VBUS_VAL_DEC_DIGIT_WIDTH; i++)
+	{
+		if (buf[i] != decDigit[i])
+		{
+			DrawChar(font, x, y, buf[i], CYAN, BACKGROUND_COLOR);
+
+			decDigit[i] = buf[i];
+		}
+		
+		x += width;
+	}
+}
+
+static void DrawVBusValueFracDelta(FONT font, uint16 x, uint16 y, uint16 frac, uint8 *fracDigit, uint16 fc)
+{
+	uint8 buf[VBUS_VAL_FRAC_DIGIT_WIDTH + 1];
+	FormatVBusValueFrac(buf, frac);
+
+	uint8 width = GetStringWidth(font, "0");
+	for (uint8 i = 0; i < VBUS_VAL_FRAC_DIGIT_WIDTH; i++)
+	{
+		if (buf[i] != fracDigit[i])
+		{
+			DrawChar(font, x, y, buf[i], CYAN, BACKGROUND_COLOR);
+
+			fracDigit[i] = buf[i];
+		}
+		
+		x += width;
+	}
 }
 
 //Avoid redrawing
 static uint8 s_mainVoltageDecSave = 0;
 static uint16 s_mainVoltageFracSave = 0;
 
+static uint8 s_mainVoltageDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_mainVoltageFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawMainVoltage(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_24, MAIN_VOLTAGE_LEFT, MAIN_VOLTAGE_TOP, dec, frac, CYAN);
 
 	s_mainVoltageDecSave = dec;
+	FormatVBusValueDec(s_mainVoltageDecDigit, dec);
+	
 	s_mainVoltageFracSave = frac;
+	FormatVBusValueFrac(s_mainVoltageFracDigit, frac);
 }
 
 void DrawMainVoltageDelta(uint8 dec, uint16 frac)
 {
 	if (dec != s_mainVoltageDecSave)
 	{
-		DrawVBusValueDec(font_24, MAIN_VOLTAGE_LEFT, MAIN_VOLTAGE_TOP, dec, CYAN);
+		DrawVBusValueDecDelta(font_24, MAIN_VOLTAGE_LEFT, MAIN_VOLTAGE_TOP, dec, s_mainVoltageDecDigit, CYAN);
 		
 		s_mainVoltageDecSave = dec;
 	}
 
 	if (frac != s_mainVoltageFracSave)
 	{
-		DrawVBusValueFrac(font_24, MAIN_VOLTAGE_LEFT + GetStringWidth(font_24, "00."), MAIN_VOLTAGE_TOP,
-					frac, CYAN);
+		DrawVBusValueFracDelta(font_24, MAIN_VOLTAGE_LEFT + GetStringWidth(font_24, "00."), MAIN_VOLTAGE_TOP,
+								frac, s_mainVoltageFracDigit, CYAN);
 		
 		s_mainVoltageFracSave = frac;
 	}
@@ -106,27 +148,33 @@ void DrawMainVoltageDelta(uint8 dec, uint16 frac)
 static uint8 s_mainCurrentDecSave = 0;
 static uint16 s_mainCurrentFracSave = 0;
 
+static uint8 s_mainCurrentDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_mainCurrentFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawMainCurrent(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_24, MAIN_CURRENT_LEFT, MAIN_CURRENT_TOP, dec, frac, CYAN);
 
 	s_mainCurrentDecSave = dec;
+	FormatVBusValueDec(s_mainCurrentDecDigit, dec);
+	
 	s_mainCurrentFracSave = frac;
+	FormatVBusValueFrac(s_mainCurrentFracDigit, frac);
 }
 
 void DrawMainCurrentDelta(uint8 dec, uint16 frac)
 {
 	if (dec != s_mainCurrentDecSave)
-	{
-		DrawVBusValueDec(font_24, MAIN_CURRENT_LEFT, MAIN_CURRENT_TOP, dec, CYAN);
+	{	
+		DrawVBusValueDecDelta(font_24, MAIN_CURRENT_LEFT, MAIN_CURRENT_TOP, dec, s_mainCurrentDecDigit, CYAN);
 		
 		s_mainCurrentDecSave = dec;
 	}
 
 	if (frac != s_mainCurrentFracSave)
 	{
-		DrawVBusValueFrac(font_24, MAIN_CURRENT_LEFT + GetStringWidth(font_24, "00."), MAIN_CURRENT_TOP,
-					frac, CYAN);
+		DrawVBusValueFracDelta(font_24, MAIN_CURRENT_LEFT + GetStringWidth(font_24, "00."), MAIN_CURRENT_TOP,
+								frac, s_mainCurrentFracDigit, CYAN);
 					
 		s_mainCurrentFracSave = frac;
 	}
@@ -135,32 +183,37 @@ void DrawMainCurrentDelta(uint8 dec, uint16 frac)
 static uint8 s_mainPowerDecSave = 0;
 static uint16 s_mainPowerFracSave = 0;
 
+static uint8 s_mainPowerDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_mainPowerFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawMainPower(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_24, MAIN_POWER_LEFT, MAIN_POWER_TOP, dec, frac, CYAN);
 
 	s_mainPowerDecSave = dec;
+	FormatVBusValueDec(s_mainPowerDecDigit, dec);
+	
 	s_mainPowerFracSave = frac;
+	FormatVBusValueFrac(s_mainPowerFracDigit, frac);
 }
 
 void DrawMainPowerDelta(uint8 dec, uint16 frac)
 {
 	if (dec != s_mainPowerDecSave)
 	{
-		DrawVBusValueDec(font_24, MAIN_POWER_LEFT, MAIN_POWER_TOP, dec, CYAN);
+		DrawVBusValueDecDelta(font_24, MAIN_POWER_LEFT, MAIN_POWER_TOP, dec, s_mainPowerDecDigit, CYAN);
 		
 		s_mainPowerDecSave = dec;
 	}
 
 	if (frac != s_mainPowerFracSave)
 	{
-		DrawVBusValueFrac(font_24, MAIN_POWER_LEFT + GetStringWidth(font_24, "00."), MAIN_POWER_TOP,
-					frac, CYAN);
+		DrawVBusValueFracDelta(font_24, MAIN_POWER_LEFT + GetStringWidth(font_24, "00."), MAIN_POWER_TOP,
+								frac, s_mainPowerFracDigit, CYAN);
 					
 		s_mainPowerFracSave = frac;
 	}
 }
-
 
 static TimeStruct s_timeSave;
 
@@ -295,13 +348,13 @@ void DrawMainDateTimeDelta(const TimeStruct *time)
 #define DETAIL_POWER_LEFT        3
 #define DETAIL_POWER_TOP         72
 
-#define DETAIL_WH_LEFT           45
+#define DETAIL_WH_LEFT           15
 #define DETAIL_WH_TOP            92
 #define DETAIL_WH_UNIT_LEFT      100
 
-#define DETAIL_AH_LEFT           45
+#define DETAIL_AH_LEFT           DETAIL_WH_LEFT
 #define DETAIL_AH_TOP            108
-#define DETAIL_AH_UNIT_LEFT      100
+#define DETAIL_AH_UNIT_LEFT      DETAIL_WH_UNIT_LEFT
 
 void DrawDetailSniffer(SnifferStatus sniffer, uint8 voltage)
 {
@@ -385,27 +438,33 @@ void DrawDetailDm(uint8 dec, uint16 frac)
 static uint8 s_detailVoltageDecSave = 0;
 static uint16 s_detailVoltageFracSave = 0;
 
+static uint8 s_detailVoltageDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_detailVoltageFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawDetailVoltage(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, DETAIL_VOLTAGE_LEFT, DETAIL_VOLTAGE_TOP, dec, frac, CYAN);
 
 	s_detailVoltageDecSave = dec;
+	FormatVBusValueDec(s_detailVoltageDecDigit, dec);
+	
 	s_detailVoltageFracSave = frac;
+	FormatVBusValueFrac(s_detailVoltageFracDigit, frac);
 }
 
 void DrawDetailVoltageDelta(uint8 dec, uint16 frac)
 {
 	if (dec != s_detailVoltageDecSave)
 	{
-		DrawVBusValueDec(font_20, DETAIL_VOLTAGE_LEFT, DETAIL_VOLTAGE_TOP, dec, CYAN);
+		DrawVBusValueDecDelta(font_20, DETAIL_VOLTAGE_LEFT, DETAIL_VOLTAGE_TOP, dec, s_detailVoltageDecDigit, CYAN);
 
 		s_detailVoltageDecSave = dec;
 	}
 
 	if (frac != s_detailVoltageFracSave)
 	{
-		DrawVBusValueFrac(font_20, DETAIL_VOLTAGE_LEFT + GetStringWidth(font_20, "00."), 
-					DETAIL_VOLTAGE_TOP, frac, CYAN);
+		DrawVBusValueFracDelta(font_20, DETAIL_VOLTAGE_LEFT + GetStringWidth(font_20, "00."), DETAIL_VOLTAGE_TOP,
+								frac, s_detailVoltageFracDigit, CYAN);
 					
 		s_detailVoltageFracSave = frac;
 	}
@@ -414,27 +473,33 @@ void DrawDetailVoltageDelta(uint8 dec, uint16 frac)
 static uint8 s_detailCurrentDecSave = 0;
 static uint16 s_detailCurrentFracSave = 0;
 
+static uint8 s_detailCurrentDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_detailCurrentFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawDetailCurrent(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, DETAIL_CURRENT_LEFT, DETAIL_CURRENT_TOP, dec, frac, CYAN);
 
 	s_detailCurrentDecSave = dec;
+	FormatVBusValueDec(s_detailCurrentDecDigit, dec);
+	
 	s_detailCurrentFracSave = frac;
+	FormatVBusValueFrac(s_detailCurrentFracDigit, frac);
 }
 
 void DrawDetailCurrentDelta(uint8 dec, uint16 frac)
 {
 	if (dec != s_detailCurrentDecSave)
 	{
-		DrawVBusValueDec(font_20, DETAIL_CURRENT_LEFT, DETAIL_CURRENT_TOP, dec, CYAN);
+		DrawVBusValueDecDelta(font_20, DETAIL_CURRENT_LEFT, DETAIL_CURRENT_TOP, dec, s_detailCurrentDecDigit, CYAN);
 		
 		s_detailCurrentDecSave = dec;
 	}
 
 	if (frac != s_detailCurrentFracSave)
 	{
-		DrawVBusValueFrac(font_20, DETAIL_CURRENT_LEFT + GetStringWidth(font_20, "00."), 
-					DETAIL_CURRENT_TOP, frac, CYAN);
+		DrawVBusValueFracDelta(font_20, DETAIL_CURRENT_LEFT + GetStringWidth(font_20, "00."), DETAIL_CURRENT_TOP,
+								frac, s_detailCurrentFracDigit, CYAN);
 					
 		s_detailCurrentFracSave = frac;
 	}
@@ -443,27 +508,33 @@ void DrawDetailCurrentDelta(uint8 dec, uint16 frac)
 static uint8 s_detailPowerDecSave = 0;
 static uint16 s_detailPowerFracSave = 0;
 
+static uint8 s_detailPowerDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_detailPowerFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawDetailPower(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, DETAIL_POWER_LEFT, DETAIL_POWER_TOP, dec, frac, CYAN);
 
 	s_detailPowerDecSave = dec;
+	FormatVBusValueDec(s_detailPowerDecDigit, dec);
+	
 	s_detailPowerFracSave = frac;
+	FormatVBusValueFrac(s_detailPowerFracDigit, frac);
 }
 
 void DrawDetailPowerDelta(uint8 dec, uint16 frac)
 {
 	if (dec != s_detailPowerDecSave)
 	{
-		DrawVBusValueDec(font_20, DETAIL_POWER_LEFT, DETAIL_POWER_TOP, dec, CYAN);
+		DrawVBusValueDecDelta(font_20, DETAIL_POWER_LEFT, DETAIL_POWER_TOP, dec, s_detailPowerDecDigit, CYAN);
 		
 		s_detailPowerDecSave = dec;
 	}
 
 	if (frac != s_detailPowerFracSave)
 	{
-		DrawVBusValueFrac(font_20, DETAIL_POWER_LEFT + GetStringWidth(font_20, "00."), 
-					DETAIL_POWER_TOP, frac, CYAN);
+		DrawVBusValueFracDelta(font_20, DETAIL_POWER_LEFT + GetStringWidth(font_20, "00."), DETAIL_POWER_TOP,
+								frac, s_detailPowerFracDigit, CYAN);
 					
 		s_detailPowerFracSave = frac;
 	}
@@ -471,20 +542,76 @@ void DrawDetailPowerDelta(uint8 dec, uint16 frac)
 
 static void DrawDetailAhWh(uint16 x, uint16 y, uint16 dec, uint16 frac, uint16 fc)
 {
-	char buf[10];
-	sprintf(buf, "%d.%04d", dec, frac);
+	char buf[12];
+	sprintf(buf, "%5d.%04d", dec, frac);
 
 	DrawString(font_16, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
 }
 
-void DrawDetailWh(uint16 dec, uint16 frac)
+static uint16 s_detailWhDec = 0;
+static uint16 s_detailWhFrac = 0;
+
+void DrawDetailWh(uint16 dec, uint16 frac, uint16 fc)
 {
-	DrawDetailAhWh(DETAIL_WH_LEFT, DETAIL_WH_TOP, dec, frac, GREEN);
+	DrawDetailAhWh(DETAIL_WH_LEFT, DETAIL_WH_TOP, dec, frac, fc);
 }
 
-void DrawDetailAh(uint16 dec, uint16 frac)
+static void DrawDetailWhAhDec(uint16 x, uint16 y, uint16 dec, uint16 fc)
 {
-	DrawDetailAhWh(DETAIL_AH_LEFT, DETAIL_AH_TOP, dec, frac, GREEN);
+	char buf[10];
+	sprintf(buf, "%5d", dec);
+
+	DrawString(font_16, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
+}
+
+static void DrawDetailWhAhFrac(uint16 x, uint16 y, uint16 frac, uint16 fc)
+{
+	char buf[10];
+	sprintf(buf, "%04d", frac);
+
+	DrawString(font_16, x, y, (uint8 *)buf, fc, BACKGROUND_COLOR);
+}
+
+void DrawDetailWhDelta(uint16 dec, uint16 frac, uint16 fc)
+{
+	if (dec != s_detailWhDec)
+	{
+		DrawDetailWhAhDec(DETAIL_WH_LEFT, DETAIL_WH_TOP, dec, frac);
+		
+		s_detailWhDec = dec;
+	}
+
+	if (frac != s_detailWhFrac)
+	{
+		DrawDetailWhAhFrac(DETAIL_WH_LEFT + GetStringWidth(font_16, "00000."), DETAIL_WH_TOP, frac, fc);
+		
+		s_detailWhFrac = frac;
+	}
+}
+
+static uint16 s_detailAhDec = 0;
+static uint16 s_detailAhFrac = 0;
+
+void DrawDetailAh(uint16 dec, uint16 frac, uint16 fc)
+{
+	DrawDetailAhWh(DETAIL_AH_LEFT, DETAIL_AH_TOP, dec, frac, fc);
+}
+
+void DrawDetailAhDelta(uint16 dec, uint16 frac, uint16 fc)
+{
+	if (dec != s_detailAhDec)
+	{
+		DrawDetailWhAhDec(DETAIL_AH_LEFT, DETAIL_AH_TOP, dec, frac);
+		
+		s_detailAhDec = dec;
+	}
+
+	if (frac != s_detailAhFrac)
+	{
+		DrawDetailWhAhFrac(DETAIL_AH_LEFT + GetStringWidth(font_16, "00000."), DETAIL_AH_TOP, frac, fc);
+		
+		s_detailAhFrac = frac;
+	}
 }
 
 //sniffer menu
@@ -660,14 +787,74 @@ void DrawQC20Menu()
 	DrawString(font_16, QC20_BACK_LEFT, QC20_BACK_TOP, str_back, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
+static uint8 s_qc20VoltageDecSave = 0;
+static uint16 s_qc20VoltageFracSave = 0;
+
+static uint8 s_qc20VoltageDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_qc20VoltageFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawQC20Voltage(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, QC20_VOLTAGE_LEFT, QC20_VOLTAGE_TOP, dec, frac, CYAN);
+
+	s_qc20VoltageDecSave = dec;
+	FormatVBusValueDec(s_qc20VoltageDecDigit, dec);
+	
+	s_qc20VoltageFracSave = frac;
+	FormatVBusValueFrac(s_qc20VoltageFracDigit, frac);
 }
+
+void DrawQC20VoltageDelta(uint8 dec, uint16 frac)
+{
+	if (dec != s_qc20VoltageDecSave)
+	{
+		DrawVBusValueDecDelta(font_20, QC20_VOLTAGE_LEFT, QC20_VOLTAGE_TOP, dec, s_qc20VoltageDecDigit, CYAN);
+		
+		s_qc20VoltageDecSave = dec;
+	}
+
+	if (frac != s_qc20VoltageFracSave)
+	{
+		DrawVBusValueFracDelta(font_20, QC20_VOLTAGE_LEFT + GetStringWidth(font_20, "00."), QC20_VOLTAGE_TOP,
+								frac, s_qc20VoltageFracDigit, CYAN);
+					
+		s_qc20VoltageFracSave = frac;
+	}
+}
+
+static uint8 s_qc20CurrentDecSave = 0;
+static uint16 s_qc20CurrentFracSave = 0;
+
+static uint8 s_qc20CurrentDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_qc20CurrentFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
 
 void DrawQC20Current(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, QC20_CURRENT_LEFT, QC20_CURRENT_TOP, dec, frac, CYAN);
+
+	s_qc20CurrentDecSave = dec;
+	FormatVBusValueDec(s_qc20CurrentDecDigit, dec);
+	
+	s_qc20CurrentFracSave = frac;
+	FormatVBusValueFrac(s_qc20CurrentFracDigit, frac);
+}
+
+void DrawQC20CurrentDelta(uint8 dec, uint16 frac)
+{
+	if (dec != s_qc20CurrentDecSave)
+	{
+		DrawVBusValueDecDelta(font_20, QC20_CURRENT_LEFT, QC20_CURRENT_TOP, dec, s_qc20CurrentDecDigit, CYAN);
+		
+		s_qc20CurrentDecSave = dec;
+	}
+
+	if (frac != s_qc20CurrentFracSave)
+	{
+		DrawVBusValueFracDelta(font_20, QC20_CURRENT_LEFT + GetStringWidth(font_20, "00."), QC20_CURRENT_TOP,
+								frac, s_qc20CurrentFracDigit, CYAN);
+					
+		s_qc20CurrentFracSave = frac;
+	}
 }
 
 void DrawQC20ItemNormal5V()
@@ -820,14 +1007,74 @@ void DrawQC30Menu()
 	DrawString(font_16, QC30_BACK_LEFT, QC30_BACK_TOP, str_back, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
+static uint8 s_qc30VoltageDecSave = 0;
+static uint16 s_qc30VoltageFracSave = 0;
+
+static uint8 s_qc30VoltageDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_qc30VoltageFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawQC30Voltage(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, QC30_VOLTAGE_LEFT, QC30_VOLTAGE_TOP, dec, frac, CYAN);
+
+	s_qc30VoltageDecSave = dec;
+	FormatVBusValueDec(s_qc30VoltageDecDigit, dec);
+	
+	s_qc30VoltageFracSave = frac;
+	FormatVBusValueFrac(s_qc30VoltageFracDigit, frac);
 }
+
+void DrawQC30VoltageDelta(uint8 dec, uint16 frac)
+{
+	if (dec != s_qc30VoltageDecSave)
+	{
+		DrawVBusValueDecDelta(font_20, QC30_VOLTAGE_LEFT, QC30_VOLTAGE_TOP, dec, s_qc30VoltageDecDigit, CYAN);
+		
+		s_qc30VoltageDecSave = dec;
+	}
+
+	if (frac != s_qc30VoltageFracSave)
+	{
+		DrawVBusValueFracDelta(font_20, QC30_VOLTAGE_LEFT + GetStringWidth(font_20, "00."), QC30_VOLTAGE_TOP,
+								frac, s_qc30VoltageFracDigit, CYAN);
+					
+		s_qc30VoltageFracSave = frac;
+	}
+}
+
+static uint8 s_qc30CurrentDecSave = 0;
+static uint16 s_qc30CurrentFracSave = 0;
+
+static uint8 s_qc30CurrentDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_qc30CurrentFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
 
 void DrawQC30Current(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, QC30_CURRENT_LEFT, QC30_CURRENT_TOP, dec, frac, CYAN);
+
+	s_qc30CurrentDecSave = dec;
+	FormatVBusValueDec(s_qc30CurrentDecDigit, dec);
+	
+	s_qc30CurrentFracSave = frac;
+	FormatVBusValueFrac(s_qc30CurrentFracDigit, frac);
+}
+
+void DrawQC30CurrentDelta(uint8 dec, uint16 frac)
+{
+	if (dec != s_qc30CurrentDecSave)
+	{
+		DrawVBusValueDecDelta(font_20, QC30_CURRENT_LEFT, QC30_CURRENT_TOP, dec, s_qc30CurrentDecDigit, CYAN);
+		
+		s_qc30CurrentDecSave = dec;
+	}                                                                                                   
+
+	if (frac != s_qc30CurrentFracSave)
+	{
+		DrawVBusValueFracDelta(font_20, QC30_CURRENT_LEFT + GetStringWidth(font_20, "00."), QC30_CURRENT_TOP,
+								frac, s_qc30CurrentFracDigit, CYAN);
+					
+		s_qc30CurrentFracSave = frac;
+	}
 }
 
 void DrawQC30NormalDecrease()
@@ -1076,14 +1323,74 @@ void DrawPDItem(uint8 index, const CapabilityStruct *caps)
 	DrawString(font_16, PD_ITEM_LEFT, PD_ITEM_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
+static uint8 s_pdVoltageDecSave = 0;
+static uint16 s_pdVoltageFracSave = 0;
+
+static uint8 s_pdVoltageDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_pdVoltageFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
+
 void DrawPDVoltage(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, PD_VOLTAGE_LEFT, PD_VOLTAGE_TOP, dec, frac, CYAN);
+
+	s_pdVoltageDecSave = dec;
+	FormatVBusValueDec(s_pdVoltageDecDigit, dec);
+	
+	s_pdVoltageFracSave = frac;
+	FormatVBusValueFrac(s_pdVoltageFracDigit, frac);
 }
+
+void DrawPDVoltageDelta(uint8 dec, uint16 frac)
+{
+	if (dec != s_pdVoltageDecSave)
+	{
+		DrawVBusValueDecDelta(font_20, PD_VOLTAGE_LEFT, PD_VOLTAGE_TOP, dec, s_pdVoltageDecDigit, CYAN);
+		
+		s_pdVoltageDecSave = dec;
+	}
+
+	if (frac != s_pdVoltageFracSave)
+	{
+		DrawVBusValueFracDelta(font_20, PD_VOLTAGE_LEFT + GetStringWidth(font_20, "00."), PD_VOLTAGE_TOP,
+								frac, s_pdVoltageFracDigit, CYAN);
+					
+		s_pdVoltageFracSave = frac;
+	}
+}
+
+static uint8 s_pdCurrentDecSave = 0;
+static uint16 s_pdCurrentFracSave = 0;
+
+static uint8 s_pdCurrentDecDigit[VBUS_VAL_DEC_DIGIT_WIDTH];
+static uint8 s_pdCurrentFracDigit[VBUS_VAL_FRAC_DIGIT_WIDTH];
 
 void DrawPDCurrent(uint8 dec, uint16 frac)
 {
 	DrawVBusValue(font_20, PD_CURRENT_LEFT, PD_CURRENT_TOP, dec, frac, CYAN);
+
+	s_pdCurrentDecSave = dec;
+	FormatVBusValueDec(s_pdCurrentDecDigit, dec);
+	
+	s_pdCurrentFracSave = frac;
+	FormatVBusValueFrac(s_pdCurrentFracDigit, frac);
+}
+
+void DrawPDCurrentDelta(uint8 dec, uint16 frac)
+{
+	if (dec != s_pdCurrentDecSave)
+	{
+		DrawVBusValueDecDelta(font_20, PD_CURRENT_LEFT, PD_CURRENT_TOP, dec, s_pdCurrentDecDigit, CYAN);
+		
+		s_pdCurrentDecSave = dec;
+	}
+
+	if (frac != s_pdCurrentFracSave)
+	{
+		DrawVBusValueFracDelta(font_20, PD_CURRENT_LEFT + GetStringWidth(font_20, "00."), PD_CURRENT_TOP,
+								frac, s_pdCurrentFracDigit, CYAN);
+					
+		s_pdCurrentFracSave = frac;
+	}
 }
 
 void DrawPDTipAccept()
@@ -1624,8 +1931,8 @@ void DrawTimeSelCancel()
 #define SAMPLE_TITLE_TOP      10
 
 #define SAMPLE_ADC_LEFT       0
-#define SAMPLE_ADC_VAL_LEFT   56
-#define SAMPLE_ADC_UNIT_LEFT  88
+#define SAMPLE_ADC_VAL_LEFT   52
+#define SAMPLE_ADC_UNIT_LEFT  96
 #define SAMPLE_ADC_TOP        45
 
 #define SAMPLE_OK_LEFT        40
@@ -1647,7 +1954,7 @@ void DrawSampleMenu()
 void DrawSampleNormalADC(uint8 fps)
 {
 	char buf[3];
-	sprintf(buf, "%2d", fps);
+	sprintf(buf, "%3d", fps);
 	DrawString(font_20, SAMPLE_ADC_VAL_LEFT, SAMPLE_ADC_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
@@ -1664,7 +1971,7 @@ void DrawSampleNormalCancel()
 void DrawSampleSelADC(uint8 fps)
 {
 	char buf[3];
-	sprintf(buf, "%2d", fps);
+	sprintf(buf, "%3d", fps);
 	DrawString(font_20, SAMPLE_ADC_VAL_LEFT, SAMPLE_ADC_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
@@ -1680,8 +1987,8 @@ void DrawSampleSelCancel()
 
 void DrawSampleEditADC(uint8 fps)
 {
-	char buf[3];
-	sprintf(buf, "%2d", fps);
+	char buf[4];
+	sprintf(buf, "%3d", fps);
 	DrawString(font_20, SAMPLE_ADC_VAL_LEFT, SAMPLE_ADC_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
@@ -1875,24 +2182,73 @@ void DrawBleComMenu()
 }
 
 //message
+#define MESSAGE_CAPTION_TOP   0
+
 #define MESSAGE_YES_LEFT      50
 #define MESSAGE_BOX_TOP       105
 
 #define MESSAGE_NO_LEFT       100
 
+#define MESSAGE_OK_LEFT       56
+#define MESSAGE_CANCEL_LEFT   80
+
 #define MESSAGE_DELTA         3
 
-void DrawMessageMenu(uint16 x, uint16 y, const uint8 *msg)
+void DrawMessageCaption(const uint8 *caption, uint16 fc)
+{
+	uint8 x = (GetScreenWidth() - GetStringWidth(font_20, caption)) / 2;
+			
+	DrawString(font_20, x, MESSAGE_CAPTION_TOP, caption, fc, BACKGROUND_COLOR);
+}
+
+void DrawMessageMsg(uint16 x, uint16 y, const uint8 *msg)
 {
 	//msg
 	DrawString(font_16, x, y, msg, YELLOW, BACKGROUND_COLOR);
-	
-	DrawString(font_16, MESSAGE_YES_LEFT, MESSAGE_BOX_TOP, str_yes, WHITE, BACKGROUND_COLOR);
-	DrawString(font_16, MESSAGE_NO_LEFT, MESSAGE_BOX_TOP, str_no, WHITE, BACKGROUND_COLOR);
+}
+
+void DrawMessageNormalOK()
+{
+	DrawString(font_16, MESSAGE_OK_LEFT, MESSAGE_BOX_TOP, str_ok, WHITE, BACKGROUND_COLOR);
+		
+	DrawRectangle(MESSAGE_OK_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
+						MESSAGE_OK_LEFT + GetStringWidth(font_16, str_ok) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawMessageSelOK()
+{
+	DrawString(font_16, MESSAGE_OK_LEFT, MESSAGE_BOX_TOP, str_ok, WHITE, BACKGROUND_COLOR);
+		
+	DrawRectangle(MESSAGE_OK_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
+						MESSAGE_OK_LEFT + GetStringWidth(font_16, str_ok) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
+						WHITE);
+
+}
+
+void DrawMessageNormalCancel()
+{
+	DrawString(font_16, MESSAGE_CANCEL_LEFT, MESSAGE_BOX_TOP, str_cancel, WHITE, BACKGROUND_COLOR);
+		
+	DrawRectangle(MESSAGE_CANCEL_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
+						MESSAGE_CANCEL_LEFT + GetStringWidth(font_16, str_cancel) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawMessageSelCancel()
+{
+	DrawString(font_16, MESSAGE_CANCEL_LEFT, MESSAGE_BOX_TOP, str_cancel, WHITE, BACKGROUND_COLOR);
+		
+	DrawRectangle(MESSAGE_CANCEL_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
+						MESSAGE_CANCEL_LEFT + GetStringWidth(font_16, str_cancel) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
+						WHITE);
+
 }
 
 void DrawMessageNormalYes()
 {
+	DrawString(font_16, MESSAGE_YES_LEFT, MESSAGE_BOX_TOP, str_yes, WHITE, BACKGROUND_COLOR);
+	
 	DrawRectangle(MESSAGE_YES_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
 					MESSAGE_YES_LEFT + GetStringWidth(font_16, str_yes) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
 					BACKGROUND_COLOR);
@@ -1900,6 +2256,8 @@ void DrawMessageNormalYes()
 
 void DrawMessageNormalNo()
 {
+	DrawString(font_16, MESSAGE_NO_LEFT, MESSAGE_BOX_TOP, str_no, WHITE, BACKGROUND_COLOR);
+	
 	DrawRectangle(MESSAGE_NO_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
 					MESSAGE_NO_LEFT + GetStringWidth(font_16, str_no) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
 					BACKGROUND_COLOR);
@@ -1907,6 +2265,8 @@ void DrawMessageNormalNo()
 
 void DrawMessageSelYes()
 {
+	DrawString(font_16, MESSAGE_YES_LEFT, MESSAGE_BOX_TOP, str_yes, WHITE, BACKGROUND_COLOR);
+	
 	DrawRectangle(MESSAGE_YES_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
 					MESSAGE_YES_LEFT + GetStringWidth(font_16, str_yes) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
 					WHITE);
@@ -1914,6 +2274,8 @@ void DrawMessageSelYes()
 
 void DrawMessageSelNo()
 {
+	DrawString(font_16, MESSAGE_NO_LEFT, MESSAGE_BOX_TOP, str_no, WHITE, BACKGROUND_COLOR);
+	
 	DrawRectangle(MESSAGE_NO_LEFT - MESSAGE_DELTA, MESSAGE_BOX_TOP - MESSAGE_DELTA,
 					MESSAGE_NO_LEFT + GetStringWidth(font_16, str_no) + MESSAGE_DELTA, MESSAGE_BOX_TOP + 16 + MESSAGE_DELTA,
 					WHITE);

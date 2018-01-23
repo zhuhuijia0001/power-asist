@@ -21,6 +21,7 @@
 #define AUTO_DETECT_OFF      0
 
 //sample rate
+#define SAMPLE_RATE_100             100
 #define SAMPLE_RATE_50              50
 #define SAMPLE_RATE_20              20
 #define SAMPLE_RATE_10              10

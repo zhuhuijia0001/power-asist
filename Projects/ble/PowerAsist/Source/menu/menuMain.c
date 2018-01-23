@@ -142,7 +142,22 @@ static void OnMenuDestroy(MENU_ID nextId)
 	ClearScreen(BLACK);
 }
 
-static void MessageCallback(uint8 result)
+static const unsigned char *str_warning = "WARNING";
+
+static const unsigned char *s_str_sniffer_warning = "High voltage\nwill appear on\nload port in\nsniffering mode";
+
+#define MESSAGE_LEFT   0
+#define MESSAGE_TOP    22
+
+static void MessageCallbackWarning(uint8 result)
+{
+	if (result == MESSAGE_OK)
+	{
+		SwitchToMenu(MENU_ID_SNIFFER);
+	}
+}
+
+static void MessageCallbackSniffer(uint8 result)
 {
 	if (result == MESSAGE_YES)
 	{
@@ -159,16 +174,13 @@ static void MessageCallback(uint8 result)
 
 		SetCurrentSnifferStatus(SNIFFER_NONE);
 		
-		SwitchToMenu(MENU_ID_SNIFFER);
+		EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, s_str_sniffer_warning, str_warning, MSG_TYPE_OK | MSG_TYPE_WARNING, MessageCallbackWarning);
 	}
 	else
 	{
 		SwitchToMenu(GetMainMenu(g_mainMenu));
 	}
 }
-
-#define MESSAGE_LEFT   0
-#define MESSAGE_TOP    30
 
 static void OnMenuKey(uint8 key, uint8 type)
 {
@@ -207,11 +219,11 @@ static void OnMenuKey(uint8 key, uint8 type)
 
 				if (GetCurrentSnifferStatus() != SNIFFER_NONE)
 				{
-					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", NULL, MSG_TYPE_YES_NO, MessageCallbackSniffer);
 				}
 				else
 				{
-					SwitchToMenu(MENU_ID_SNIFFER);
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, s_str_sniffer_warning, str_warning, MSG_TYPE_OK | MSG_TYPE_WARNING, MessageCallbackWarning);
 				}
 			}
 

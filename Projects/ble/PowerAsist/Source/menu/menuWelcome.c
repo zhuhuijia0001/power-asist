@@ -7,8 +7,6 @@
 #include "LCD.h"
 #include "GUI.h"
 
-#include "Meter.h"
-
 #include "Global.h"
 
 #include "Parameter.h"
@@ -34,10 +32,6 @@ static uint16 s_logoOffsetx = 0;
 static void OnMenuCreate(MENU_ID prevId)
 {
 	EnableLcdBacklight(true);
-	
-	//start accumulate Wh & Ah
-	//test
-	StartAccumulateWhAndAh();
 	
 	s_logoX = (GetScreenWidth() - g_Logo.width) / 2;
 	s_logoY = (GetScreenHeight() - g_Logo.height) / 3;

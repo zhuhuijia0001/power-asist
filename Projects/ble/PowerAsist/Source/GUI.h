@@ -34,6 +34,8 @@ extern void DrawRectangle(uint16 x0, uint16 y0, uint16 x1, uint16 y1, uint16 col
 
 extern void ClearScreen(uint16 color);
 
+extern void DrawChar(FONT font, uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc);
+
 extern void DrawString(FONT font, uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 bc);
 
 extern uint16 GetStringWidth(FONT font, const uint8 *s);

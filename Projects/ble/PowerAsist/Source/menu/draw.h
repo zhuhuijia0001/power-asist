@@ -45,9 +45,11 @@ extern void DrawDetailCurrentDelta(uint8 dec, uint16 frac);
 extern void DrawDetailPower(uint8 dec, uint16 frac);
 extern void DrawDetailPowerDelta(uint8 dec, uint16 frac);
 
-extern void DrawDetailWh(uint16 dec, uint16 frac);
-extern void DrawDetailAh(uint16 dec, uint16 frac);
+extern void DrawDetailWh(uint16 dec, uint16 frac, uint16 fc);
+extern void DrawDetailWhDelta(uint16 dec, uint16 frac, uint16 fc);
 
+extern void DrawDetailAh(uint16 dec, uint16 frac, uint16 fc);
+extern void DrawDetailAhDelta(uint16 dec, uint16 frac, uint16 fc);
 
 //sniffer menu
 extern void DrawSnifferMenu();
@@ -69,7 +71,10 @@ extern void DrawSnifferSelBack();
 //qc2.0 menu
 extern void DrawQC20Menu();
 extern void DrawQC20Voltage(uint8 dec, uint16 frac);
+extern void DrawQC20VoltageDelta(uint8 dec, uint16 frac);
+
 extern void DrawQC20Current(uint8 dec, uint16 frac);
+extern void DrawQC20CurrentDelta(uint8 dec, uint16 frac);
 
 extern void DrawQC20ItemNormal5V();
 extern void DrawQC20ItemNormal9V();
@@ -91,7 +96,10 @@ extern void DrawQC20ItemPress20V();
 //qc3.0 menu
 extern void DrawQC30Menu();
 extern void DrawQC30Voltage(uint8 dec, uint16 frac);
+extern void DrawQC30VoltageDelta(uint8 dec, uint16 frac);
+
 extern void DrawQC30Current(uint8 dec, uint16 frac);
+extern void DrawQC30CurrentDelta(uint8 dec, uint16 frac);
 
 extern void DrawQC30NormalDecrease();
 extern void DrawQC30NormalIncrease();
@@ -118,7 +126,11 @@ extern void DrawPDMenu();
 
 extern void DrawPDItem(uint8 index, const CapabilityStruct *caps);
 extern void DrawPDVoltage(uint8 dec, uint16 frac);
+extern void DrawPDVoltageDelta(uint8 dec, uint16 frac);
+
 extern void DrawPDCurrent(uint8 dec, uint16 frac);
+extern void DrawPDCurrentDelta(uint8 dec, uint16 frac);
+
 extern void DrawPDTipAccept();
 extern void DrawPDTipReject();
 extern void DrawPDTipPsRdy();
@@ -259,7 +271,14 @@ extern void DrawVersionMenu();
 extern void DrawBleComMenu();
 
 //message
-extern void DrawMessageMenu(uint16 x, uint16 y, const uint8 *msg);
+extern void DrawMessageCaption(const uint8 *caption, uint16 fc);
+extern void DrawMessageMsg(uint16 x, uint16 y, const uint8 *msg);
+
+extern void DrawMessageNormalOK();
+extern void DrawMessageSelOK();
+
+extern void DrawMessageNormalCancel();
+extern void DrawMessageSelCancel();
 
 extern void DrawMessageNormalYes();
 extern void DrawMessageNormalNo();
@@ -268,3 +287,4 @@ extern void DrawMessageSelYes();
 extern void DrawMessageSelNo();
 
 #endif
+

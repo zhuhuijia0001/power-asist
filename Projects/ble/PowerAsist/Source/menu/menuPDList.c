@@ -60,6 +60,8 @@ static void CapsCallback(uint8 res, const CapabilityList *list)
 	s_capsGot = true;
 }
 
+static wh_ah_status s_savedStatus;
+
 static void OnMenuCreate(MENU_ID prevId)
 {
 	s_caps = NULL;
@@ -68,7 +70,11 @@ static void OnMenuCreate(MENU_ID prevId)
 	s_capsGot = false;
 
 	//stop accumulate
-	StopAccumulateWhAndAh();
+	s_savedStatus = GetWhAndAhStatus();
+	if (s_savedStatus == WH_AH_STATUS_STARTED)
+	{
+		StopAccumulateWhAndAh();
+	}
 	
 	DrawPDListMenu();
 
@@ -79,9 +85,9 @@ static void OnMenuDestroy(MENU_ID nextId)
 {
 	ClearScreen(BLACK);
 
-	if (nextId != MENU_ID_PD)
+	//Start accumulate
+	if (s_savedStatus == WH_AH_STATUS_STARTED)
 	{
-		//Start accumulate
 		StartAccumulateWhAndAh();
 	}
 }

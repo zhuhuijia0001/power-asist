@@ -636,12 +636,17 @@ static void AutoPdCallback(bool support)
 	AutoItemCallback(support, MODE_PD, 0);
 }
 
+static wh_ah_status s_savedStatus;
+
 static void AutoCompleteCallback(bool support)
 {
 	AutoItemCallback(support, MODE_NORMAL, 0);
 
 	//Start accumulate
-	StartAccumulateWhAndAh();
+	if (s_savedStatus == WH_AH_STATUS_STARTED)
+	{
+		StartAccumulateWhAndAh();
+	}
 }
 
 static void (* const s_callbackArr[])(bool support) = 
@@ -669,7 +674,11 @@ static void AutoDetectCallback(DetectType type, bool support)
 static void ProcessAutoDetect()
 {
 	//stop accumulate
-	StopAccumulateWhAndAh();
+	s_savedStatus = GetWhAndAhStatus();
+	if (s_savedStatus == WH_AH_STATUS_STARTED)
+	{
+		StopAccumulateWhAndAh();
+	}
 	
 	StartAutoDetect(AutoDetectCallback);
 }

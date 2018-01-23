@@ -80,7 +80,7 @@ static void (*const s_snifferItemFun[])() =
 	[qc20_Item_20v] = SetQC20Sniffer20V,
 };
 
-static void RefreshQC20MenuContent()
+static void DrawQC20MenuContent()
 {	
 	uint8 integer;
 	uint16 frac;
@@ -93,6 +93,26 @@ static void RefreshQC20MenuContent()
 	if (GetLoadCurrent(&integer, &frac))
 	{
 		DrawQC20Current(integer, frac);
+	}
+}
+
+static void RefreshQC20MenuContent()
+{	
+	uint8 integer;
+	uint16 frac;
+	
+	if (GetBusVoltage(&integer, &frac))
+	{
+		TRACE("voltage:%d.%04dV\r\n", integer, frac);
+		
+		DrawQC20VoltageDelta(integer, frac);
+	}
+	
+	if (GetLoadCurrent(&integer, &frac))
+	{
+		TRACE("current:%d.%04dA\r\n", integer, frac);
+		
+		DrawQC20CurrentDelta(integer, frac);
 	}
 }
 
@@ -120,14 +140,11 @@ static void QC20Callback(bool supported)
 
 static void OnMenuCreate(MENU_ID prevId)
 {
-	//stop accumulate
-	StopAccumulateWhAndAh();
-	
 	DrawQC20Menu();
 	s_curSelItem = qc20_Item_5v;
 	s_drawQC20SelItemFun[s_curSelItem]();
 	
-	RefreshQC20MenuContent();
+	DrawQC20MenuContent();
 
 	uint32 sampleInterval = 1000ul / g_sampleRate;
 	StartPowerAsistTimer(QC20_MENU_TIMERID, sampleInterval, true);
@@ -141,9 +158,6 @@ static void OnMenuDestroy(MENU_ID nextId)
 	StopPowerAsistTimer(QC20_MENU_TIMERID);
 	
 	ClearScreen(BLACK);
-
-	//Start accumulate
-	StartAccumulateWhAndAh();
 }
 
 static void MessageCallback(uint8 result)
@@ -190,7 +204,7 @@ static void OnMenuKey(uint8 key, uint8 type)
 				{
 					if (GetCurrentSnifferStatus() != SNIFFER_NONE)
 					{
-						EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+						EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", NULL, MSG_TYPE_YES_NO, MessageCallback);
 					}
 					else
 					{

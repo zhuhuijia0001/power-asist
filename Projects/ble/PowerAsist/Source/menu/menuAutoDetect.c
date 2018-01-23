@@ -154,13 +154,19 @@ static void AutoDetectCallback(DetectType type, bool support)
 	}
 }
 
+static wh_ah_status s_savedStatus;
+
 static void OnMenuCreate(MENU_ID prevId)
 {
 	g_autoDetect = AUTO_DETECT_ON;
 	SaveParameter();
 				
 	//stop accumulate
-	StopAccumulateWhAndAh();
+	s_savedStatus = GetWhAndAhStatus();
+	if (s_savedStatus == WH_AH_STATUS_STARTED)
+	{
+		StopAccumulateWhAndAh();
+	}
 	
 	DrawAutoDetectMenu();
 
@@ -173,7 +179,10 @@ static void OnMenuDestroy(MENU_ID nextId)
 	ClearScreen(BLACK);
 
 	//Start accumulate
-	StartAccumulateWhAndAh();
+	if (s_savedStatus == WH_AH_STATUS_STARTED)
+	{
+		StartAccumulateWhAndAh();
+	}
 }
 
 static void OnMenuKey(uint8 key, uint8 type)

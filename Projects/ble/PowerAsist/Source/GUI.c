@@ -189,6 +189,330 @@ void ClearScreen(uint16 color)
 	FillRectangle(0, 0, width - 1, height - 1, color);
 }
 
+static void DrawChar12(uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc)
+{
+	const uint8 CHAR_HEIGHT = 12;
+	const uint8 FULL_CHAR_WIDTH = 6;
+	
+	const uint8 *dat;
+	
+	if (c >= '0' && c <= '9')
+	{
+		dat = s_digit6X12[c - '0'];
+	}
+	else if (c >= 'A' && c <= 'Z')
+	{
+		dat = s_upperLetter6X12[c - 'A'];
+	}
+	else if (c == '.')
+	{
+		dat = s_dot6X12;
+	}
+	else if (c == ':')
+	{
+		dat = s_colon6X12;
+	}
+	else if (c == ' ')
+	{
+		dat = s_space6X12;
+	}
+	else
+	{
+		dat = NULL;
+	}
+	
+	if (dat != NULL)
+	{
+		SetLcdRegion(x, y, x + FULL_CHAR_WIDTH - 1, y + CHAR_HEIGHT - 1);
+
+		uint8 byteCount = (FULL_CHAR_WIDTH + 8 - 1) / 8 * CHAR_HEIGHT;
+		for (uint8 i = 0; i < byteCount; i++)
+		{
+			uint8 mask = 0x80;
+			uint8 c = dat[i];
+			for (uint8 j = 0; j < FULL_CHAR_WIDTH; j++)
+			{
+				if (c & mask)
+				{
+					WriteLcdData16Bit(fc);
+				}
+				else 
+				{
+					WriteLcdData16Bit(bc);
+				}
+
+				mask >>= 1;
+			}
+		}
+	}
+}
+
+static void DrawChar16(uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc)
+{
+	const uint8 CHAR_HEIGHT = 16;
+	const uint8 FULL_CHAR_WIDTH = 8;
+	
+	const uint8 *dat;
+	
+	if (c >= '0' && c <= '9')
+	{
+		dat = s_digit8X16[c - '0'];
+	}
+	else if (c >= 'A' && c <= 'Z')
+	{
+		dat = s_upperLetter8X16[c - 'A'];
+	}
+	else if (c >= 'a' && c <= 'z')
+	{
+		dat = s_lowerLetter8X16[c - 'a'];
+	}
+	else if (c == '.')
+	{
+		dat = s_dot8X16;
+	}
+	else if (c == '+')
+	{
+		dat = s_plus8X16;
+	}
+	else if (c == '-')
+	{
+		dat = s_minus8X16;
+	}
+	else if (c == ':')
+	{
+		dat = s_colon8X16;
+	}
+	else if (c == '/')
+	{
+		dat = s_slash8X16;
+	}
+	else if (c == ' ')
+	{
+		dat = s_space8X16;
+	}
+	else
+	{
+		dat = NULL;
+	}
+	
+	if (dat != NULL)
+	{
+		SetLcdRegion(x, y, x + FULL_CHAR_WIDTH - 1, y + CHAR_HEIGHT - 1);
+
+		uint8 byteCount = (FULL_CHAR_WIDTH + 8 - 1) / 8 * CHAR_HEIGHT;
+		for (uint8 i = 0; i < byteCount; i++)
+		{
+			uint8 mask = 0x80;
+			uint8 c = dat[i];
+			for (uint8 j = 0; j < 8; j++)
+			{
+				if (c & mask)
+				{
+					WriteLcdData16Bit(fc);
+				}
+				else 
+				{
+					WriteLcdData16Bit(bc);
+				}
+
+				mask >>= 1;
+			}
+		}
+	}
+}
+
+static void DrawChar20(uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc)
+{
+	const uint8 CHAR_HEIGHT = 20;
+	const uint8 FULL_CHAR_WIDTH = 16;
+	
+	const uint8 *dat;
+	uint8 width;
+		
+	if (c >= '0' && c <= '9')
+	{
+		dat = s_digit16X20[c - '0'];
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c >= 'A' && c <= 'Z')
+	{
+		dat = s_upperLetter16X20[c - 'A'];
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c >= 'a' && c <= 'z')
+	{
+		dat = s_lowerLetter16X20[c - 'a'];
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c == '.')
+	{
+		dat = s_dot8X20;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else if (c == '+')
+	{
+		dat = s_plus8X20;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else if (c == '-')
+	{
+		dat = s_minus8X20;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else if (c == ':')
+	{
+		dat = s_colon8X20;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else if (c == ' ')
+	{
+		dat = s_space16X20;
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else
+	{
+		dat = NULL;
+	}
+	
+	if (dat != NULL)
+	{
+		uint8 byteCount;
+		
+		SetLcdRegion(x, y, x + width - 1, y + CHAR_HEIGHT - 1);
+
+		byteCount = (width + 8 - 1) / 8 * CHAR_HEIGHT;
+
+		for (uint8 i = 0; i < byteCount; i++)
+		{
+			uint8 mask = 0x80;
+			uint8 c = dat[i];
+			for (uint8 j = 0; j < 8; j++)
+			{
+				if (c & mask)
+				{
+					WriteLcdData16Bit(fc);
+				}
+				else 
+				{
+					WriteLcdData16Bit(bc);
+				}
+
+				mask >>= 1;
+			}
+		}
+	}
+}
+
+static void DrawChar24(uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc)
+{
+	const uint8 CHAR_HEIGHT = 24;
+	const uint8 FULL_CHAR_WIDTH = 16;
+		
+	const uint8 *dat;
+	uint8 width;
+		
+	if (c >= '0' && c <= '9')
+	{
+		dat = s_digit16X24[c - '0'];
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c >= 'A' && c <= 'Z')
+	{
+		dat = s_upperLetter16X24[c - 'A'];
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c >= 'a' && c <= 'z')
+	{
+		dat = s_lowerLetter16X24[c - 'a'];
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c == ' ')
+	{
+		dat = s_space16X24;
+
+		width = FULL_CHAR_WIDTH;
+	}
+	else if (c == '.')
+	{
+		dat = s_dot8X24;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else if (c == '+')
+	{
+		dat = s_plus8X24;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else if (c == '-')
+	{
+		dat = s_minus8X24;
+
+		width = FULL_CHAR_WIDTH / 2;
+	}
+	else
+	{
+		dat = NULL;
+	}
+	
+	if (dat != NULL)
+	{
+		uint8 byteCount;
+		
+		SetLcdRegion(x, y, x + width - 1, y + CHAR_HEIGHT - 1);
+
+		byteCount = (width + 8 - 1) / 8 * CHAR_HEIGHT;
+	
+		for (uint8 i = 0; i < byteCount; i++)
+		{
+			uint8 mask = 0x80;
+			uint8 c = dat[i];
+			for (uint8 j = 0; j < 8; j++)
+			{
+				if (c & mask)
+				{
+					WriteLcdData16Bit(fc);
+				}
+				else 
+				{
+					WriteLcdData16Bit(bc);
+				}
+
+				mask >>= 1;
+			}
+		}
+	}
+}
+
+static void (*const s_drawCharFun[])(uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc) = 
+{
+	[font_12] = DrawChar12,
+	[font_16] = DrawChar16,
+	[font_20] = DrawChar20,
+	[font_24] = DrawChar24,
+};
+
+void DrawChar(FONT font, uint16 x, uint16 y, uint8 c, uint16 fc, uint16 bc)
+{
+	if (font >= font_count)
+	{
+		return;
+	}
+
+	s_drawCharFun[font](x, y, c, fc, bc);
+}
+
 static void DrawString12(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 bc)
 {
 	uint16 k;
@@ -197,8 +521,6 @@ static void DrawString12(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 
 	const uint8 CHAR_HEIGHT = 12;
 	const uint8 FULL_CHAR_WIDTH = 6;
-	
-	const uint8 *dat;
 	
 	while (*s) 
 	{	
@@ -210,67 +532,18 @@ static void DrawString12(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 
 			continue;
 		}
-		else if (k >= '0' && k <= '9')
-		{
-			dat = s_digit6X12[k - '0'];
-		}
-		else if (k >= 'A' && k <= 'Z')
-		{
-			dat = s_upperLetter6X12[k - 'A'];
-		}
-		else if (k == '.')
-		{
-			dat = s_dot6X12;
-		}
-		else if (k == ':')
-		{
-			dat = s_colon6X12;
-		}
-		else if (k == ' ')
-		{
-			dat = s_space6X12;
-		}
-		else
-		{
-			dat = NULL;
-		}
 		
-		if (dat != NULL)
+		DrawChar12(x, y, k, fc, bc);
+		x += FULL_CHAR_WIDTH;
+
+		if (x >= width)
 		{
-			SetLcdRegion(x, y, x + FULL_CHAR_WIDTH - 1, y + CHAR_HEIGHT - 1);
+			x = 0;
 
-			uint8 byteCount = (FULL_CHAR_WIDTH + 8 - 1) / 8 * CHAR_HEIGHT;
-			for (uint8 i = 0; i < byteCount; i++)
-			{
-				uint8 mask = 0x80;
-				uint8 c = dat[i];
-				for (uint8 j = 0; j < FULL_CHAR_WIDTH; j++)
-				{
-					if (c & mask)
-					{
-						WriteLcdData16Bit(fc);
-					}
-					else 
-					{
-						WriteLcdData16Bit(bc);
-					}
-
-					mask >>= 1;
-				}
-			}
-	
-			x += FULL_CHAR_WIDTH;
-
-			if (x >= width)
-			{
-				x = 0;
-
-				y += CHAR_HEIGHT;
-			}
+			y += CHAR_HEIGHT;
 		}
 	}
 }
-
 
 static void DrawString16(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 bc)
 {
@@ -281,8 +554,6 @@ static void DrawString16(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 	const uint8 CHAR_HEIGHT = 16;
 	const uint8 FULL_CHAR_WIDTH = 8;
 	
-	const uint8 *dat;
-	
 	while (*s) 
 	{	
 		k = *s++;
@@ -293,86 +564,22 @@ static void DrawString16(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 
 			continue;
 		}
-		else if (k >= '0' && k <= '9')
-		{
-			dat = s_digit8X16[k - '0'];
-		}
-		else if (k >= 'A' && k <= 'Z')
-		{
-			dat = s_upperLetter8X16[k - 'A'];
-		}
-		else if (k >= 'a' && k <= 'z')
-		{
-			dat = s_lowerLetter8X16[k - 'a'];
-		}
-		else if (k == '.')
-		{
-			dat = s_dot8X16;
-		}
-		else if (k == '+')
-		{
-			dat = s_plus8X16;
-		}
-		else if (k == '-')
-		{
-			dat = s_minus8X16;
-		}
-		else if (k == ':')
-		{
-			dat = s_colon8X16;
-		}
-		else if (k == '/')
-		{
-			dat = s_slash8X16;
-		}
-		else if (k == ' ')
-		{
-			dat = s_space8X16;
-		}
-		else
-		{
-			dat = NULL;
-		}
-		
-		if (dat != NULL)
-		{
-			SetLcdRegion(x, y, x + FULL_CHAR_WIDTH - 1, y + CHAR_HEIGHT - 1);
 
-			uint8 byteCount = (FULL_CHAR_WIDTH + 8 - 1) / 8 * CHAR_HEIGHT;
-			for (uint8 i = 0; i < byteCount; i++)
-			{
-				uint8 mask = 0x80;
-				uint8 c = dat[i];
-				for (uint8 j = 0; j < 8; j++)
-				{
-					if (c & mask)
-					{
-						WriteLcdData16Bit(fc);
-					}
-					else 
-					{
-						WriteLcdData16Bit(bc);
-					}
-
-					mask >>= 1;
-				}
-			}
+		DrawChar16(x, y, k, fc, bc);
 	
-			x += FULL_CHAR_WIDTH;	
+		x += FULL_CHAR_WIDTH;	
 
-			if (x >= width)
-			{
-				x = 0;
+		if (x >= width)
+		{
+			x = 0;
 
-				y += CHAR_HEIGHT;
-			}
+			y += CHAR_HEIGHT;
 		}
 	}
 }
 
 static void DrawString20(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 bc)
 {
-	uint8 i;
 	uint16 k;
 
 	uint16 width = GetScreenWidth();
@@ -380,7 +587,6 @@ static void DrawString20(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 	const uint8 CHAR_HEIGHT = 20;
 	const uint8 FULL_CHAR_WIDTH = 16;
 	
-	const uint8 *dat;
 	uint8 step;
 	
 	while (*s) 
@@ -395,99 +601,56 @@ static void DrawString20(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 		}
 		else if (k >= '0' && k <= '9')
 		{
-			dat = s_digit16X20[k - '0'];
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k >= 'A' && k <= 'Z')
 		{
-			dat = s_upperLetter16X20[k - 'A'];
 
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k >= 'a' && k <= 'z')
 		{
-			dat = s_lowerLetter16X20[k - 'a'];
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k == '.')
 		{
-			dat = s_dot8X20;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else if (k == '+')
 		{
-			dat = s_plus8X20;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else if (k == '-')
 		{
-			dat = s_minus8X20;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else if (k == ':')
 		{
-			dat = s_colon8X20;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else if (k == ' ')
 		{
-			dat = s_space16X20;
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else
 		{
-			dat = NULL;
+			step = FULL_CHAR_WIDTH;
 		}
 		
-		if (dat != NULL)
+		DrawChar20(x, y, k, fc, bc);
+
+		x += step;	
+
+		if (x >= width)
 		{
-			uint8 byteCount;
-			
-			SetLcdRegion(x, y, x + step - 1, y + CHAR_HEIGHT - 1);
-
-			byteCount = (step + 8 - 1) / 8 * CHAR_HEIGHT;
-
-			for (i = 0; i < byteCount; i++)
-			{
-				uint8 j;
-				uint8 mask = 0x80;
-				uint8 c = dat[i];
-				for (j = 0; j < 8; j++)
-				{
-					if (c & mask)
-					{
-						WriteLcdData16Bit(fc);
-					}
-					else 
-					{
-						WriteLcdData16Bit(bc);
-					}
-
-					mask >>= 1;
-				}
-			}
-	
-			x += step;	
-
-			if (x >= width)
-			{
-				x = 0;
-				y += CHAR_HEIGHT;
-			}
+			x = 0;
+			y += CHAR_HEIGHT;
 		}
 	}
 }
 
 static void DrawString24(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 bc)
 {
-	uint8 i;
 	uint16 k;
 
 	uint16 width = GetScreenWidth();
@@ -495,7 +658,6 @@ static void DrawString24(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 	const uint8 CHAR_HEIGHT = 24;
 	const uint8 FULL_CHAR_WIDTH = 16;
 	
-	const uint8 *dat;
 	uint8 step;
 	
 	while (*s) 
@@ -510,86 +672,45 @@ static void DrawString24(uint16 x, uint16 y, const uint8 *s, uint16 fc, uint16 b
 		}
 		else if (k >= '0' && k <= '9')
 		{
-			dat = s_digit16X24[k - '0'];
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k >= 'A' && k <= 'Z')
 		{
-			dat = s_upperLetter16X24[k - 'A'];
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k >= 'a' && k <= 'z')
 		{
-			dat = s_lowerLetter16X24[k - 'a'];
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k == ' ')
 		{
-			dat = s_space16X24;
-
 			step = FULL_CHAR_WIDTH;
 		}
 		else if (k == '.')
 		{
-			dat = s_dot8X24;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else if (k == '+')
 		{
-			dat = s_plus8X24;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else if (k == '-')
 		{
-			dat = s_minus8X24;
-
 			step = FULL_CHAR_WIDTH / 2;
 		}
 		else
 		{
-			dat = NULL;
+			step = FULL_CHAR_WIDTH;
 		}
 		
-		if (dat != NULL)
-		{
-			uint8 byteCount;
-			
-			SetLcdRegion(x, y, x + step - 1, y + CHAR_HEIGHT - 1);
-
-			byteCount = (step + 8 - 1) / 8 * CHAR_HEIGHT;
+		DrawChar24(x, y, k, fc, bc);
 		
-			for (i = 0; i < byteCount; i++)
-			{
-				uint8 j;
-				uint8 mask = 0x80;
-				uint8 c = dat[i];
-				for (j = 0; j < 8; j++)
-				{
-					if (c & mask)
-					{
-						WriteLcdData16Bit(fc);
-					}
-					else 
-					{
-						WriteLcdData16Bit(bc);
-					}
+		x += step;
 
-					mask >>= 1;
-				}
-			}
-	
-			x += step;
-
-			if (x >= width)
-			{
-				x = 0;
-				y += CHAR_HEIGHT;
-			}
+		if (x >= width)
+		{
+			x = 0;
+			y += CHAR_HEIGHT;
 		}
 	}
 }

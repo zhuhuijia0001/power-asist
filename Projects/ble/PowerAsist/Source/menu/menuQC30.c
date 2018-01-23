@@ -89,7 +89,7 @@ static void QC20Callback(bool supported)
 	s_qcChecked = true;
 }
 
-static void RefreshQC30MenuContent()
+static void DrawQC30MenuContent()
 {	
 	uint8 integer;
 	uint16 frac;
@@ -105,17 +105,30 @@ static void RefreshQC30MenuContent()
 	}
 }
 
+static void RefreshQC30MenuContent()
+{	
+	uint8 integer;
+	uint16 frac;
+	
+	if (GetBusVoltage(&integer, &frac))
+	{
+		DrawQC30VoltageDelta(integer, frac);
+	}
+	
+	if (GetLoadCurrent(&integer, &frac))
+	{
+		DrawQC30CurrentDelta(integer, frac);
+	}
+}
+
 static void OnMenuCreate(MENU_ID prevId)
 {
-	//stop accumulate
-	StopAccumulateWhAndAh();
-	
 	DrawQC30Menu();
 
 	s_curSelItem = qc30_Item_decrease;
 	s_drawQC30SelItemFun[s_curSelItem]();
 
-	RefreshQC30MenuContent();
+	DrawQC30MenuContent();
 
 	uint32 sampleInterval = 1000ul / g_sampleRate;
 	StartPowerAsistTimer(QC30_MENU_TIMERID, sampleInterval, true);
@@ -129,9 +142,6 @@ static void OnMenuDestroy(MENU_ID nextId)
 	StopPowerAsistTimer(QC30_MENU_TIMERID);
 	
 	ClearScreen(BLACK);
-
-	//Start accumulate
-	StartAccumulateWhAndAh();
 }
 
 static void MessageCallback(uint8 result)
@@ -175,7 +185,7 @@ static void OnMenuKey(uint8 key, uint8 type)
 				{
 					if (GetCurrentSnifferStatus() != SNIFFER_NONE)
 					{
-						EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", MessageCallback);
+						EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, "RELEASE SNIFFING?", NULL, MSG_TYPE_YES_NO, MessageCallback);
 					}
 					else
 					{
