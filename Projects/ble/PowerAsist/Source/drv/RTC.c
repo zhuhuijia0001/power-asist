@@ -7,7 +7,7 @@
 #include "ISL1208.h"
 
 //default time
-TimeStruct g_defaultTime = 
+static TimeStruct s_defaultTime = 
 {
 	.second = 0,
 	.minute = 0,
@@ -15,6 +15,7 @@ TimeStruct g_defaultTime =
 	.year   = 2000,
 	.month  = 1,
 	.day    = 1,
+	.dayOfWeek = 0,
 };
 
 static uint8 IntToBcd(uint8 d)
@@ -23,8 +24,13 @@ static uint8 IntToBcd(uint8 d)
 }
 
 static uint8 BcdToInt(uint8 bcd)
-{
+{ 
 	return ((bcd >> 4) & 0x0f) * 10 + (bcd & 0x0f);
+}
+
+bool SetDefaultRTCTime(void)
+{
+	return SetRTCTime(&s_defaultTime);
 }
 
 bool SetRTCTime(const TimeStruct *time)

@@ -22,7 +22,11 @@ typedef enum
 	font_count,	
 } FONT;
 
-extern const PICTURE g_Logo;
+extern const PICTURE g_ProductLogo;
+
+extern const PICTURE g_BtLogo;
+
+extern const PICTURE g_BtLogoGray;
 
 extern void DrawPoint(uint16 x, uint16 y, uint16 color);
 

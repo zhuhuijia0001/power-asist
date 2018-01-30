@@ -14,7 +14,7 @@ typedef struct
   uint16 year;    // 2000+
 } TimeStruct;
 
-extern TimeStruct g_defaultTime;
+extern bool SetDefaultRTCTime(void);
 
 extern bool SetRTCTime(const TimeStruct *time);
 

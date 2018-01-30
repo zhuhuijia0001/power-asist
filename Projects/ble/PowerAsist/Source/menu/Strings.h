@@ -68,5 +68,16 @@ static const unsigned char *str_apple_21a = "APPLE 2.1A";
 
 static const unsigned char *str_ble_mode = "BLE MODE";
 
+static const unsigned char *str_voltage = "VOLTAGE";
+static const unsigned char *str_current = "CURRENT";
+
+static const unsigned char *str_voltage_cali = "VOLTAGE CALI";
+
+static const unsigned char *str_current_cali = "CURRENT CALI";
+
+static const unsigned char *str_start = "START";
+
+static const unsigned char *str_done = "DONE";
+
 #endif
 

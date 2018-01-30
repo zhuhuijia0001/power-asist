@@ -12,48 +12,15 @@ typedef struct
 	void (*pMsgHandler)(MSG_ID id, void *msg);
 } MENU;
 
-#define DEF_MENU(id)                     \
-static const MENU s_menu##id## =           \
-{                                        \
-	.menuId = id,                        \
-	.pMsgHandler = Menu##id##Handler,    \
+#define MENU_ITEM(id)   				\
+[##id##] = 								\
+{ 										\
+	.menuId = id,       				\
+	.pMsgHandler = Menu##id##Handler,	\
 }
 
-#define MENU_ITEM(id)   [##id##] = &(s_menu##id##)
-
-/* current menu */
-static const MENU *s_curMenu = NULL;
-
-/* define menus */
-DEF_MENU(MENU_ID_WELCOME);
-
-DEF_MENU(MENU_ID_MAIN);
-DEF_MENU(MENU_ID_DETAIL);
-DEF_MENU(MENU_ID_SLEEP);
-
-DEF_MENU(MENU_ID_LOCK);
-
-DEF_MENU(MENU_ID_SNIFFER);
-DEF_MENU(MENU_ID_QC20);
-DEF_MENU(MENU_ID_QC30);
-DEF_MENU(MENU_ID_PD_LIST);
-DEF_MENU(MENU_ID_PD);
-DEF_MENU(MENU_ID_AUTO);
-
-DEF_MENU(MENU_ID_SETTING);
-DEF_MENU(MENU_ID_TIME);
-DEF_MENU(MENU_ID_SAMPLE);
-DEF_MENU(MENU_ID_SCREEN);
-DEF_MENU(MENU_ID_CALI);
-DEF_MENU(MENU_ID_BLE);
-DEF_MENU(MENU_ID_VERSION);
-
-DEF_MENU(MENU_ID_BLE_COMM);
-
-DEF_MENU(MENU_ID_MESSAGE);
-
 //menu array
-static const MENU *const s_menuArr[MENU_ID_COUNT] = 
+static const MENU s_menuArr[] = 
 {
 	MENU_ITEM(MENU_ID_WELCOME),
 
@@ -78,10 +45,16 @@ static const MENU *const s_menuArr[MENU_ID_COUNT] =
 	MENU_ITEM(MENU_ID_BLE),
 	MENU_ITEM(MENU_ID_VERSION),
 
+	MENU_ITEM(MENU_ID_VOLTAGE_CALI),
+	MENU_ITEM(MENU_ID_CURRENT_CALI),
+	
 	MENU_ITEM(MENU_ID_BLE_COMM),
 	
 	MENU_ITEM(MENU_ID_MESSAGE),
 };
+
+/* current menu */
+static const MENU *s_curMenu = NULL;
 
 void SwitchToMenu(MENU_ID id)
 {
@@ -89,7 +62,7 @@ void SwitchToMenu(MENU_ID id)
 		
 	MENU_ID oldId = MENU_ID_NONE;
 	
-	s_curMenu = s_menuArr[id];
+	s_curMenu = &s_menuArr[id];
 	
 	if (oldMenu != NULL)
 	{		

@@ -390,7 +390,7 @@ void StopPowerAsistTimer(uint16 timerId)
 	}
 	else
 	{
-		TRACE("stop timer evt 0x%02X failed\r\n", 1 << timerId);
+		//TRACE("stop timer evt 0x%02X failed\r\n", 1 << timerId);
 	}
 }
 

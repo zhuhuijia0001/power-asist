@@ -8,6 +8,8 @@
 
 #include "GUI.h"
 
+#include "menuMessage.h"
+
 #include "PowerAsist.h"
 
 typedef enum
@@ -63,6 +65,22 @@ static const MENU_ID s_menuId[] =
 	[Setting_Item_Ver] = MENU_ID_VERSION,
 };
 
+static const unsigned char *str_warning = "WARNING";
+
+static const unsigned char *s_str_cali_warning = 
+"DO NOT CALIBRATEWITHOUT HIGH\nPRECISION\nINSTRUMENT";
+
+#define MESSAGE_LEFT   0
+#define MESSAGE_TOP    22
+
+static void MessageCallbackWarning(uint8 result)
+{
+	if (result == MESSAGE_OK)
+	{
+		SwitchToMenu(s_menuId[s_curSelSettingItem]);
+	}
+}
+
 static void OnMenuCreate(MENU_ID prevId)
 {
 	if (prevId < MENU_ID_TIME || prevId > MENU_ID_VERSION)
@@ -110,7 +128,14 @@ static void OnMenuKey(uint8 key, uint8 type)
 			}
 			else
 			{
-				SwitchToMenu(s_menuId[s_curSelSettingItem]);
+				if (s_curSelSettingItem == Setting_Item_Cali)
+				{
+					EnterMessageMenu(MESSAGE_LEFT, MESSAGE_TOP, s_str_cali_warning, str_warning, MSG_TYPE_OK | MSG_TYPE_WARNING, MessageCallbackWarning);
+				}
+				else
+				{
+					SwitchToMenu(s_menuId[s_curSelSettingItem]);
+				}
 			}
 			
 			break;

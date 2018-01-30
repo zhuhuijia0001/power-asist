@@ -178,7 +178,7 @@ static void OnMenuTimeout(uint16 timerId)
 		{ 
 			GetLoadWh(&integer16, &frac);
 			
-			s_dataItem[index].dec = integer;
+			s_dataItem[index].dec = integer16;
 			s_dataItem[index].frac = frac;
 			
 			index++;
@@ -188,7 +188,7 @@ static void OnMenuTimeout(uint16 timerId)
 		{ 
 			GetLoadAh(&integer16, &frac);
 
-			s_dataItem[index].dec = integer;
+			s_dataItem[index].dec = integer16;
 			s_dataItem[index].frac = frac;
 			
 			index++;
@@ -237,6 +237,8 @@ static void OnMenuBleStatusChanged(uint16 status)
 
 	case BLE_STATUS_CONNECTED:
 		TRACE("connected..\r\n");
+
+		DrawBleComBtActive();
 		
 		break;
 
@@ -244,6 +246,8 @@ static void OnMenuBleStatusChanged(uint16 status)
 		TRACE("disconnected..\r\n");
 
 		StopPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE);
+
+		DrawBleComBtInActive();
 		
 		break;
 	}

@@ -2,16 +2,13 @@
 #include "hal_types.h"
 
 #include "EEPROM.h"
+#include "EEPROMConfig.h"
 
 #include "RealTimeData.h"
 
 #include "npi.h"
 
 #define MEMBER_OFFSET(type, member)     ( (uint16)&(((type *)0)->member))
-
-#define REAL_TIME_DATA_ADDR_A       1024
-
-#define REAL_TIME_DATA_ADDR_B       (REAL_TIME_DATA_ADDR_A + 128)
 
 /********************************************
  *  Save region

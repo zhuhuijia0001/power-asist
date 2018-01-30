@@ -2,20 +2,19 @@
 #ifndef _METER_H_
 #define _METER_H_
 
-//R = 10mR, max current = 5A. LSB = 0.1mA
-#define  CALIBRATION_VAL     5120
+extern void InitMeter();
 
-extern void InitMeter(uint16 cali);
-
+extern bool GetBusVoltageAdcValue(uint16 *adc);
 extern bool GetBusVoltage(uint8 *VInt, uint16 *VFrac);
 
+extern bool GetShuntVoltageAdcValue(uint16 *adc);
 extern bool GetShuntVoltage(uint8 *mVInt, uint16 *mVFrac);
 
+extern bool GetLoadCurrentAdcValue(uint16 *adc);
 extern bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac);
 
+extern bool GetLoadPowerAdcValue(uint16 *adc);
 extern bool GetLoadPower(uint8 *WInt, uint16 *WFrac);
-
-extern bool SetCalibrationVal(uint16 theoreticalCur, uint16 realCur);
 
 extern void GetDPVoltage(uint8 *VInt, uint16 *VFrac);
 

@@ -4,11 +4,25 @@
 #include "GUI.h"
 #include "font.h"
 
-const PICTURE g_Logo = 
+const PICTURE g_ProductLogo = 
 {
 	.width = 90,
 	.height = 77,
 	.data = gImage_logo,
+};
+
+const PICTURE g_BtLogo = 
+{
+	.width = 22,
+	.height = 24,
+	.data = gImage_bt,
+};
+
+const PICTURE g_BtLogoGray = 
+{
+	.width = 22,
+	.height = 24,
+	.data = gImage_bt_gray,
 };
 
 void DrawPoint(uint16 x, uint16 y, uint16 color)

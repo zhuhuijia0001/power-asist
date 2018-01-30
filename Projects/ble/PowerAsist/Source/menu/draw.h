@@ -10,6 +10,8 @@
 //menu color
 #define BACKGROUND_COLOR       BLACK
 
+#define CAPTION_COLOR          CYAN
+
 #define NORMAL_COLOR           ORANGE
 #define SELECTED_COLOR         WHITE
 #define EDIT_COLOR             MAGENTA
@@ -248,6 +250,53 @@ extern void DrawScreenSelCancel();
 extern void DrawScreenEditLock(uint8 second);
 extern void DrawScreenEditAngle(uint16 angle);
 
+//calibration
+extern void DrawCaliMenu();
+extern void DrawCaliNormalVoltage();
+extern void DrawCaliNormalCurrent();
+
+extern void DrawCaliSelVoltage();
+extern void DrawCaliSelCurrent();
+
+extern void DrawCaliNormalBack();
+extern void DrawCaliSelBack();
+
+//voltage calibration
+extern void DrawVoltageCaliMenu();
+
+extern void DrawVoltageCaliRef(uint8 dec, uint16 frac);
+
+extern void DrawVoltageCaliNormalStart();
+extern void DrawVoltageCaliNormalCancel();
+
+extern void DrawVoltageCaliSelStart();
+extern void DrawVoltageCaliSelCancel();
+
+extern void DrawVoltageCaliSelOK();
+extern void DrawVoltageCaliSelDone();
+
+extern void DrawVoltageCaliProgressBar();
+extern void DrawVoltageCaliProgressStep(uint8 from, uint8 to);
+extern void ClearVoltageCalProcess();
+
+//current calibration
+extern void DrawCurrentCaliMenu();
+
+extern void DrawCurrentCaliRef(uint8 dec, uint16 frac);
+
+extern void DrawCurrentCaliNormalStart();
+extern void DrawCurrentCaliNormalCancel();
+
+extern void DrawCurrentCaliSelStart();
+extern void DrawCurrentCaliSelCancel();
+
+extern void DrawCurrentCaliSelOK();
+extern void DrawCurrentCaliSelDone();
+
+extern void DrawCurrentCaliProgressBar();
+extern void DrawCurrentCaliProgressStep(uint8 from, uint8 to);
+extern void ClearCurrentCalProcess();
+
 //ble
 extern void DrawBleMenu();
 
@@ -269,6 +318,8 @@ extern void DrawVersionMenu();
 
 //ble com mode
 extern void DrawBleComMenu();
+extern void DrawBleComBtActive();
+extern void DrawBleComBtInActive();
 
 //message
 extern void DrawMessageCaption(const uint8 *caption, uint16 fc);

@@ -31,7 +31,7 @@ static TimeItem s_curSelItem = Time_Item_None;
 
 static TimeItem s_curEditItem = Time_Item_None;
 
-static TimeStruct s_time;
+static TimeStruct s_time = { 0 };
 
 static bool	IsLeapYear(uint16 yr)
 {

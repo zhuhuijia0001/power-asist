@@ -538,46 +538,34 @@ bool ParseSetTimePacket(const uint8 *data, uint8 len, TimeStruct *time)
 	
 	index++;
 
-	//year
-	dat = data[index++];
 	if (time != NULL)
 	{
+		//year
+		dat = data[index++];
 		time->year = 2000 + dat;
-	}
-
-	//month
-	dat = data[index++];
-	if (time != NULL)
-	{
+	
+		//month
+		dat = data[index++]; 
 		time->month = dat;
-	}
-
-	//day
-	dat = data[index++];
-	if (time != NULL)
-	{
+	
+		//day
+		dat = data[index++];
 		time->day = dat;
-	}
-
-	//hour
-	dat = data[index++];
-	if (time != NULL)
-	{
+	
+		//hour
+		dat = data[index++];
 		time->hour = dat;
-	}
-
-	//minute
-	dat = data[index++];
-	if (time != NULL)
-	{
+	
+		//minute
+		dat = data[index++];
 		time->minute = dat;
-	}
-
-	//second
-	dat = data[index++];
-	if (time != NULL)
-	{
+	
+		//second
+		dat = data[index++];
 		time->second = dat;
+	
+		//day of week is default(0)
+		time->dayOfWeek = 0;
 	}
 	
 	return true;

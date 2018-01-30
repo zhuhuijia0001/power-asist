@@ -21,7 +21,6 @@
 #include "Protocol.h"
 #include "Parameter.h"
 
-#include "powerAsistGATTprofile.h"
 #include "PowerAsist.h"
 
 #include "npi.h"

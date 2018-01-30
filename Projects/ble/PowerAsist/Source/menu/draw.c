@@ -28,11 +28,11 @@
 
 void DrawMainMenu()
 {
-	DrawString(font_24, MAIN_UNIT_LEFT, MAIN_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_24, MAIN_UNIT_LEFT, MAIN_VOLTAGE_TOP, 'V', CYAN, BACKGROUND_COLOR);
 
-	DrawString(font_24, MAIN_UNIT_LEFT, MAIN_CURRENT_TOP, "A", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_24, MAIN_UNIT_LEFT, MAIN_CURRENT_TOP, 'A', CYAN, BACKGROUND_COLOR);
 
-	DrawString(font_24, MAIN_UNIT_LEFT, MAIN_POWER_TOP, "W", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_24, MAIN_UNIT_LEFT, MAIN_POWER_TOP, 'W', CYAN, BACKGROUND_COLOR);
 }
 
 static void DrawVBusValue(FONT font, uint16 x, uint16 y, uint8 dec, uint16 frac, uint16 fc)
@@ -397,19 +397,19 @@ void DrawDetailSniffer(SnifferStatus sniffer, uint8 voltage)
 void DrawDetailMenu()
 {
 	DrawString(font_16, DETAIL_DP_TITLE_LEFT, DETAIL_DP_TOP, "D+:", YELLOW, BACKGROUND_COLOR);
-	DrawString(font_16, DETAIL_DP_UNIT_LEFT, DETAIL_DP_TOP, "V", YELLOW, BACKGROUND_COLOR);
+	DrawChar(font_16, DETAIL_DP_UNIT_LEFT, DETAIL_DP_TOP, 'V', YELLOW, BACKGROUND_COLOR);
 	
 	DrawString(font_16, DETAIL_DM_TITLE_LEFT, DETAIL_DM_TOP, "D-:", YELLOW, BACKGROUND_COLOR);
-	DrawString(font_16, DETAIL_DM_UNIT_LEFT, DETAIL_DM_TOP, "V", YELLOW, BACKGROUND_COLOR);
+	DrawChar(font_16, DETAIL_DM_UNIT_LEFT, DETAIL_DM_TOP, 'V', YELLOW, BACKGROUND_COLOR);
 	
 	DrawString(font_16, DETAIL_TYPE_TITLE_LEFT, DETAIL_TYPE_TITLE_TOP, "TYPE:", GREEN, BACKGROUND_COLOR);
 	
 	//measure
-	DrawString(font_20, DETAIL_UNIT_LEFT, DETAIL_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, DETAIL_UNIT_LEFT, DETAIL_VOLTAGE_TOP, 'V', CYAN, BACKGROUND_COLOR);
 
-	DrawString(font_20, DETAIL_UNIT_LEFT, DETAIL_CURRENT_TOP, "A", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, DETAIL_UNIT_LEFT, DETAIL_CURRENT_TOP, 'A', CYAN, BACKGROUND_COLOR);
 
-	DrawString(font_20, DETAIL_UNIT_LEFT, DETAIL_POWER_TOP, "W", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, DETAIL_UNIT_LEFT, DETAIL_POWER_TOP, 'W', CYAN, BACKGROUND_COLOR);
 
 	//Wh
 	DrawString(font_16, DETAIL_WH_UNIT_LEFT, DETAIL_WH_TOP, "Wh", GREEN, BACKGROUND_COLOR);
@@ -638,7 +638,7 @@ void DrawDetailAhDelta(uint16 dec, uint16 frac, uint16 fc)
 void DrawSnifferMenu()
 {
 	//title
-	DrawString(font_20, SNIFFER_TITLE_LEFT, SNIFFER_TITLE_TOP, str_sniffer, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, SNIFFER_TITLE_LEFT, SNIFFER_TITLE_TOP, str_sniffer, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_16, SNIFFER_QC20_LEFT, SNIFFER_QC20_TOP, str_qc20, NORMAL_COLOR, BACKGROUND_COLOR);
 	DrawString(font_16, SNIFFER_QC30_LEFT, SNIFFER_QC30_TOP, str_qc30, NORMAL_COLOR, BACKGROUND_COLOR);
@@ -773,15 +773,15 @@ void DrawSnifferSelBack()
 void DrawQC20Menu()
 {
 	//title
-	DrawString(font_20, QC20_TITLE_LEFT, QC20_TITLE_TOP, str_qc20, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, QC20_TITLE_LEFT, QC20_TITLE_TOP, str_qc20, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_16, QC20_ITEM_5V_LEFT, QC20_ITEM_TOP, str_5v, NORMAL_COLOR, BACKGROUND_COLOR);
 	DrawString(font_16, QC20_ITEM_9V_LEFT, QC20_ITEM_TOP, str_9v, NORMAL_COLOR, BACKGROUND_COLOR);
 	DrawString(font_16, QC20_ITEM_12V_LEFT, QC20_ITEM_TOP, str_12v, NORMAL_COLOR, BACKGROUND_COLOR);
 	DrawString(font_16, QC20_ITEM_20V_LEFT, QC20_ITEM_TOP, str_20v, NORMAL_COLOR, BACKGROUND_COLOR);
 
-	DrawString(font_20, QC20_VOLTAGE_UNIT_LEFT, QC20_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
-	DrawString(font_20, QC20_CURRENT_UNIT_LEFT, QC20_CURRENT_TOP, "A", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, QC20_VOLTAGE_UNIT_LEFT, QC20_VOLTAGE_TOP, 'V', CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, QC20_CURRENT_UNIT_LEFT, QC20_CURRENT_TOP, 'A', CYAN, BACKGROUND_COLOR);
 	
 	//back
 	DrawString(font_16, QC20_BACK_LEFT, QC20_BACK_TOP, str_back, NORMAL_COLOR, BACKGROUND_COLOR);
@@ -995,13 +995,13 @@ void DrawQC20ItemPress20V()
 void DrawQC30Menu()
 {
 	//title
-	DrawString(font_20, QC30_TITLE_LEFT, QC30_TITLE_TOP, str_qc30, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, QC30_TITLE_LEFT, QC30_TITLE_TOP, str_qc30, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_16, QC30_DECREASE_LEFT, QC30_CHANGE_TOP, "-", NORMAL_COLOR, BACKGROUND_COLOR);
 	DrawString(font_16, QC30_INCREASE_LEFT, QC30_CHANGE_TOP, "+", NORMAL_COLOR, BACKGROUND_COLOR);
 
-	DrawString(font_20, QC30_VOLTAGE_UNIT_LEFT, QC30_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
-	DrawString(font_20, QC30_CURRENT_UNIT_LEFT, QC30_CURRENT_TOP, "A", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, QC30_VOLTAGE_UNIT_LEFT, QC30_VOLTAGE_TOP, 'V', CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, QC30_CURRENT_UNIT_LEFT, QC30_CURRENT_TOP, 'A', CYAN, BACKGROUND_COLOR);
 	
 	//back
 	DrawString(font_16, QC30_BACK_LEFT, QC30_BACK_TOP, str_back, NORMAL_COLOR, BACKGROUND_COLOR);
@@ -1161,7 +1161,7 @@ void DrawQC30PressIncrease()
 void DrawPDListMenu()
 {
 	//title
-	DrawString(font_20, PD_LIST_TITLE_LEFT, PD_LIST_TITLE_TOP, str_usbpd, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, PD_LIST_TITLE_LEFT, PD_LIST_TITLE_TOP, str_usbpd, CAPTION_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawPDListFailed()
@@ -1286,10 +1286,10 @@ void DrawPDSelCapability(uint8 index, const CapabilityStruct *caps)
 void DrawPDMenu()
 {
 	//title
-	DrawString(font_20, PD_TITLE_LEFT, PD_TITLE_TOP, str_usbpd, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, PD_TITLE_LEFT, PD_TITLE_TOP, str_usbpd, CAPTION_COLOR, BACKGROUND_COLOR);
 
-	DrawString(font_20, PD_VOLTAGE_UNIT_LEFT, PD_VOLTAGE_TOP, "V", CYAN, BACKGROUND_COLOR);
-	DrawString(font_20, PD_CURRENT_UNIT_LEFT, PD_CURRENT_TOP, "A", CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, PD_VOLTAGE_UNIT_LEFT, PD_VOLTAGE_TOP, 'V', CYAN, BACKGROUND_COLOR);
+	DrawChar(font_20, PD_CURRENT_UNIT_LEFT, PD_CURRENT_TOP, 'A', CYAN, BACKGROUND_COLOR);
 
 	DrawString(font_16, PD_BACK_LEFT, PD_BACK_TOP, str_back, SELECTED_COLOR, BACKGROUND_COLOR);
 	
@@ -1447,7 +1447,7 @@ void ClearPDTip()
 void DrawAutoDetectMenu()
 {
 	//title
-	DrawString(font_20, AUTO_TITLE_LEFT, AUTO_TITLE_TOP, str_auto, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, AUTO_TITLE_LEFT, AUTO_TITLE_TOP, str_auto, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	//dcp
 	DrawString(font_16, AUTO_DCP_LEFT, AUTO_DCP_TOP, str_dcp, WHITE, BACKGROUND_COLOR);
@@ -1593,7 +1593,7 @@ void DrawAutoSelBack()
 void DrawSettingMenu()
 {
 	//title
-	DrawString(font_20, SETTING_TITLE_LEFT, SETTING_TITLE_TOP, str_setting, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, SETTING_TITLE_LEFT, SETTING_TITLE_TOP, str_setting, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_16, SETTING_TIME_LEFT, SETTING_TIME_TOP, str_time, ORANGE, BACKGROUND_COLOR);
 
@@ -1743,17 +1743,12 @@ void DrawSettingBackSel()
 #define TIME_TITLE_LEFT     32
 #define TIME_TITLE_TOP      10
 
-#define TIME_YEAR_TOP       40
-#define TIME_YEAR_LEFT      32
+#define TIME_DATE_TOP       40
 
-#define TIME_MONTH_TOP      60
-#define TIME_MONTH_LEFT     28
-#define TIME_DAY_LEFT       68
+#define TIME_YEAR_LEFT      26
 
-#define TIME_TIME_TOP       80
-#define TIME_HOUR_LEFT      8
-#define TIME_MINUTE_LEFT    48
-#define TIME_SECOND_LEFT    88
+#define TIME_TIME_TOP       65
+#define TIME_HOUR_LEFT      33
 
 #define TIME_OK_LEFT        40
 #define TIME_OK_TOP         110
@@ -1763,18 +1758,15 @@ void DrawSettingBackSel()
 void DrawTimeMenu(const TimeStruct *tm)
 {
 	//title
-	DrawString(font_20, TIME_TITLE_LEFT, TIME_TITLE_TOP, str_time, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, TIME_TITLE_LEFT, TIME_TITLE_TOP, str_time, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	//date
 	char buf[20];
-	sprintf(buf, "%04d", tm->year);
-	DrawString(font_20, TIME_YEAR_LEFT, TIME_YEAR_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
-
-	sprintf(buf, "%02d-%02d", tm->month, tm->day);
-	DrawString(font_20, TIME_MONTH_LEFT, TIME_MONTH_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	sprintf(buf, "%04d-%02d-%02d", tm->year, tm->month, tm->day);
+	DrawString(font_16, TIME_YEAR_LEFT, TIME_DATE_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 	
 	sprintf(buf, "%02d:%02d:%02d", tm->hour, tm->minute, tm->second);
-	DrawString(font_20, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 
 	DrawTimeNormalOK();
 	DrawTimeNormalCancel();
@@ -1784,42 +1776,42 @@ void DrawTimeNormalYear(uint16 year)
 {
 	char buf[5];
 	sprintf(buf, "%04d", year);
-	DrawString(font_20, TIME_YEAR_LEFT, TIME_YEAR_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT, TIME_DATE_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeNormalMonth(uint8 month)
 {
 	char buf[3];
 	sprintf(buf, "%02d", month);
-	DrawString(font_20, TIME_MONTH_LEFT, TIME_MONTH_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT + GetStringWidth(font_16, "0000-"), TIME_DATE_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeNormalDay(uint8 day)
 {
 	char buf[3];
 	sprintf(buf, "%02d", day);
-	DrawString(font_20, TIME_DAY_LEFT, TIME_MONTH_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT +  GetStringWidth(font_16, "0000-00-"), TIME_DATE_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeNormalHour(uint8 hour)
 {
 	char buf[3];
 	sprintf(buf, "%02d", hour);
-	DrawString(font_20, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeNormalMinute(uint8 minute)
 {
 	char buf[3];
 	sprintf(buf, "%02d", minute);
-	DrawString(font_20, TIME_MINUTE_LEFT, TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT + GetStringWidth(font_16, "00:"), TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeNormalSecond(uint8 second)
 {
 	char buf[3];
 	sprintf(buf, "%02d", second);
-	DrawString(font_20, TIME_SECOND_LEFT, TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT + GetStringWidth(font_16, "00:00:"), TIME_TIME_TOP, (uint8 *)buf, NORMAL_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeNormalOK()
@@ -1836,84 +1828,84 @@ void DrawTimeSelYear(uint16 year)
 {
 	char buf[5];
 	sprintf(buf, "%04d", year);
-	DrawString(font_20, TIME_YEAR_LEFT, TIME_YEAR_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT, TIME_DATE_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeSelMonth(uint8 month)
 {
 	char buf[3];
 	sprintf(buf, "%02d", month);
-	DrawString(font_20, TIME_MONTH_LEFT, TIME_MONTH_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT + GetStringWidth(font_16, "0000-"), TIME_DATE_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeSelDay(uint8 day)
 {
 	char buf[3];
 	sprintf(buf, "%02d", day);
-	DrawString(font_20, TIME_DAY_LEFT, TIME_MONTH_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT +  GetStringWidth(font_16, "0000-00-"), TIME_DATE_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeSelHour(uint8 hour)
 {
 	char buf[3];
 	sprintf(buf, "%02d", hour);
-	DrawString(font_20, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeSelMinute(uint8 minute)
 {
 	char buf[3];
 	sprintf(buf, "%02d", minute);
-	DrawString(font_20, TIME_MINUTE_LEFT, TIME_TIME_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT + GetStringWidth(font_16, "00:"), TIME_TIME_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeSelSecond(uint8 second)
 {
 	char buf[3];
 	sprintf(buf, "%02d", second);
-	DrawString(font_20, TIME_SECOND_LEFT, TIME_TIME_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT + GetStringWidth(font_16, "00:00:"), TIME_TIME_TOP, (uint8 *)buf, SELECTED_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeEditYear(uint16 year)
 {
 	char buf[5];
 	sprintf(buf, "%04d", year);
-	DrawString(font_20, TIME_YEAR_LEFT, TIME_YEAR_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT, TIME_DATE_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeEditMonth(uint8 month)
 {
 	char buf[3];
 	sprintf(buf, "%02d", month);
-	DrawString(font_20, TIME_MONTH_LEFT, TIME_MONTH_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT + GetStringWidth(font_16, "0000-"), TIME_DATE_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeEditDay(uint8 day)
 {
 	char buf[3];
 	sprintf(buf, "%02d", day);
-	DrawString(font_20, TIME_DAY_LEFT, TIME_MONTH_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_YEAR_LEFT + GetStringWidth(font_16, "0000-00-"), TIME_DATE_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeEditHour(uint8 hour)
 {
 	char buf[3];
 	sprintf(buf, "%02d", hour);
-	DrawString(font_20, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT, TIME_TIME_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeEditMinute(uint8 minute)
 {
 	char buf[3];
 	sprintf(buf, "%02d", minute);
-	DrawString(font_20, TIME_MINUTE_LEFT, TIME_TIME_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT + GetStringWidth(font_16, "00:"), TIME_TIME_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeEditSecond(uint8 second)
 {
 	char buf[3];
 	sprintf(buf, "%02d", second);
-	DrawString(font_20, TIME_SECOND_LEFT, TIME_TIME_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
+	DrawString(font_16, TIME_HOUR_LEFT + GetStringWidth(font_16, "00:00:"), TIME_TIME_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
 void DrawTimeSelOK()
@@ -1942,7 +1934,7 @@ void DrawTimeSelCancel()
 void DrawSampleMenu()
 {
 	//title
-	DrawString(font_20, SAMPLE_TITLE_LEFT, SAMPLE_TITLE_TOP, str_sampling, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, SAMPLE_TITLE_LEFT, SAMPLE_TITLE_TOP, str_sampling, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_20, SAMPLE_ADC_LEFT, SAMPLE_ADC_TOP, str_adc, CYAN, BACKGROUND_COLOR);
 	DrawString(font_20, SAMPLE_ADC_UNIT_LEFT, SAMPLE_ADC_TOP, str_fps, CYAN, BACKGROUND_COLOR);
@@ -2015,7 +2007,7 @@ void DrawSampleEditADC(uint8 fps)
 void DrawScreenMenu()
 {
 	//title
-	DrawString(font_20, SCREEN_TITLE_LEFT, SCREEN_TITLE_TOP, str_screen, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, SCREEN_TITLE_LEFT, SCREEN_TITLE_TOP, str_screen, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_20, SCREEN_LOCK_LEFT, SCREEN_LOCK_TOP, str_lock, CYAN, BACKGROUND_COLOR);
 	DrawString(font_20, SCREEN_LOCK_UNIT_LEFT, SCREEN_LOCK_TOP, "M", CYAN, BACKGROUND_COLOR);
@@ -2122,6 +2114,374 @@ void DrawScreenEditAngle(uint16 angle)
 	DrawString(font_20, SCREEN_ANGLE_VAL_LEFT, SCREEN_ANGLE_TOP, (uint8 *)buf, EDIT_COLOR, BACKGROUND_COLOR);
 }
 
+//cali menu
+#define CALI_TITLE_LEFT   32
+#define CALI_TITLE_TOP    10
+
+#define CALI_VOLTAGE_LEFT  35
+#define CALI_VOLTAGE_TOP   45
+
+#define CALI_CURRENT_LEFT  35
+#define CALI_CURRENT_TOP   75
+
+#define CALI_DELTA         2
+
+#define CALI_BACK_LEFT     80
+#define CALI_BACK_TOP      107
+
+void DrawCaliMenu()
+{
+	//title
+	DrawString(font_20, CALI_TITLE_LEFT, CALI_TITLE_TOP, str_calibration, CAPTION_COLOR, BACKGROUND_COLOR);
+
+	//item
+	DrawString(font_16, CALI_VOLTAGE_LEFT, CALI_VOLTAGE_TOP, str_voltage, NORMAL_COLOR, BACKGROUND_COLOR);
+
+	DrawString(font_16, CALI_CURRENT_LEFT, CALI_CURRENT_TOP, str_current, NORMAL_COLOR, BACKGROUND_COLOR);
+
+	DrawString(font_16, CALI_BACK_LEFT, CALI_BACK_TOP, str_back, NORMAL_COLOR, BACKGROUND_COLOR);
+}
+
+void DrawCaliNormalVoltage()
+{
+	DrawString(font_16, CALI_VOLTAGE_LEFT, CALI_VOLTAGE_TOP, str_voltage, NORMAL_COLOR, BACKGROUND_COLOR);
+
+	DrawRectangle(CALI_VOLTAGE_LEFT - CALI_DELTA, CALI_VOLTAGE_TOP - CALI_DELTA,
+					CALI_VOLTAGE_LEFT + GetStringWidth(font_16, str_voltage) + CALI_DELTA, 
+					CALI_VOLTAGE_TOP + 16 + CALI_DELTA,
+					BACKGROUND_COLOR);
+}
+
+void DrawCaliNormalCurrent()
+{
+	DrawString(font_16, CALI_CURRENT_LEFT, CALI_CURRENT_TOP, str_current, NORMAL_COLOR, BACKGROUND_COLOR);
+
+	DrawRectangle(CALI_CURRENT_LEFT - CALI_DELTA, CALI_CURRENT_TOP - CALI_DELTA,
+					CALI_CURRENT_LEFT + GetStringWidth(font_16, str_current) + CALI_DELTA, 
+					CALI_CURRENT_TOP + 16 + CALI_DELTA,
+					BACKGROUND_COLOR);
+}
+
+void DrawCaliSelVoltage()
+{
+	DrawString(font_16, CALI_VOLTAGE_LEFT, CALI_VOLTAGE_TOP, str_voltage, SELECTED_COLOR, BACKGROUND_COLOR);
+
+	DrawRectangle(CALI_VOLTAGE_LEFT - CALI_DELTA, CALI_VOLTAGE_TOP - CALI_DELTA,
+					CALI_VOLTAGE_LEFT + GetStringWidth(font_16, str_voltage) + CALI_DELTA, 
+					CALI_VOLTAGE_TOP + 16 + CALI_DELTA,
+					SELECTED_COLOR);
+}
+
+void DrawCaliSelCurrent()
+{
+	DrawString(font_16, CALI_CURRENT_LEFT, CALI_CURRENT_TOP, str_current, SELECTED_COLOR, BACKGROUND_COLOR);
+
+	DrawRectangle(CALI_CURRENT_LEFT - CALI_DELTA, CALI_CURRENT_TOP - CALI_DELTA,
+					CALI_CURRENT_LEFT + GetStringWidth(font_16, str_current) + CALI_DELTA, 
+					CALI_CURRENT_TOP + 16 + CALI_DELTA,
+					SELECTED_COLOR);
+}
+
+void DrawCaliNormalBack()
+{
+	DrawString(font_16, CALI_BACK_LEFT, CALI_BACK_TOP, str_back, NORMAL_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CALI_BACK_LEFT - CALI_DELTA, CALI_BACK_TOP - CALI_DELTA,
+						CALI_BACK_LEFT + GetStringWidth(font_16, str_back) + CALI_DELTA, 
+						CALI_BACK_TOP + 16 + CALI_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawCaliSelBack()
+{
+	DrawString(font_16, CALI_BACK_LEFT, CALI_BACK_TOP, str_back, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CALI_BACK_LEFT - CALI_DELTA, CALI_BACK_TOP - CALI_DELTA,
+						CALI_BACK_LEFT + GetStringWidth(font_16, str_back) + CALI_DELTA, 
+						CALI_BACK_TOP + 16 + CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+//voltage calibration
+#define VOLTAGE_CALI_TITLE_LEFT   16
+#define VOLTAGE_CALI_TITLE_TOP    10
+
+#define VOLTAGE_CALI_VOLTAGE_LEFT  1
+#define VOLTAGE_CALI_VOLTAGE_TOP   50
+#define VOLTAGE_CALI_UNIT_LEFT     120
+#define VOLTAGE_CALI_VAL_LEFT      64
+
+#define VOLTAGE_CALI_DELTA         2
+
+#define VOLTAGE_CALI_START_LEFT     25
+#define VOLTAGE_CALI_START_TOP      100
+
+#define VOLTAGE_CALI_CANCEL_LEFT    75
+#define VOLTAGE_CALI_CANCEL_TOP     VOLTAGE_CALI_START_TOP
+
+#define VOLTAGE_CALI_OK_LEFT        100
+#define VOLTAGE_CALI_OK_TOP         VOLTAGE_CALI_START_TOP
+
+#define VOLTAGE_CALI_DONE_LEFT      92
+#define VOLTAGE_CALI_DONE_TOP       VOLTAGE_CALI_START_TOP
+
+#define VOLTAGE_CALI_RPOGRESS_LEFT  5
+#define VOLTAGE_CALI_PROGRESS_TOP   VOLTAGE_CALI_START_TOP
+
+#define VOLTAGE_CALI_PROGRESS_WIDTH  80
+#define VOLTAGE_CALI_PROGRESS_HEIGHT 16
+
+void DrawVoltageCaliMenu()
+{
+	//title
+	DrawString(font_16, VOLTAGE_CALI_TITLE_LEFT, VOLTAGE_CALI_TITLE_TOP, str_voltage_cali,
+				CAPTION_COLOR, BACKGROUND_COLOR);
+
+	//voltage
+	DrawString(font_16, VOLTAGE_CALI_VOLTAGE_LEFT, VOLTAGE_CALI_VOLTAGE_TOP,
+				str_voltage, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawChar(font_16, VOLTAGE_CALI_VOLTAGE_LEFT + GetStringWidth(font_16, str_voltage), VOLTAGE_CALI_VOLTAGE_TOP,
+				':', NORMAL_COLOR, BACKGROUND_COLOR);
+
+	//unit
+	DrawChar(font_16, VOLTAGE_CALI_UNIT_LEFT, VOLTAGE_CALI_VOLTAGE_TOP, 'V', CYAN, BACKGROUND_COLOR);
+	
+	//start
+	DrawString(font_16, VOLTAGE_CALI_START_LEFT, VOLTAGE_CALI_START_TOP,
+				str_start, NORMAL_COLOR, BACKGROUND_COLOR);
+
+	//cancel
+	DrawString(font_16, VOLTAGE_CALI_CANCEL_LEFT, VOLTAGE_CALI_CANCEL_TOP,
+				str_cancel, NORMAL_COLOR, BACKGROUND_COLOR);
+}		
+
+void DrawVoltageCaliRef(uint8 dec, uint16 frac)
+{
+	DrawVBusValue(font_16, VOLTAGE_CALI_VAL_LEFT, VOLTAGE_CALI_VOLTAGE_TOP, dec, frac, CYAN);
+}
+
+void DrawVoltageCaliNormalStart()
+{
+	DrawString(font_16, VOLTAGE_CALI_START_LEFT, VOLTAGE_CALI_START_TOP, str_start, NORMAL_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(VOLTAGE_CALI_START_LEFT - VOLTAGE_CALI_DELTA, VOLTAGE_CALI_START_TOP - VOLTAGE_CALI_DELTA,
+						VOLTAGE_CALI_START_LEFT + GetStringWidth(font_16, str_start) + VOLTAGE_CALI_DELTA, 
+						VOLTAGE_CALI_START_TOP + 16 + VOLTAGE_CALI_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawVoltageCaliNormalCancel()
+{
+	DrawString(font_16, VOLTAGE_CALI_CANCEL_LEFT, VOLTAGE_CALI_CANCEL_TOP, str_cancel, NORMAL_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(VOLTAGE_CALI_CANCEL_LEFT - VOLTAGE_CALI_DELTA, VOLTAGE_CALI_CANCEL_TOP - VOLTAGE_CALI_DELTA,
+						VOLTAGE_CALI_CANCEL_LEFT + GetStringWidth(font_16, str_cancel) + VOLTAGE_CALI_DELTA, 
+						VOLTAGE_CALI_CANCEL_TOP + 16 + VOLTAGE_CALI_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawVoltageCaliSelStart()
+{
+	DrawString(font_16, VOLTAGE_CALI_START_LEFT, VOLTAGE_CALI_START_TOP, str_start, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(VOLTAGE_CALI_START_LEFT - VOLTAGE_CALI_DELTA, VOLTAGE_CALI_START_TOP - VOLTAGE_CALI_DELTA,
+						VOLTAGE_CALI_START_LEFT + GetStringWidth(font_16, str_start) + VOLTAGE_CALI_DELTA, 
+						VOLTAGE_CALI_START_TOP + 16 + VOLTAGE_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawVoltageCaliSelCancel()
+{
+	DrawString(font_16, VOLTAGE_CALI_CANCEL_LEFT, VOLTAGE_CALI_CANCEL_TOP, str_cancel, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(VOLTAGE_CALI_CANCEL_LEFT - VOLTAGE_CALI_DELTA, VOLTAGE_CALI_CANCEL_TOP - VOLTAGE_CALI_DELTA,
+						VOLTAGE_CALI_CANCEL_LEFT + GetStringWidth(font_16, str_cancel) + VOLTAGE_CALI_DELTA, 
+						VOLTAGE_CALI_CANCEL_TOP + 16 + VOLTAGE_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawVoltageCaliSelOK()
+{
+	DrawString(font_16, VOLTAGE_CALI_OK_LEFT, VOLTAGE_CALI_OK_TOP, str_ok, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(VOLTAGE_CALI_OK_LEFT - VOLTAGE_CALI_DELTA, VOLTAGE_CALI_OK_TOP - VOLTAGE_CALI_DELTA,
+						VOLTAGE_CALI_OK_LEFT + GetStringWidth(font_16, str_ok) + VOLTAGE_CALI_DELTA, 
+						VOLTAGE_CALI_OK_TOP + 16 + VOLTAGE_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawVoltageCaliSelDone()
+{
+	DrawString(font_16, VOLTAGE_CALI_DONE_LEFT, VOLTAGE_CALI_DONE_TOP, str_done, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(VOLTAGE_CALI_DONE_LEFT - VOLTAGE_CALI_DELTA, VOLTAGE_CALI_DONE_TOP - VOLTAGE_CALI_DELTA,
+						VOLTAGE_CALI_DONE_LEFT + GetStringWidth(font_16, str_done) + VOLTAGE_CALI_DELTA, 
+						VOLTAGE_CALI_DONE_TOP + 16 + VOLTAGE_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawVoltageCaliProgressBar()
+{
+	DrawRectangle(VOLTAGE_CALI_RPOGRESS_LEFT, VOLTAGE_CALI_PROGRESS_TOP,
+					VOLTAGE_CALI_RPOGRESS_LEFT + VOLTAGE_CALI_PROGRESS_WIDTH,
+					VOLTAGE_CALI_PROGRESS_TOP + VOLTAGE_CALI_PROGRESS_HEIGHT,
+					WHITE);
+}
+
+void DrawVoltageCaliProgressStep(uint8 from, uint8 to)
+{
+	FillRectangle(VOLTAGE_CALI_RPOGRESS_LEFT + VOLTAGE_CALI_PROGRESS_WIDTH * from / 100, VOLTAGE_CALI_PROGRESS_TOP,
+					VOLTAGE_CALI_RPOGRESS_LEFT + VOLTAGE_CALI_PROGRESS_WIDTH * to / 100, VOLTAGE_CALI_PROGRESS_TOP + VOLTAGE_CALI_PROGRESS_HEIGHT,
+					CYAN);
+}
+
+void ClearVoltageCalProcess()
+{
+	FillRectangle(VOLTAGE_CALI_RPOGRESS_LEFT, VOLTAGE_CALI_PROGRESS_TOP - VOLTAGE_CALI_DELTA, 
+					GetScreenWidth() - 1, VOLTAGE_CALI_PROGRESS_TOP + VOLTAGE_CALI_PROGRESS_HEIGHT + VOLTAGE_CALI_DELTA, BACKGROUND_COLOR);
+}
+
+//current calibration
+#define CURRENT_CALI_TITLE_LEFT   16
+#define CURRENT_CALI_TITLE_TOP    10
+
+#define CURRENT_CALI_CURRENT_LEFT  1
+#define CURRENT_CALI_CURRENT_TOP   50
+#define CURRENT_CALI_UNIT_LEFT     120
+#define CURRENT_CALI_VAL_LEFT      64
+
+#define CURRENT_CALI_DELTA         2
+
+
+#define CURRENT_CALI_START_LEFT     25
+#define CURRENT_CALI_START_TOP      100
+
+#define CURRENT_CALI_CANCEL_LEFT    75
+#define CURRENT_CALI_CANCEL_TOP     CURRENT_CALI_START_TOP
+
+#define CURRENT_CALI_OK_LEFT        100
+#define CURRENT_CALI_OK_TOP         CURRENT_CALI_START_TOP
+
+#define CURRENT_CALI_DONE_LEFT      92
+#define CURRENT_CALI_DONE_TOP       CURRENT_CALI_START_TOP
+
+#define CURRENT_CALI_RPOGRESS_LEFT  5
+#define CURRENT_CALI_PROGRESS_TOP   CURRENT_CALI_START_TOP
+
+#define CURRENT_CALI_PROGRESS_WIDTH  80
+#define CURRENT_CALI_PROGRESS_HEIGHT 16
+
+void DrawCurrentCaliMenu()
+{
+	//title
+	DrawString(font_16, CURRENT_CALI_TITLE_LEFT, CURRENT_CALI_TITLE_TOP, str_current_cali,
+				CAPTION_COLOR, BACKGROUND_COLOR);
+
+	//current
+	DrawString(font_16, CURRENT_CALI_CURRENT_LEFT, CURRENT_CALI_CURRENT_TOP,
+				str_current, NORMAL_COLOR, BACKGROUND_COLOR);
+	DrawChar(font_16, CURRENT_CALI_CURRENT_LEFT + GetStringWidth(font_16, str_current), CURRENT_CALI_CURRENT_TOP,
+				':', NORMAL_COLOR, BACKGROUND_COLOR);
+
+	//unit
+	DrawChar(font_16, CURRENT_CALI_UNIT_LEFT, CURRENT_CALI_CURRENT_TOP, 'A', CYAN, BACKGROUND_COLOR);
+	
+	//start
+	DrawString(font_16, CURRENT_CALI_START_LEFT, CURRENT_CALI_START_TOP,
+				str_start, NORMAL_COLOR, BACKGROUND_COLOR);
+
+	//cancel
+	DrawString(font_16, CURRENT_CALI_CANCEL_LEFT, CURRENT_CALI_CANCEL_TOP,
+				str_cancel, NORMAL_COLOR, BACKGROUND_COLOR);
+
+}
+
+void DrawCurrentCaliRef(uint8 dec, uint16 frac)
+{
+	DrawVBusValue(font_16, CURRENT_CALI_VAL_LEFT, CURRENT_CALI_CURRENT_TOP, dec, frac, CYAN);
+}
+
+void DrawCurrentCaliNormalStart()
+{
+	DrawString(font_16, CURRENT_CALI_START_LEFT, CURRENT_CALI_START_TOP, str_start, NORMAL_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CURRENT_CALI_START_LEFT - CURRENT_CALI_DELTA, CURRENT_CALI_START_TOP - CURRENT_CALI_DELTA,
+						CURRENT_CALI_START_LEFT + GetStringWidth(font_16, str_start) + CURRENT_CALI_DELTA, 
+						CURRENT_CALI_START_TOP + 16 + CURRENT_CALI_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawCurrentCaliNormalCancel()
+{
+	DrawString(font_16, CURRENT_CALI_CANCEL_LEFT, CURRENT_CALI_CANCEL_TOP, str_cancel, NORMAL_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CURRENT_CALI_CANCEL_LEFT - CURRENT_CALI_DELTA, CURRENT_CALI_CANCEL_TOP - CURRENT_CALI_DELTA,
+						CURRENT_CALI_CANCEL_LEFT + GetStringWidth(font_16, str_cancel) + CURRENT_CALI_DELTA, 
+						CURRENT_CALI_CANCEL_TOP + 16 + CURRENT_CALI_DELTA,
+						BACKGROUND_COLOR);
+}
+
+void DrawCurrentCaliSelStart()
+{
+	DrawString(font_16, CURRENT_CALI_START_LEFT, CURRENT_CALI_START_TOP, str_start, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CURRENT_CALI_START_LEFT - CURRENT_CALI_DELTA, CURRENT_CALI_START_TOP - CURRENT_CALI_DELTA,
+						CURRENT_CALI_START_LEFT + GetStringWidth(font_16, str_start) + CURRENT_CALI_DELTA, 
+						CURRENT_CALI_START_TOP + 16 + CURRENT_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawCurrentCaliSelCancel()
+{
+	DrawString(font_16, CURRENT_CALI_CANCEL_LEFT, CURRENT_CALI_CANCEL_TOP, str_cancel, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CURRENT_CALI_CANCEL_LEFT - CURRENT_CALI_DELTA, CURRENT_CALI_CANCEL_TOP - CURRENT_CALI_DELTA,
+						CURRENT_CALI_CANCEL_LEFT + GetStringWidth(font_16, str_cancel) + CURRENT_CALI_DELTA, 
+						CURRENT_CALI_CANCEL_TOP + 16 + CURRENT_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawCurrentCaliSelOK()
+{
+	DrawString(font_16, CURRENT_CALI_OK_LEFT, CURRENT_CALI_OK_TOP, str_ok, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CURRENT_CALI_OK_LEFT - CURRENT_CALI_DELTA, CURRENT_CALI_OK_TOP - CURRENT_CALI_DELTA,
+						CURRENT_CALI_OK_LEFT + GetStringWidth(font_16, str_ok) + CURRENT_CALI_DELTA, 
+						CURRENT_CALI_OK_TOP + 16 + CURRENT_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawCurrentCaliSelDone()
+{
+	DrawString(font_16, CURRENT_CALI_DONE_LEFT, CURRENT_CALI_DONE_TOP, str_done, SELECTED_COLOR, BACKGROUND_COLOR);
+	
+	DrawRectangle(CURRENT_CALI_DONE_LEFT - CURRENT_CALI_DELTA, CURRENT_CALI_DONE_TOP - CURRENT_CALI_DELTA,
+						CURRENT_CALI_DONE_LEFT + GetStringWidth(font_16, str_done) + CURRENT_CALI_DELTA, 
+						CURRENT_CALI_DONE_TOP + 16 + CURRENT_CALI_DELTA,
+						SELECTED_COLOR);
+}
+
+void DrawCurrentCaliProgressBar()
+{
+	DrawRectangle(CURRENT_CALI_RPOGRESS_LEFT, CURRENT_CALI_PROGRESS_TOP,
+					CURRENT_CALI_RPOGRESS_LEFT + CURRENT_CALI_PROGRESS_WIDTH,
+					CURRENT_CALI_PROGRESS_TOP + CURRENT_CALI_PROGRESS_HEIGHT,
+					WHITE);
+}
+
+void DrawCurrentCaliProgressStep(uint8 from, uint8 to)
+{
+	FillRectangle(CURRENT_CALI_RPOGRESS_LEFT + CURRENT_CALI_PROGRESS_WIDTH * from / 100, CURRENT_CALI_PROGRESS_TOP,
+					CURRENT_CALI_RPOGRESS_LEFT + CURRENT_CALI_PROGRESS_WIDTH * to / 100, CURRENT_CALI_PROGRESS_TOP + CURRENT_CALI_PROGRESS_HEIGHT,
+					CYAN);
+}
+
+void ClearCurrentCalProcess()
+{
+	FillRectangle(CURRENT_CALI_RPOGRESS_LEFT, CURRENT_CALI_PROGRESS_TOP - CURRENT_CALI_DELTA, 
+					GetScreenWidth() - 1, CURRENT_CALI_PROGRESS_TOP + CURRENT_CALI_PROGRESS_HEIGHT + CURRENT_CALI_DELTA, BACKGROUND_COLOR);
+}
+
 //ble menu
 #define BLE_TITLE_LEFT         40
 
@@ -2135,7 +2495,7 @@ void DrawScreenEditAngle(uint16 angle)
 void DrawBleMenu()
 {
 	//title
-	DrawString(font_20, BLE_TITLE_LEFT, BLE_TITLE_TOP, str_ble, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, BLE_TITLE_LEFT, BLE_TITLE_TOP, str_ble, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_20, BLE_NAME_LEFT, BLE_NAME_TOP, str_name, CYAN, BACKGROUND_COLOR);
 }
@@ -2162,7 +2522,7 @@ void DrawBleNormalName(const uint8 *name)
 void DrawVersionMenu()
 {
 	//title
-	DrawString(font_20, VERSION_TITLE_LEFT, VERSION_TITLE_TOP, str_version, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, VERSION_TITLE_LEFT, VERSION_TITLE_TOP, str_version, CAPTION_COLOR, BACKGROUND_COLOR);
 
 	DrawString(font_20, FIRMWARE_LEFT, FIRMWARE_TOP, str_ver, CYAN, BACKGROUND_COLOR);
 	DrawString(font_16, FIRMWARE_VAL_LEFT, FIRMWARE_VAL_TOP, FIRMWARE_VER, NORMAL_COLOR, BACKGROUND_COLOR);
@@ -2173,12 +2533,27 @@ void DrawVersionMenu()
 
 //ble com mode
 #define BLE_MODE_TITLE_LEFT     0
-#define BLE_MODE_TITLE_TOP      50
+#define BLE_MODE_TITLE_TOP     40
 
+#define BLE_BT_LOGO_LEFT       10
+#define BLE_BT_LOGO_TOP        90
 void DrawBleComMenu()
 {
 	//title
-	DrawString(font_20, BLE_MODE_TITLE_LEFT, BLE_MODE_TITLE_TOP, str_ble_mode, CYAN, BACKGROUND_COLOR);
+	DrawString(font_20, BLE_MODE_TITLE_LEFT, BLE_MODE_TITLE_TOP, str_ble_mode, CAPTION_COLOR, BACKGROUND_COLOR);
+
+	//logo
+	DrawPicture(BLE_BT_LOGO_LEFT, BLE_BT_LOGO_TOP, &g_BtLogoGray);
+}
+
+void DrawBleComBtActive()
+{
+	DrawPicture(BLE_BT_LOGO_LEFT, BLE_BT_LOGO_TOP, &g_BtLogo);
+}
+
+void DrawBleComBtInActive()
+{
+	DrawPicture(BLE_BT_LOGO_LEFT, BLE_BT_LOGO_TOP, &g_BtLogoGray);
 }
 
 //message

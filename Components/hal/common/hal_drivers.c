@@ -143,12 +143,17 @@ void HalDriverInit (void)
 		TRACE("load parameter failed\r\n");
 		
 		LoadDefaultParameter();
-
 		SaveParameter();
-
-		SetRTCTime(&g_defaultTime);
+		
+		SetDefaultRTCTime();
 
 		FlushLoadWhAndAh();
+	}
+
+	if (!LoadCalibration())
+	{
+		LoadDefaultCalibration();
+		SaveCalibration();
 	}
 	
 	GetSavedLoadWhAndAh();
@@ -201,7 +206,7 @@ void HalDriverInit (void)
 #endif
 	
 	/* Meter */
-	InitMeter(g_currentCaliValue);
+	InitMeter();
 	
 	/* FUSB302 */
 	if (DetectFUSB302())

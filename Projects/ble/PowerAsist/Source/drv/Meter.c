@@ -11,14 +11,19 @@
 #include "RealTimeData.h"
 #include "Meter.h"
 
+#include "Parameter.h"
+
 #include "npi.h"
 
 //ref voltage 3300mV
 #define REF_VOLTAGE      3300ul
 
-#define SAMPLE_PER_SECOND    10ul
+#define SAMPLE_PER_SECOND    5ul
 
 #define SECONDS_PER_HOUR     3600ul
+
+//R = 10mR, max current = 5A. LSB = 0.1mA
+#define CURRENT_CALIBRATION_VAL     5120ul
 
 static AccumulateStruct s_WhAccumulate = 
 {
@@ -35,7 +40,7 @@ static AccumulateStruct s_AhAccumulate =
 #define SAVE_REAL_DATA_PRESCALE           5
 static uint8 s_prescaleCounter = 0;
 
-void InitMeter(uint16 cali)
+void InitMeter()
 {
 	//Init ina226
 	uint16 config = (0x04 << 12)
@@ -47,43 +52,120 @@ void InitMeter(uint16 cali)
 	
 	WriteINA226Data(INA226_REG_CONFIG, config);
 	
-	WriteINA226Data(INA226_REG_CALIBRATION, cali);
+	WriteINA226Data(INA226_REG_CALIBRATION, CURRENT_CALIBRATION_VAL);
 	
 	//init adc to measure d+ & d-
 	HalAdcInit();
 }
 
-bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
+bool GetBusVoltageAdcValue(uint16 *adc)
 {
-	uint16 val;
 	SetINA226Addr(INA226_REG_BUS_VOLTAGE);
 			
-	bool res = ReadINA226Data(&val);
+	bool res = ReadINA226Data(adc);
 	if (!res)
 	{
 		return false;
 	}
-
-	//TRACE("voltage adc:0x%04X\r\n", val);
 	
-	uint32 voltage = val ;
-	//LSB = 1.25mV
-	voltage *= 1250ul;
+	return true;
+}
 
-	if (VInt != NULL)
+bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
+{
+	uint16 adc;
+	if (!GetBusVoltageAdcValue(&adc))
 	{
-		*VInt = voltage / 1000000;
+		return false;
 	}
 
-	if (VFrac != NULL)
+	TRACE("voltage adc:%d\r\n", adc);
+	
+	if (g_voltageCaliItemCount == VOLTAGE_CALI_ITEM_COUNT)
 	{
-		*VFrac = voltage % 1000000 / 100;
+		uint32 val;
+
+		const CalibrationItem *caliItem = g_voltageCaliItem;
+	
+		if (adc >= caliItem[1].adc)
+		{
+			val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac 
+					- caliItem[1].val.dec * 10000ul - caliItem[1].val.frac);
+		
+			val *= (adc - caliItem[1].adc);
+			val /= (caliItem[2].adc - caliItem[1].adc);
+
+			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac + val);
+
+			if (VInt != NULL)
+			{
+				*VInt = val / 10000ul;
+			}
+
+			if (VFrac != NULL)
+			{
+				*VFrac = val % 10000ul;
+			}
+		}
+		else
+		{
+			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac
+				- caliItem[0].val.dec * 10000ul - caliItem[0].val.frac);
+		
+			if (adc >= caliItem[0].adc)
+			{
+				val *= (adc - caliItem[0].adc);
+				val /= (caliItem[1].adc - caliItem[0].adc);
+				val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac + val);
+
+				if (VInt != NULL)
+				{
+					*VInt = val / 10000ul;
+				}
+
+				if (VFrac != NULL)
+				{
+					*VFrac = val % 10000ul;
+				}
+			}
+			else
+			{
+				val *= (caliItem[0].adc - adc);
+				val /= (caliItem[1].adc - caliItem[0].adc);
+				val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac - val);
+				if (VInt != NULL)
+				{
+					*VInt = val / 10000ul;
+				}
+
+				if (VFrac != NULL)
+				{
+					*VFrac = val % 10000ul;
+				}
+			}
+		}
+	}
+	else
+	{
+		uint32 voltage = adc;
+		//LSB = 1.25mV
+		voltage *= 1250ul;
+	                                                 
+		if (VInt != NULL)
+		{
+			*VInt = voltage / 1000000ul;
+		}
+	
+		if (VFrac != NULL)
+		{
+			*VFrac = voltage % 1000000ul / 100ul;
+		}
 	}
 
 	return true;
 }
 
-bool GetShuntVoltage(uint8 *mVInt, uint16 *mVFrac)
+bool GetShuntVoltageAdcValue(uint16 *adc)
 {
 	uint16 val;
 	SetINA226Addr(INA226_REG_SHUNT_VOLTAGE);
@@ -99,24 +181,40 @@ bool GetShuntVoltage(uint8 *mVInt, uint16 *mVFrac)
 		val = ~val + 1;
 	}
 	
-	//LSB = 2.5uV
-	uint32 voltage = val;
-	voltage = (voltage * 250ul + 5) / 10;
-	
-	if (mVInt != NULL)
+	if (adc != NULL)
 	{
-		*mVInt = voltage / 10000;
-	}
-
-	if (mVFrac != NULL)
-	{
-		*mVFrac = voltage % 10000;
+		*adc = val;
 	}
 
 	return true;
 }
 
-bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
+bool GetShuntVoltage(uint8 *mVInt, uint16 *mVFrac)
+{
+	uint16 adc;
+	if (!GetShuntVoltageAdcValue(&adc))
+	{
+		return false;
+	}
+	
+	//LSB = 2.5uV
+	uint32 voltage = adc;
+	voltage = (voltage * 250ul + 5) / 10;
+	
+	if (mVInt != NULL)
+	{
+		*mVInt = voltage / 10000ul;
+	}
+
+	if (mVFrac != NULL)
+	{
+		*mVFrac = voltage % 10000ul;
+	}
+
+	return true;
+}
+
+bool GetLoadCurrentAdcValue(uint16 *adc)
 {
 	uint16 val;
 
@@ -132,18 +230,118 @@ bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
 		val = ~val + 1;
 	}
 	
-	//LSB = 0.1mA
-	uint32 current = val;
-	current *= 100ul;
-	
-	if (AInt != NULL)
+	if (adc != NULL)
 	{
-		*AInt = current / 1000000;
+		*adc = val;
 	}
 
-	if (AFrac != NULL)
+	return true;
+}
+
+bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
+{
+	uint16 adc;
+
+	if (!GetLoadCurrentAdcValue(&adc))
 	{
-		*AFrac = current % 1000000 / 100;
+		return false;
+	}
+
+	TRACE("current adc:%d\r\n", adc);
+	
+	if (g_currentCaliItemCount == CURRENT_CALI_ITEM_COUNT)
+	{
+		uint32 val;
+
+		const CalibrationItem *caliItem = g_currentCaliItem;
+	
+		if (adc >= caliItem[2].adc)
+		{
+			val = (caliItem[3].val.dec * 10000ul + caliItem[3].val.frac 
+					- caliItem[2].val.dec * 10000ul - caliItem[2].val.frac);
+		
+			val *= (adc - caliItem[2].adc);
+			val /= (caliItem[3].adc - caliItem[2].adc);
+
+			val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac + val);
+
+			if (AInt != NULL)
+			{
+				*AInt = val / 10000ul;
+			}
+
+			if (AInt != NULL)
+			{
+				*AInt = val % 10000ul;
+			}
+		}
+		else if (adc >= caliItem[1].adc)
+		{
+			val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac 
+								- caliItem[1].val.dec * 10000ul - caliItem[1].val.frac);
+					
+			val *= (adc - caliItem[1].adc);
+			val /= (caliItem[2].adc - caliItem[1].adc);
+
+			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac + val);
+
+			if (AInt != NULL)
+			{
+				*AInt = val / 10000ul;
+			}
+
+			if (AInt != NULL)
+			{
+				*AInt = val % 10000ul;
+			}
+		}
+		else
+		{
+			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac
+				- caliItem[0].val.dec * 10000ul - caliItem[0].val.frac);
+		
+			val *= (adc - caliItem[0].adc);
+			val /= (caliItem[1].adc - caliItem[0].adc);
+			val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac + val);
+
+			if (AInt != NULL)
+			{
+				*AInt = val / 10000ul;
+			}
+
+			if (AFrac != NULL)
+			{
+				*AFrac = val % 10000ul;
+			}
+		}
+	}
+	else
+	{
+		//LSB = 0.1mA
+		uint32 current = adc;
+		current *= 100ul;
+		
+		if (AInt != NULL)
+		{
+			*AInt = current / 1000000ul;
+		}
+
+		if (AFrac != NULL)
+		{
+			*AFrac = current % 1000000ul / 100ul;
+		}
+	}
+
+	return true;
+}
+
+bool GetLoadPowerAdcValue(uint16 *adc)
+{
+	SetINA226Addr(INA226_REG_POWER);
+	bool res = ReadINA226Data(adc);
+	if (!res)
+	{
+		return false;
 	}
 
 	return true;
@@ -151,37 +349,28 @@ bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
 
 bool GetLoadPower(uint8 *WInt, uint16 *WFrac)
 {
-	uint16 val;
+	uint16 adc;
 	
-	SetINA226Addr(INA226_REG_POWER);
-	bool res = ReadINA226Data(&val);
-	if (!res)
+	if (!GetLoadPowerAdcValue(&adc))
 	{
 		return false;
 	}
 	
 	//LSB = 2.5mW
-	uint32 power = val;
+	uint32 power = adc;
 	power *= 2500ul;
 	
 	if (WInt != NULL)
 	{
-		*WInt = power / 1000000;
+		*WInt = power / 1000000ul;
 	}
 
 	if (WFrac != NULL)
 	{
-		*WFrac = power % 1000000 / 100;
+		*WFrac = power % 1000000ul / 100ul;
 	}
 
 	return true;
-}
-
-bool SetCalibrationVal(uint16 theoreticalCur, uint16 realCur)
-{
-	uint32 cali = CALIBRATION_VAL * realCur / theoreticalCur;
-
-	return WriteINA226Data(INA226_REG_CALIBRATION, cali);
 }
 
 static void GetADCVoltage(uint8 channel, uint8 *VInt, uint16 *VFrac)
@@ -196,12 +385,12 @@ static void GetADCVoltage(uint8 channel, uint8 *VInt, uint16 *VFrac)
 	
 	if (VInt != NULL)
 	{
-		*VInt = val / 1000;
+		*VInt = val / 1000ul;
 	}
 
 	if (VFrac != NULL)
 	{
-		*VFrac = val / 10 % 100;
+		*VFrac = val / 10 % 100ul;
 	}
 }
 
@@ -285,9 +474,8 @@ void AccumulateLoadWhAndAh()
 	s_WhAccumulate.sum += W;
 	if (s_WhAccumulate.sum >= SAMPLE_PER_SECOND * SECONDS_PER_HOUR)
 	{
-		s_WhAccumulate.sum -= SAMPLE_PER_SECOND * SECONDS_PER_HOUR;
-
-		s_WhAccumulate.valh++;
+		s_WhAccumulate.valh += s_WhAccumulate.sum / (SAMPLE_PER_SECOND * SECONDS_PER_HOUR);
+		s_WhAccumulate.sum %= (SAMPLE_PER_SECOND * SECONDS_PER_HOUR);
 	}
 	
 	uint32 A = AInt * 10000 + AFrac;
@@ -295,9 +483,8 @@ void AccumulateLoadWhAndAh()
 	
 	if (s_AhAccumulate.sum >= SAMPLE_PER_SECOND * SECONDS_PER_HOUR)
 	{
-		s_AhAccumulate.sum -= SAMPLE_PER_SECOND * SECONDS_PER_HOUR;
-
-		s_AhAccumulate.valh++;
+		s_AhAccumulate.valh += s_AhAccumulate.sum / (SAMPLE_PER_SECOND * SECONDS_PER_HOUR);
+		s_AhAccumulate.sum %= (SAMPLE_PER_SECOND * SECONDS_PER_HOUR);
 	}
 	
 	//save
@@ -328,12 +515,12 @@ void GetLoadWh(uint16 *WhInt, uint16 *WhFrac)
 	
 	if (WhInt != NULL)
 	{
-		*WhInt = s_WhAccumulate.valh / 10000;
+		*WhInt = s_WhAccumulate.valh / 10000ul;
 	}
 
 	if (WhFrac != NULL)
 	{
-		*WhFrac = s_WhAccumulate.valh % 10000;
+		*WhFrac = s_WhAccumulate.valh % 10000ul;
 	}
 }
 
@@ -343,12 +530,11 @@ void GetLoadAh(uint16 *AhInt, uint16 *AhFrac)
 	
 	if (AhInt != NULL)
 	{
-		*AhInt = s_AhAccumulate.valh / 10000;
+		*AhInt = s_AhAccumulate.valh / 10000ul;
 	}
 
 	if (AhFrac != NULL)
 	{
-		*AhFrac = s_AhAccumulate.valh % 10000;
+		*AhFrac = s_AhAccumulate.valh % 10000ul;
 	}
 }
-

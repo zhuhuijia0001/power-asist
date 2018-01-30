@@ -40,8 +40,6 @@
 
 typedef struct 
 {
-	uint16  currentCaliValue; //current calibration
-
 	uint8   bleName[MAX_BLE_NAME_LEN + 1];  //name
 
 	uint8   bleOn;   //turn on/off ble
@@ -66,23 +64,71 @@ typedef struct
 	Parameter parameter;
 
 	uint8  sum;
-} StoreVector;
+} ParameterVector;
 
-extern StoreVector g_storeVector;
+extern ParameterVector g_parameterVector;
 
-#define g_currentCaliValue   g_storeVector.parameter.currentCaliValue
-#define g_bleName            g_storeVector.parameter.bleName
-#define g_bleOn              g_storeVector.parameter.bleOn
-#define g_mainMenu           g_storeVector.parameter.mainMenu
-#define g_autoDetect         g_storeVector.parameter.autoDetect
-#define g_screenLockTime     g_storeVector.parameter.screenLockTime
-#define g_screenAngle        g_storeVector.parameter.screenAngle
-#define g_sampleRate         g_storeVector.parameter.sampleRate
+#define g_bleName            g_parameterVector.parameter.bleName
+#define g_bleOn              g_parameterVector.parameter.bleOn
+#define g_mainMenu           g_parameterVector.parameter.mainMenu
+#define g_autoDetect         g_parameterVector.parameter.autoDetect
+#define g_screenLockTime     g_parameterVector.parameter.screenLockTime
+#define g_screenAngle        g_parameterVector.parameter.screenAngle
+#define g_sampleRate         g_parameterVector.parameter.sampleRate
+
+typedef struct
+{
+	uint8 dec;
+	uint16 frac;
+} CalibrationValue;
+
+typedef struct
+{
+	CalibrationValue val;
+
+	uint16 adc;
+} CalibrationItem;
+
+#define VOLTAGE_CALI_ITEM_COUNT        3
+#define CURRENT_CALI_ITEM_COUNT        4
+
+typedef struct 
+{
+	CalibrationItem  voltageCaliItem[VOLTAGE_CALI_ITEM_COUNT];
+	uint8            voltageCaliItemCount;
+
+	CalibrationItem  currentCaliItem[CURRENT_CALI_ITEM_COUNT];
+	uint8            currentCaliItemCount;
+} CalibrationData;
+
+typedef struct
+{
+	uint8  header;
+
+	uint16 size;
+
+	CalibrationData calibrationData;
+
+	uint8  sum;
+} CalibrationVector;
+
+extern CalibrationVector g_calibrationVector;
+
+#define g_voltageCaliItem      g_calibrationVector.calibrationData.voltageCaliItem
+#define g_voltageCaliItemCount g_calibrationVector.calibrationData.voltageCaliItemCount
+#define g_currentCaliItem      g_calibrationVector.calibrationData.currentCaliItem
+#define g_currentCaliItemCount g_calibrationVector.calibrationData.currentCaliItemCount
 
 extern bool LoadParameter();
 extern void LoadDefaultParameter();
 
 extern bool SaveParameter();
+
+extern bool LoadCalibration();
+extern void LoadDefaultCalibration();
+
+extern bool SaveCalibration();
+
 
 #endif
 

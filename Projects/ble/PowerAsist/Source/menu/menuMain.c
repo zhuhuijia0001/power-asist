@@ -17,10 +17,7 @@
 
 #include "Parameter.h"
 
-#include "powerAsistGATTprofile.h"
 #include "PowerAsist.h"
-
-#include "UsbPd.h"
 
 #include "menuMessage.h"
 

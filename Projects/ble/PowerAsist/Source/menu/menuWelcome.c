@@ -33,8 +33,8 @@ static void OnMenuCreate(MENU_ID prevId)
 {
 	EnableLcdBacklight(true);
 	
-	s_logoX = (GetScreenWidth() - g_Logo.width) / 2;
-	s_logoY = (GetScreenHeight() - g_Logo.height) / 3;
+	s_logoX = (GetScreenWidth() - g_ProductLogo.width) / 2;
+	s_logoY = (GetScreenHeight() - g_ProductLogo.height) / 3;
 	s_logoOffsetx = 0;
 
 	StartPowerAsistTimer(PICTURE_TIMERID, PICTURE_DELAY_TIME, true);
@@ -50,18 +50,18 @@ static void OnMenuTimeout(uint16 timerId)
 	if (timerId == PICTURE_TIMERID)
 	{
 		uint16 width;
-		if (s_logoOffsetx + PICTURE_STEP_WIDTH <= g_Logo.width)
+		if (s_logoOffsetx + PICTURE_STEP_WIDTH <= g_ProductLogo.width)
 		{
 			width = PICTURE_STEP_WIDTH;
 		}
 		else
 		{
-			width = g_Logo.width - s_logoOffsetx;
+			width = g_ProductLogo.width - s_logoOffsetx;
 		}
 
-		DrawPicturePart(s_logoX, s_logoY, s_logoOffsetx, 0, width, g_Logo.height, &g_Logo);
+		DrawPicturePart(s_logoX, s_logoY, s_logoOffsetx, 0, width, g_ProductLogo.height, &g_ProductLogo);
 		s_logoOffsetx += width;
-		if (s_logoOffsetx == g_Logo.width)
+		if (s_logoOffsetx == g_ProductLogo.width)
 		{
 			StopPowerAsistTimer(PICTURE_TIMERID);
 
