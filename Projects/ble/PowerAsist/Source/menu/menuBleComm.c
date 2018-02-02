@@ -25,6 +25,8 @@
 
 #include "PowerAsist.h"
 
+#include "Aes.h"
+
 #include "npi.h"
 
 //timer id
@@ -45,6 +47,9 @@ static uint8 s_curMode = MODE_NORMAL;
 
 //current voltage of mode 
 static uint8 s_curModeVoltage = 0;
+
+static uint8 s_aesKey[AES_KEY_LEN] = { 0 };
+static bool s_hasAesKey = false;
 
 static void OnMenuCreate(MENU_ID prevId)
 {
@@ -248,6 +253,9 @@ static void OnMenuBleStatusChanged(uint16 status)
 		StopPowerAsistTimer(BLE_COM_MENU_TIMERID_MEASURE);
 
 		DrawBleComBtInActive();
+
+		SetPacketAesKey(NULL);
+		s_hasAesKey = false;
 		
 		break;
 	}
@@ -649,7 +657,8 @@ static void AutoCompleteCallback(bool support)
 	//Start accumulate
 	if (s_savedStatus == WH_AH_STATUS_STARTED)
 	{
-		StartAccumulateWhAndAh();
+		StartAccumulateWhAndAh();
+
 	}
 }
 
@@ -800,10 +809,50 @@ static void ProcessQueryChargeMode()
 	SendBleData(buf, len);
 }
 
+static void ProcessTransferAesKey(const uint8 aesKey[AES_KEY_LEN])
+{
+	osal_memcpy(s_aesKey, aesKey, AES_KEY_LEN);
+	s_hasAesKey = true;
+	
+	SetPacketAesKey(s_aesKey);
+	
+	uint8 buf[MAX_PACKET_LEN];
+	uint8 len = BuildTransferAesKeyRetPacket(buf, sizeof(buf), RESULT_OK);
+	SendBleData(buf, len);
+}
+
+static void ProcessTestAesKey(uint8 cypherText[AES_TEST_DATA_LEN])
+{	
+	uint8 plainText[AES_TEST_DATA_LEN];
+	AesDecryptData(s_aesKey, cypherText, AES_TEST_DATA_LEN, plainText);
+	TRACE("plain:");
+	for (uint8 i = 0; i < AES_TEST_DATA_LEN; i++)
+	{
+		TRACE("0x%02X ", plainText[i]);
+	}
+	TRACE("\r\n");
+	
+	for (uint8 i = 0; i < AES_TEST_DATA_LEN; i++)
+	{
+		plainText[i]++;
+	}
+	
+	uint8 recypherText[AES_TEST_DATA_LEN];
+		
+	AesEncryptData(s_aesKey, plainText, AES_TEST_DATA_LEN, recypherText);
+
+	uint8 buf[MAX_PACKET_LEN];
+	uint8 len = BuildTestAesKeyRetPacket(buf, sizeof(buf), recypherText);
+	SendBleData(buf, len);
+}
+
+
+#define BLE_COM_TEST    0
+
 static void ProcessBleCom(const uint8 *buf, uint8 len)
 {
 	//for echo test
-#if 0
+#if BLE_COM_TEST
 	PowerAsistProfile_Notify(buf, len);
 #else
 
@@ -812,11 +861,22 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 	uint8 res = ParsePacket(buf, len, &parsedLen);
 	if (res == PACKET_OK)
 	{
+		TRACE("packet ok\r\n");
+		
 		StopPowerAsistTimer(BLE_COM_MENU_TIMERID_PARSE_PACKET);
 		
-		uint8 type = GetPacketType();
-		uint8 dataLen = GetPacketDataLen();
-		const uint8 *data = GetPacketData();
+		uint8 type;
+		uint8 dataLen;
+		uint8 *data;
+
+		if (s_hasAesKey)
+		{
+			DecryptPacketData();
+		}
+
+		type = GetPacketType();
+		dataLen = GetPacketDataLen();
+		data = GetPacketData();
 
 		//TRACE("type:%d,dataLen:%d,data[0]:0x%02X\r\n", type, dataLen, data[0]);
 		
@@ -989,6 +1049,40 @@ static void ProcessBleCom(const uint8 *buf, uint8 len)
 			
 			break;
 
+		case TYPE_TRANSFER_AES_KEY:
+			{
+				uint8 aesKey[AES_KEY_LEN];
+				if (ParseTransferAesKeyPacket(data, dataLen, aesKey))
+				{
+					TRACE("Parse transfer aes key OK\r\n");
+					
+					ProcessTransferAesKey(aesKey);
+				}
+				else
+				{
+					TRACE("Parse transfer aes key failed\r\n");
+				}
+			}
+			
+			break;
+
+		case TYPE_TEST_AES_KEY:
+			{
+				uint8 cypherText[AES_TEST_DATA_LEN];
+				if (ParseTestAesKeyPacket(data, dataLen, cypherText))
+				{
+					TRACE("Parse test aes key ok\r\n");
+					
+					ProcessTestAesKey(cypherText);
+				}
+				else
+				{
+					TRACE("Parse test aes key failed\r\n");
+				}
+			}
+			
+			break;
+			
 		default:
 			break;
 		}

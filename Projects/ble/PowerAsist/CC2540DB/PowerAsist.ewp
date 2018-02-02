@@ -4315,6 +4315,12 @@
   <group>
     <name>driver</name>
     <file>
+      <name>$PROJ_DIR$\..\Source\drv\Aes.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Source\drv\Aes.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\Source\drv\AutoDetect.c</name>
     </file>
     <file>

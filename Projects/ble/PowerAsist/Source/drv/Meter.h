@@ -2,7 +2,12 @@
 #ifndef _METER_H_
 #define _METER_H_
 
+#include "Parameter.h"
+
 extern void InitMeter();
+
+extern void SetBusVoltageCalibrationItem(const CalibrationItem *caliItem, uint8 count);
+extern void SetLoadCurrentCalibrationItem(const CalibrationItem *caliItem, uint8 count);
 
 extern bool GetBusVoltageAdcValue(uint16 *adc);
 extern bool GetBusVoltage(uint8 *VInt, uint16 *VFrac);

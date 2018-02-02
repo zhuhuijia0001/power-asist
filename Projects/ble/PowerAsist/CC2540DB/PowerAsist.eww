@@ -40,6 +40,17 @@
         <configuration>CC2540-OAD-Encrypted-ImgB</configuration>
       </member>
     </batchDefinition>
+    <batchDefinition>
+      <name>PowerAsisit</name>
+      <member>
+        <project>PowerAsist</project>
+        <configuration>CC2540</configuration>
+      </member>
+      <member>
+        <project>PowerAsist</project>
+        <configuration>CC2540-release</configuration>
+      </member>
+    </batchDefinition>
   </batchBuild>
 </workspace>
 

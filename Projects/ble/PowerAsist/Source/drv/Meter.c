@@ -11,8 +11,6 @@
 #include "RealTimeData.h"
 #include "Meter.h"
 
-#include "Parameter.h"
-
 #include "npi.h"
 
 //ref voltage 3300mV
@@ -40,6 +38,30 @@ static AccumulateStruct s_AhAccumulate =
 #define SAVE_REAL_DATA_PRESCALE           5
 static uint8 s_prescaleCounter = 0;
 
+//voltage method
+typedef enum
+{
+	VOLTAGE_METHOD_NORMAL = 0,
+
+	VOLTAGE_METHOD_CALIBRATED,
+} voltage_method;
+
+static voltage_method s_voltageMethod = VOLTAGE_METHOD_NORMAL;
+
+//current method
+typedef enum
+{
+	CURRENT_METHOD_NORMAL = 0,
+
+	CURRENT_METHOD_CALIBRATED,
+} current_method;
+
+static current_method s_currentMethod = CURRENT_METHOD_NORMAL;
+
+static const CalibrationItem *s_voltageCaliItem = NULL;
+
+static const CalibrationItem *s_currentCaliItem = NULL;
+
 void InitMeter()
 {
 	//Init ina226
@@ -58,10 +80,43 @@ void InitMeter()
 	HalAdcInit();
 }
 
+void SetBusVoltageCalibrationItem(const CalibrationItem *caliItem, uint8 count)
+{
+	if (count == VOLTAGE_CALI_ITEM_COUNT)
+	{
+		s_voltageCaliItem = caliItem;
+
+		s_voltageMethod = VOLTAGE_METHOD_CALIBRATED;
+	}
+	else
+	{
+		s_voltageCaliItem = NULL;
+
+		s_voltageMethod = VOLTAGE_METHOD_NORMAL;
+	}
+}
+
+
+void SetLoadCurrentCalibrationItem(const CalibrationItem *caliItem, uint8 count)
+{
+	if (count == CURRENT_CALI_ITEM_COUNT)
+	{
+		s_currentCaliItem = caliItem;
+
+		s_currentMethod = CURRENT_METHOD_CALIBRATED;
+	}
+	else
+	{
+		s_currentCaliItem = NULL;
+
+		s_currentMethod = CURRENT_METHOD_NORMAL;
+	}
+}
+
 bool GetBusVoltageAdcValue(uint16 *adc)
 {
 	SetINA226Addr(INA226_REG_BUS_VOLTAGE);
-			
+
 	bool res = ReadINA226Data(adc);
 	if (!res)
 	{
@@ -71,7 +126,7 @@ bool GetBusVoltageAdcValue(uint16 *adc)
 	return true;
 }
 
-bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
+static bool GetBusVoltageNormal(uint8 *VInt, uint16 *VFrac)
 {
 	uint16 adc;
 	if (!GetBusVoltageAdcValue(&adc))
@@ -79,23 +134,69 @@ bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
 		return false;
 	}
 
-	TRACE("voltage adc:%d\r\n", adc);
-	
-	if (g_voltageCaliItemCount == VOLTAGE_CALI_ITEM_COUNT)
-	{
-		uint32 val;
-
-		const CalibrationItem *caliItem = g_voltageCaliItem;
-	
-		if (adc >= caliItem[1].adc)
-		{
-			val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac 
-					- caliItem[1].val.dec * 10000ul - caliItem[1].val.frac);
+	//TRACE("voltage adc:%d\r\n", adc);
 		
-			val *= (adc - caliItem[1].adc);
-			val /= (caliItem[2].adc - caliItem[1].adc);
+	uint32 voltage = adc;
+	//LSB = 1.25mV
+	voltage *= 1250ul;
+												 
+	if (VInt != NULL)
+	{
+		*VInt = voltage / 1000000ul;
+	}
 
-			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac + val);
+	if (VFrac != NULL)
+	{
+		*VFrac = voltage % 1000000ul / 100ul;
+	}
+	
+	return true;
+}
+
+static bool GetBusVoltageCalibrated(uint8 *VInt, uint16 *VFrac)
+{
+	uint16 adc;
+	if (!GetBusVoltageAdcValue(&adc))
+	{
+		return false;
+	}
+
+	//TRACE("voltage adc:%d\r\n", adc);
+	
+	uint32 val;
+
+	const CalibrationItem *caliItem = s_voltageCaliItem;
+
+	if (adc >= caliItem[1].adc)
+	{
+		val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac 
+				- caliItem[1].val.dec * 10000ul - caliItem[1].val.frac);
+
+		val *= (adc - caliItem[1].adc);
+		val /= (caliItem[2].adc - caliItem[1].adc);
+
+		val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac + val);
+
+		if (VInt != NULL)
+		{
+			*VInt = val / 10000ul;
+		}
+
+		if (VFrac != NULL)
+		{
+			*VFrac = val % 10000ul;
+		}
+	}
+	else
+	{
+		val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac
+			- caliItem[0].val.dec * 10000ul - caliItem[0].val.frac);
+
+		if (adc >= caliItem[0].adc)
+		{
+			val *= (adc - caliItem[0].adc);
+			val /= (caliItem[1].adc - caliItem[0].adc);
+			val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac + val);
 
 			if (VInt != NULL)
 			{
@@ -109,60 +210,33 @@ bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
 		}
 		else
 		{
-			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac
-				- caliItem[0].val.dec * 10000ul - caliItem[0].val.frac);
-		
-			if (adc >= caliItem[0].adc)
+			val *= (caliItem[0].adc - adc);
+			val /= (caliItem[1].adc - caliItem[0].adc);
+			val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac - val);
+			if (VInt != NULL)
 			{
-				val *= (adc - caliItem[0].adc);
-				val /= (caliItem[1].adc - caliItem[0].adc);
-				val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac + val);
-
-				if (VInt != NULL)
-				{
-					*VInt = val / 10000ul;
-				}
-
-				if (VFrac != NULL)
-				{
-					*VFrac = val % 10000ul;
-				}
+				*VInt = val / 10000ul;
 			}
-			else
+
+			if (VFrac != NULL)
 			{
-				val *= (caliItem[0].adc - adc);
-				val /= (caliItem[1].adc - caliItem[0].adc);
-				val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac - val);
-				if (VInt != NULL)
-				{
-					*VInt = val / 10000ul;
-				}
-
-				if (VFrac != NULL)
-				{
-					*VFrac = val % 10000ul;
-				}
+				*VFrac = val % 10000ul;
 			}
-		}
-	}
-	else
-	{
-		uint32 voltage = adc;
-		//LSB = 1.25mV
-		voltage *= 1250ul;
-	                                                 
-		if (VInt != NULL)
-		{
-			*VInt = voltage / 1000000ul;
-		}
-	
-		if (VFrac != NULL)
-		{
-			*VFrac = voltage % 1000000ul / 100ul;
 		}
 	}
 
 	return true;
+}
+
+static bool (*const s_getBusVoltageFun[])(uint8 *VInt, uint16 *VFrac) = 
+{
+	[VOLTAGE_METHOD_NORMAL]     = GetBusVoltageNormal,
+	[VOLTAGE_METHOD_CALIBRATED] = GetBusVoltageCalibrated,
+};
+
+bool GetBusVoltage(uint8 *VInt, uint16 *VFrac)
+{
+	return s_getBusVoltageFun[s_voltageMethod](VInt, VFrac);
 }
 
 bool GetShuntVoltageAdcValue(uint16 *adc)
@@ -238,7 +312,7 @@ bool GetLoadCurrentAdcValue(uint16 *adc)
 	return true;
 }
 
-bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
+static bool GetLoadCurrentNormal(uint8 *AInt, uint16 *AFrac)
 {
 	uint16 adc;
 
@@ -247,92 +321,112 @@ bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
 		return false;
 	}
 
-	TRACE("current adc:%d\r\n", adc);
+	//TRACE("current adc:%d\r\n", adc);
+		
+	//LSB = 0.1mA
+	uint32 current = adc;
+	current *= 100ul;
 	
-	if (g_currentCaliItemCount == CURRENT_CALI_ITEM_COUNT)
+	if (AInt != NULL)
 	{
-		uint32 val;
-
-		const CalibrationItem *caliItem = g_currentCaliItem;
-	
-		if (adc >= caliItem[2].adc)
-		{
-			val = (caliItem[3].val.dec * 10000ul + caliItem[3].val.frac 
-					- caliItem[2].val.dec * 10000ul - caliItem[2].val.frac);
-		
-			val *= (adc - caliItem[2].adc);
-			val /= (caliItem[3].adc - caliItem[2].adc);
-
-			val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac + val);
-
-			if (AInt != NULL)
-			{
-				*AInt = val / 10000ul;
-			}
-
-			if (AInt != NULL)
-			{
-				*AInt = val % 10000ul;
-			}
-		}
-		else if (adc >= caliItem[1].adc)
-		{
-			val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac 
-								- caliItem[1].val.dec * 10000ul - caliItem[1].val.frac);
-					
-			val *= (adc - caliItem[1].adc);
-			val /= (caliItem[2].adc - caliItem[1].adc);
-
-			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac + val);
-
-			if (AInt != NULL)
-			{
-				*AInt = val / 10000ul;
-			}
-
-			if (AInt != NULL)
-			{
-				*AInt = val % 10000ul;
-			}
-		}
-		else
-		{
-			val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac
-				- caliItem[0].val.dec * 10000ul - caliItem[0].val.frac);
-		
-			val *= (adc - caliItem[0].adc);
-			val /= (caliItem[1].adc - caliItem[0].adc);
-			val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac + val);
-
-			if (AInt != NULL)
-			{
-				*AInt = val / 10000ul;
-			}
-
-			if (AFrac != NULL)
-			{
-				*AFrac = val % 10000ul;
-			}
-		}
+		*AInt = current / 1000000ul;
 	}
-	else
+
+	if (AFrac != NULL)
 	{
-		//LSB = 0.1mA
-		uint32 current = adc;
-		current *= 100ul;
-		
+		*AFrac = current % 1000000ul / 100ul;
+	}
+
+	return true;
+}
+
+static bool GetLoadCurrentCalibrated(uint8 *AInt, uint16 *AFrac)
+{
+	uint16 adc;
+
+	if (!GetLoadCurrentAdcValue(&adc))
+	{
+		return false;
+	}
+
+	//TRACE("current adc:%d\r\n", adc);
+
+	uint32 val;
+
+	const CalibrationItem *caliItem = s_currentCaliItem;
+
+	if (adc >= caliItem[2].adc)
+	{
+		val = (caliItem[3].val.dec * 10000ul + caliItem[3].val.frac 
+				- caliItem[2].val.dec * 10000ul - caliItem[2].val.frac);
+	
+		val *= (adc - caliItem[2].adc);
+		val /= (caliItem[3].adc - caliItem[2].adc);
+
+		val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac + val);
+
 		if (AInt != NULL)
 		{
-			*AInt = current / 1000000ul;
+			*AInt = val / 10000ul;
 		}
 
 		if (AFrac != NULL)
 		{
-			*AFrac = current % 1000000ul / 100ul;
+			*AFrac = val % 10000ul;
+		}
+	}
+	else if (adc >= caliItem[1].adc)
+	{
+		val = (caliItem[2].val.dec * 10000ul + caliItem[2].val.frac 
+							- caliItem[1].val.dec * 10000ul - caliItem[1].val.frac);
+				
+		val *= (adc - caliItem[1].adc);
+		val /= (caliItem[2].adc - caliItem[1].adc);
+
+		val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac + val);
+
+		if (AInt != NULL)
+		{
+			*AInt = val / 10000ul;
+		}
+
+		if (AFrac != NULL)
+		{
+			*AFrac = val % 10000ul;
+		}
+	}
+	else
+	{
+		val = (caliItem[1].val.dec * 10000ul + caliItem[1].val.frac
+			- caliItem[0].val.dec * 10000ul - caliItem[0].val.frac);
+	
+		val *= (adc - caliItem[0].adc);
+		val /= (caliItem[1].adc - caliItem[0].adc);
+		val = (caliItem[0].val.dec * 10000ul + caliItem[0].val.frac + val);
+
+		if (AInt != NULL)
+		{
+			*AInt = val / 10000ul;
+		}
+
+		if (AFrac != NULL)
+		{
+			*AFrac = val % 10000ul;
 		}
 	}
 
 	return true;
+}
+
+static bool (*const s_getLoadCurrentFun[])(uint8 *AInt, uint16 *AFrac) = 
+{
+	[CURRENT_METHOD_NORMAL]     = GetLoadCurrentNormal,
+	[CURRENT_METHOD_CALIBRATED] = GetLoadCurrentCalibrated,
+};
+
+bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
+{
+	return s_getLoadCurrentFun[s_currentMethod](AInt, AFrac);
 }
 
 bool GetLoadPowerAdcValue(uint16 *adc)

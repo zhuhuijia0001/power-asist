@@ -13,6 +13,8 @@
 
 #include "PowerAsist.h"
 
+#include "npi.h"
+
 //welcome timer id
 #define WELCOME_MENU_TIMERID_EXPIRED      (POWERASIST_FIRST_TIMERID + 0)
 
@@ -99,4 +101,3 @@ ON_MENU_DESTROY()
 ON_MENU_TIMEOUT()
 
 END_MENU_HANDLER()
-

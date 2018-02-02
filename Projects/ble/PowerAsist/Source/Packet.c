@@ -7,6 +7,8 @@
 #include "RTC.h"
 #include "Packet.h"
 
+#include "Aes.h"
+
 #include "npi.h"
 
 static uint8 s_recvBuf[MAX_PACKET_LEN];
@@ -17,12 +19,36 @@ typedef enum
 	recv_status_version,
 	recv_status_length,
 	recv_status_data,
-	recv_status_sum,
 } BleReceiveStatus;
 
 static BleReceiveStatus s_recvStatus = recv_status_idle;
 
 static uint8 s_dataRecvIndex = 0;
+
+static uint8 *s_aesKey = NULL;
+
+typedef enum
+{
+	packet_normal = 0,
+
+	packet_encrypt,
+} packet_type;
+
+static packet_type s_packetType = packet_normal;
+
+void SetPacketAesKey(uint8 aesKey[AES_KEY_LEN])
+{
+	if (aesKey == NULL)
+	{
+		s_packetType = packet_normal;
+	}
+	else
+	{
+		s_packetType = packet_encrypt;
+	}
+
+	s_aesKey = aesKey;
+}
 
 static uint8 BuildPacket(uint8 *buf, uint8 maxBufLen, const uint8 *data, uint8 len)
 {
@@ -39,23 +65,76 @@ static uint8 BuildPacket(uint8 *buf, uint8 maxBufLen, const uint8 *data, uint8 l
 	
 	buf[index++] = (len + 1) >> 8;
 	buf[index++] = (len + 1);
-
+	
 	uint8 sum = 0;
 	for (uint8 i = 0; i < len; i++)
 	{
 		buf[index++] = *data;
-
+		
 		sum ^= *data;
 
 		data++;
 	}
-
 	buf[index++] = sum;
 
 	return index;
 }
 
-uint8 BuildTestDataPacket(uint8 *buf, uint8 maxBufLen, 
+static uint8 BuildPacketWithKey(uint8 *buf, uint8 maxBufLen, const uint8 *data, uint8 len)
+{
+	uint8 realDataLen = (len + 1 + AES_KEY_LEN - 1) & ~(AES_KEY_LEN - 1);
+	if (1 + 1 + 2 + realDataLen > maxBufLen)
+	{
+		return 0xff;
+	}
+
+	uint8 index = 0;
+
+	buf[index++] = PACKET_HEADER;
+
+	buf[index++] = PROTOCOL_VERSION;
+	
+	buf[index++] = realDataLen >> 8;
+	buf[index++] = realDataLen;
+
+	uint8 plainData[MAX_PACKET_DATA_LEN];
+	uint8 encryptData[MAX_PACKET_DATA_LEN];
+	
+	uint8 sum = 0;
+	for (uint8 i = 0; i < len; i++)
+	{
+		plainData[i] = *data;
+		
+		sum ^= *data;
+
+		data++;
+	}
+	plainData[len] = sum;
+	for (uint8 i = len + 1; i < realDataLen; i++)
+	{
+		//padding
+		plainData[i] = 0x00;
+	}
+
+	//encrypt
+	AesEncryptData(s_aesKey, plainData, realDataLen, encryptData);
+	
+	for (uint8 i = 0; i < realDataLen; i++)
+	{
+		buf[index++] = encryptData[i];
+	}
+
+	return index;
+}
+
+static uint8 (*const s_buildPacketFun[])(uint8 *buf, uint8 maxBufLen, const uint8 *data, uint8 len) = 
+{
+	[packet_normal] = BuildPacket,
+
+	[packet_encrypt] = BuildPacketWithKey,
+};
+
+uint8 BuildTestDataPacket(uint8 *buf, uint8 maxBufLen,
 										uint8 mode, uint8 modeVoltage,
 										uint8 dataBitmap, 
 										const DataItem *data)
@@ -147,7 +226,7 @@ uint8 BuildTestDataPacket(uint8 *buf, uint8 maxBufLen,
 		data++;
 	}
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildEnableQc20RetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 result)
@@ -159,7 +238,7 @@ uint8 BuildEnableQc20RetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 
 	dataBuf[index++] = enable;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildEnableQc30RetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 result)
@@ -171,7 +250,7 @@ uint8 BuildEnableQc30RetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 
 	dataBuf[index++] = enable;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildEnablePdRetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 result, 
@@ -193,10 +272,10 @@ uint8 BuildEnablePdRetPacket(uint8 *buf, uint8 maxBufLen, uint8 enable, uint8 re
 		dataBuf[index++] = pd[i].current & 0xff;
 	}
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
-uint8 BuildTriggerRetPacket(uint8 *buf, uint8 maxBufLen, 
+uint8 BuildTriggerRetPacket(uint8 *buf, uint8 maxBufLen,
 									uint8 mode, uint8 modeVoltage,
 									uint8 result)
 {
@@ -208,10 +287,10 @@ uint8 BuildTriggerRetPacket(uint8 *buf, uint8 maxBufLen,
 	dataBuf[index++] = modeVoltage;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
-uint8 BuildAutoDetectRetPacket(uint8 *buf, uint8 maxBufLen,
+uint8 BuildAutoDetectRetPacket(uint8 *buf, uint8 maxBufLen, 
 										uint8 mode, uint8 modeVoltage,
 										uint8 support)
 {
@@ -223,7 +302,7 @@ uint8 BuildAutoDetectRetPacket(uint8 *buf, uint8 maxBufLen,
 	dataBuf[index++] = modeVoltage;
 	dataBuf[index++] = support;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildSetTimeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
@@ -234,7 +313,7 @@ uint8 BuildSetTimeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 	dataBuf[index++] = TYPE_SET_TIME;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildQueryParamRetPacket(uint8 *buf, uint8 maxBufLen, 
@@ -253,7 +332,7 @@ uint8 BuildQueryParamRetPacket(uint8 *buf, uint8 maxBufLen,
 		dataBuf[index++] = version[i];
 	}
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildSetSampleRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
@@ -264,7 +343,7 @@ uint8 BuildSetSampleRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 	dataBuf[index++] = TYPE_SET_SAMPLE;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildSetPeakDurationRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
@@ -275,7 +354,7 @@ uint8 BuildSetPeakDurationRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 	dataBuf[index++] = TYPE_SET_PEAK_DURATION;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildSetBleNameRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
@@ -286,7 +365,7 @@ uint8 BuildSetBleNameRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 	dataBuf[index++] = TYPE_SET_BLE_NAME;
 	dataBuf[index++] = result;
 
-	return BuildPacket(buf, maxBufLen, dataBuf, index);
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
 }
 
 uint8 BuildQueryChargeModeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 mode, uint8 voltage, uint8 result)
@@ -299,6 +378,32 @@ uint8 BuildQueryChargeModeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 mode, uin
 	dataBuf[index++] = voltage;
 	dataBuf[index++] = result;
 
+	return s_buildPacketFun[s_packetType](buf, maxBufLen, dataBuf, index);
+}
+
+uint8 BuildTransferAesKeyRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
+{
+	uint8 dataBuf[MAX_PACKET_LEN];
+	
+	uint8 index = 0;
+	dataBuf[index++] = TYPE_TRANSFER_AES_KEY;
+	dataBuf[index++] = result;
+
+	return BuildPacket(buf, maxBufLen, dataBuf, index);
+}
+
+uint8 BuildTestAesKeyRetPacket(uint8 *buf, uint8 maxBufLen, const uint8 cypherText[AES_TEST_DATA_LEN])
+{
+	uint8 dataBuf[MAX_PACKET_LEN];
+	
+	uint8 index = 0;
+	dataBuf[index++] = TYPE_TEST_AES_KEY;
+	
+	for (uint8 i = 0; i < AES_TEST_DATA_LEN; i++)
+	{
+		dataBuf[index++] = cypherText[i];
+	}
+
 	return BuildPacket(buf, maxBufLen, dataBuf, index);
 }
 
@@ -306,8 +411,6 @@ uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen)
 {
 	static uint16 length = 0;
 	static uint16 dataLeft = 0;
-
-	static uint8 sum = 0;
 
 	uint8 count = 0;
 	
@@ -350,7 +453,7 @@ uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen)
 			dataLeft--;
 			if (dataLeft == 0)
 			{
-				if (length > MAX_PACKET_LEN - 1)
+				if (length > MAX_PACKET_LEN - 4)
 				{
 					res = PACKET_INVALID;
 
@@ -360,11 +463,9 @@ uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen)
 				{
 					s_recvStatus = recv_status_data;
 
-					dataLeft = length - 1;
+					dataLeft = length;
 
 					s_dataRecvIndex = 0;
-
-					sum = 0x00;
 				}
 			}
 			
@@ -373,33 +474,15 @@ uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen)
 		case recv_status_data:
 			s_recvBuf[s_dataRecvIndex++] = dat;
 			dataLeft--;
-			sum ^= dat;
 			
 			if (dataLeft == 0)
 			{
-				s_recvStatus = recv_status_sum;
+				s_recvStatus = recv_status_idle;
+
+				res = PACKET_OK;
 			}
 	
-			break;
-
-		case recv_status_sum:
-			if (sum == dat)
-			{
-				res = PACKET_OK;
-
-				//TRACE("packet OK\r\n");
-			}
-			else
-			{
-				res = PACKET_INVALID;
-
-				TRACE("packet invalid\r\n");
-			}
-
-			s_recvStatus = recv_status_idle;
-			
-			break;
-			
+			break;			
 		}
 
 		if (res == PACKET_OK || res == PACKET_INVALID)
@@ -423,7 +506,7 @@ void ResetParsePacket()
 	s_dataRecvIndex = 0;
 }
 
-const uint8 *GetPacketData()
+uint8 *GetPacketData()
 {
 	return s_recvBuf;
 }
@@ -438,9 +521,83 @@ uint8 GetPacketDataLen()
 	return s_dataRecvIndex;
 }
 
+static uint8 PacketDataLen(uint8 type)
+{
+	uint8 len = 1;
+
+	switch (type)
+	{
+	case TYPE_ENABLE_TRANSFER:
+		len += SIZE_ENABLE_TRANSFER;
+
+		break;
+
+	case TYPE_ENABLE_QC20:
+	case TYPE_ENABLE_QC30:
+	case TYPE_ENABLE_PD:
+		len += SIZE_ENABLE_QUICK_CHARGE;
+
+		break;
+
+	case TYPE_TRIGGER_QUICK_CHARGE:
+		len += SIZE_ENABLE_TRIGGER;
+
+		break;
+
+	case TYPE_SET_TIME:
+		len += SIZE_SET_TIME;
+
+		break;
+
+	case TYPE_SET_SAMPLE:
+		len += SIZE_SET_SAMPLE;
+
+		break;
+
+	case TYPE_SET_BLE_NAME:	
+		len += SIZE_SET_BLE_NAME;
+
+		break;
+
+	case TYPE_SET_PEAK_DURATION:
+		len += SIZE_SET_PEAK_DURATION;
+
+		break;
+
+	}
+
+	return len;
+}
+
+void DecryptPacketData()
+{
+	AesDecryptData(s_aesKey, s_recvBuf, s_dataRecvIndex, s_recvBuf);
+
+	uint8 type = s_recvBuf[0];
+	
+	s_dataRecvIndex = PacketDataLen(type);
+}
+
+static bool CheckPacketDataSum(const uint8 *packetData, uint8 len)
+{
+	uint8 sum = 0;
+	len--;
+	for (uint8 i = 0; i < len; i++)
+	{	
+		sum ^= packetData[i];
+	}
+	
+	if (sum != packetData[len])
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool ParseEnableTransferPacket(const uint8 *data, uint8 len, uint8 *dataBitmap)
 {
-	if (len != SIZE_ENABLE_TRANSFER)
+	if (len != SIZE_ENABLE_TRANSFER + 1)
 	{
 		return false;
 	}
@@ -448,9 +605,13 @@ bool ParseEnableTransferPacket(const uint8 *data, uint8 len, uint8 *dataBitmap)
 	uint8 index = 0;
 
 	uint8 dat;
-	
-	index++;
 
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
+
+	index++;
 	dat = data[index++];
 	if (dataBitmap != NULL)
 	{
@@ -462,7 +623,7 @@ bool ParseEnableTransferPacket(const uint8 *data, uint8 len, uint8 *dataBitmap)
 
 static bool ParseEnableQuickChargePacket(const uint8 *data, uint8 len, uint8 *enable)
 {
-	if (len != SIZE_ENABLE_QUICK_CHARGE)
+	if (len != SIZE_ENABLE_QUICK_CHARGE + 1)
 	{
 		return false;
 	}
@@ -470,9 +631,13 @@ static bool ParseEnableQuickChargePacket(const uint8 *data, uint8 len, uint8 *en
 	uint8 index = 0;
 	
 	uint8 dat;
-	
-	index++;
 
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
+
+	index++;
 	dat = data[index++];
 	if (enable != NULL)
 	{
@@ -499,7 +664,7 @@ bool ParseEnablePdPacket(const uint8 *data, uint8 len, uint8 *enable)
 
 bool ParseTriggerPacket(const uint8 *data, uint8 len, uint8 *mode, uint8 *modeVoltage)
 {
-	if (len != SIZE_ENABLE_TRIGGER)
+	if (len != SIZE_ENABLE_TRIGGER + 1)
 	{
 		return false;
 	}
@@ -507,9 +672,13 @@ bool ParseTriggerPacket(const uint8 *data, uint8 len, uint8 *mode, uint8 *modeVo
 	uint8 index = 0;
 	
 	uint8 dat;
-	
-	index++;
 
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
+
+	index++;
 	dat = data[index++];
 	if (mode != NULL)
 	{
@@ -527,17 +696,22 @@ bool ParseTriggerPacket(const uint8 *data, uint8 len, uint8 *mode, uint8 *modeVo
 
 bool ParseSetTimePacket(const uint8 *data, uint8 len, TimeStruct *time)
 {
-	if (len != SIZE_SET_TIME)
+	if (len != SIZE_SET_TIME + 1)
 	{
 		return false;
+
 	}
 	
 	uint8 index = 0;
 	
 	uint8 dat;
-	
-	index++;
 
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
+
+	index++;
 	if (time != NULL)
 	{
 		//year
@@ -573,7 +747,7 @@ bool ParseSetTimePacket(const uint8 *data, uint8 len, TimeStruct *time)
 
 bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate)
 {
-	if (len != SIZE_SET_SAMPLE)
+	if (len != SIZE_SET_SAMPLE + 1)
 	{
 		return false;
 	}
@@ -581,6 +755,11 @@ bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate)
 	uint8 index = 0;
 		
 	uint8 dat;
+
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
 	
 	index++;
 
@@ -596,7 +775,7 @@ bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate)
 
 bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peakDuration)
 {
-	if (len != SIZE_SET_PEAK_DURATION)
+	if (len != SIZE_SET_PEAK_DURATION + 1)
 	{
 		return false;
 	}
@@ -604,6 +783,11 @@ bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peakDuratio
 	uint8 index = 0;
 		
 	uint8 dat;
+
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
 	
 	index++;
 
@@ -618,8 +802,32 @@ bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peakDuratio
 }
 
 bool ParseSetBleNamePacket(const uint8 *data, uint8 len, uint8 bleName[MAX_BLE_NAME_LEN])
+{	
+	if (len != SIZE_SET_BLE_NAME + 1)
+	{
+		return false;
+	}
+	
+	uint8 index = 0;
+
+	if (!CheckPacketDataSum(data, len))
+	{
+		return false;
+	}
+	
+	index++;
+
+	for (uint8 i = 0; i < MAX_BLE_NAME_LEN; i++)
+	{
+		bleName[i] = data[index++];
+	}
+
+	return true;
+}
+
+bool ParseTransferAesKeyPacket(const uint8 *data, uint8 len, uint8 aesKey[AES_KEY_LEN])
 {
-	if (len != SIZE_SET_BLE_NAME)
+	if (len != SIZE_TRANSFER_AES_KEY + 1)
 	{
 		return false;
 	}
@@ -628,9 +836,28 @@ bool ParseSetBleNamePacket(const uint8 *data, uint8 len, uint8 bleName[MAX_BLE_N
 
 	index++;
 
-	for (uint8 i = 0; i < MAX_BLE_NAME_LEN; i++)
+	for (uint8 i = 0; i < AES_KEY_LEN; i++)
 	{
-		bleName[i] = data[index++];
+		aesKey[i] = data[index++];
+	}
+
+	return true;
+}
+
+bool ParseTestAesKeyPacket(const uint8 *data, uint8 len, uint8 cypherText[AES_TEST_DATA_LEN])
+{
+	if (len != SIZE_TEST_AES_KEY + 1)
+	{
+		return false;
+	}
+	
+	uint8 index = 0;
+
+	index++;
+
+	for (uint8 i = 0; i < AES_TEST_DATA_LEN; i++)
+	{
+		cypherText[i] = data[index++];
 	}
 
 	return true;

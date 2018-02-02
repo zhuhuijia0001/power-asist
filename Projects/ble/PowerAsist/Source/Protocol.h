@@ -2,13 +2,21 @@
 #ifndef _PROTOCOL_H_
 #define _PROTOCOL_H_
 
-#define MAX_PACKET_LEN              40
+#define MAX_PACKET_LEN              60
+
+#define MAX_PACKET_DATA_LEN         48
 
 //header 
 #define PACKET_HEADER               0xA5
 
 //protocol version
 #define PROTOCOL_VERSION            1
+
+//aes key len
+#define AES_KEY_LEN                 16
+
+//aes test data len
+#define AES_TEST_DATA_LEN           32
 
 //data type
 #define TYPE_ENABLE_TRANSFER        1
@@ -24,6 +32,8 @@
 #define TYPE_SET_BLE_NAME           11
 #define TYPE_SET_PEAK_DURATION      12
 #define TYPE_QUERY_CHARGE_MODE      13
+#define TYPE_TRANSFER_AES_KEY       14
+#define TYPE_TEST_AES_KEY           15
 
 //packet data len
 #define SIZE_ENABLE_TRANSFER        2
@@ -34,6 +44,8 @@
 #define SIZE_SET_BLE_NAME           21
 #define SIZE_SET_PEAK_DURATION      2
 
+#define SIZE_TRANSFER_AES_KEY       17
+#define SIZE_TEST_AES_KEY           (16 + 1 + 16)
 
 //data bitmap
 #define DATA_VOLTAGE_POS            0

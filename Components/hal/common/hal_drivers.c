@@ -155,6 +155,9 @@ void HalDriverInit (void)
 		LoadDefaultCalibration();
 		SaveCalibration();
 	}
+
+	SetBusVoltageCalibrationItem(g_voltageCaliItem, g_voltageCaliItemCount);
+	SetLoadCurrentCalibrationItem(g_currentCaliItem, g_currentCaliItemCount);
 	
 	GetSavedLoadWhAndAh();
 

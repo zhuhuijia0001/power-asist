@@ -20,6 +20,8 @@ typedef struct
 #define PACKET_NOT_COMPLETE    1
 #define PACKET_INVALID         2
 
+extern void SetPacketAesKey(uint8 aesKey[AES_KEY_LEN]);
+
 extern uint8 BuildTestDataPacket(uint8 *buf, uint8 maxBufLen, 
 										uint8 mode, uint8 modeVoltage,
 										uint8 dataBitmap, 
@@ -54,11 +56,17 @@ extern uint8 BuildSetBleNameRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result)
 
 extern uint8 BuildQueryChargeModeRetPacket(uint8 *buf, uint8 maxBufLen, uint8 mode, uint8 voltage, uint8 result);
 
+extern uint8 BuildTransferAesKeyRetPacket(uint8 *buf, uint8 maxBufLen, uint8 result);
+
+extern uint8 BuildTestAesKeyRetPacket(uint8 *buf, uint8 maxBufLen, const uint8 cypherText[AES_TEST_DATA_LEN]);
+
 extern uint8 ParsePacket(const uint8 *buf, uint8 len, uint8 *parsedLen);
 
 extern void ResetParsePacket();
 
-extern const uint8 *GetPacketData();
+extern void DecryptPacketData();
+
+extern uint8 *GetPacketData();
 
 extern uint8 GetPacketType();
 extern uint8 GetPacketDataLen();
@@ -77,6 +85,10 @@ extern bool ParseSetSamplePacket(const uint8 *data, uint8 len, uint8 *sampleRate
 extern bool ParseSetPeakDurationPacket(const uint8 *data, uint8 len, uint8 *peakDuration);
 
 extern bool ParseSetBleNamePacket(const uint8 *data, uint8 len, uint8 bleName[MAX_BLE_NAME_LEN]);
+
+extern bool ParseTransferAesKeyPacket(const uint8 *data, uint8 len, uint8 aesKey[AES_KEY_LEN]);
+
+extern bool ParseTestAesKeyPacket(const uint8 *data, uint8 len, uint8 cypherText[AES_TEST_DATA_LEN]);
 
 #endif
 
