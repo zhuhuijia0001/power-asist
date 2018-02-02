@@ -3,7 +3,7 @@
 <Workspace>
   <ConfigDictionary>
     
-  <CurrentConfigs><Project>PowerAsist/CC2540-SBL</Project></CurrentConfigs></ConfigDictionary>
+  <CurrentConfigs><Project>PowerAsist/CC2540-release</Project></CurrentConfigs></ConfigDictionary>
   <Desktop>
     <Static>
       <Workspace>
@@ -12,7 +12,7 @@
           
           
           
-        <Column0>100</Column0><Column1>38</Column1><Column2>27</Column2><Column3>0</Column3></ColumnWidths>
+        <Column0>58</Column0><Column1>38</Column1><Column2>27</Column2><Column3>0</Column3></ColumnWidths>
       </Workspace>
       <Build>
         
@@ -24,7 +24,7 @@
     <Windows>
       
       
-    <Wnd2>
+    <Wnd0>
         <Tabs>
           <Tab>
             <Identity>TabID-30999-321</Identity>
@@ -36,7 +36,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-20836-716</Identity>
@@ -46,20 +46,20 @@
           </Tab>
         <Tab><Identity>TabID-2525-12503</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd3></Windows>
+      <SelectedTab>0</SelectedTab></Wnd1></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\drv\Meter.c</Filename><XPos>0</XPos><YPos>422</YPos><SelStart>7549</SelStart><SelEnd>7549</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\PowerAsist_Main.c</Filename><XPos>0</XPos><YPos>65</YPos><SelStart>3565</SelStart><SelEnd>3565</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\Parameter.c</Filename><XPos>0</XPos><YPos>6</YPos><SelStart>238</SelStart><SelEnd>238</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\Components\hal\common\hal_drivers.c</Filename><XPos>0</XPos><YPos>150</YPos><SelStart>5281</SelStart><SelEnd>5281</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menu.c</Filename><XPos>0</XPos><YPos>66</YPos><SelStart>1332</SelStart><SelEnd>1332</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menuBleComm.c</Filename><XPos>0</XPos><YPos>935</YPos><SelStart>16823</SelStart><SelEnd>16823</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menuDetail.c</Filename><XPos>0</XPos><YPos>45</YPos><SelStart>951</SelStart><SelEnd>951</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\Packet.c</Filename><XPos>0</XPos><YPos>562</YPos><SelStart>10727</SelStart><SelEnd>10751</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\Packet.h</Filename><XPos>0</XPos><YPos>57</YPos><SelStart>2469</SelStart><SelEnd>2469</SelEnd></Tab><ActiveTab>8</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menuWelcome.c</Filename><XPos>0</XPos><YPos>37</YPos><SelStart>1183</SelStart><SelEnd>1183</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\drv\Meter.c</Filename><XPos>0</XPos><YPos>501</YPos><SelStart>8491</SelStart><SelEnd>8491</SelEnd></Tab><ActiveTab>0</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\PowerAsist_Main.c</Filename><XPos>0</XPos><YPos>65</YPos><SelStart>3500</SelStart><SelEnd>3500</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\Parameter.c</Filename><XPos>0</XPos><YPos>6</YPos><SelStart>238</SelStart><SelEnd>238</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\Components\hal\common\hal_drivers.c</Filename><XPos>0</XPos><YPos>150</YPos><SelStart>5281</SelStart><SelEnd>5281</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menu.c</Filename><XPos>0</XPos><YPos>66</YPos><SelStart>1332</SelStart><SelEnd>1332</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menuBleComm.c</Filename><XPos>0</XPos><YPos>935</YPos><SelStart>16823</SelStart><SelEnd>16823</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menuDetail.c</Filename><XPos>0</XPos><YPos>45</YPos><SelStart>951</SelStart><SelEnd>951</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\Packet.c</Filename><XPos>0</XPos><YPos>562</YPos><SelStart>10727</SelStart><SelEnd>10751</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\Packet.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>199</SelStart><SelEnd>199</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\Source\menu\menuWelcome.c</Filename><XPos>0</XPos><YPos>37</YPos><SelStart>1183</SelStart><SelEnd>1183</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-0075dbb0><key>iaridepm.enu1</key></Toolbar-0075dbb0></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>499</Bottom><Right>202</Right><x>-2</x><y>-2</y><xscreen>302</xscreen><yscreen>173</yscreen><sizeHorzCX>323687</sizeHorzCX><sizeHorzCY>221795</sizeHorzCY><sizeVertCX>218650</sizeVertCX><sizeVertCY>642308</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>236</Bottom><Right>935</Right><x>-2</x><y>-2</y><xscreen>937</xscreen><yscreen>238</yscreen><sizeHorzCX>1004287</sizeHorzCX><sizeHorzCY>305128</sizeHorzCY><sizeVertCX>323687</sizeVertCX><sizeVertCY>221795</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-0075dbb0><key>iaridepm.enu1</key></Toolbar-0075dbb0></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>496</Bottom><Right>160</Right><x>-2</x><y>-2</y><xscreen>302</xscreen><yscreen>173</yscreen><sizeHorzCX>314911</sizeHorzCX><sizeHorzCY>222651</sizeHorzCY><sizeVertCX>168926</sizeVertCX><sizeVertCY>640927</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>236</Bottom><Right>961</Right><x>-2</x><y>-2</y><xscreen>963</xscreen><yscreen>238</yscreen><sizeHorzCX>1004171</sizeHorzCX><sizeHorzCY>306306</sizeHorzCY><sizeVertCX>314911</sizeVertCX><sizeVertCY>222651</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

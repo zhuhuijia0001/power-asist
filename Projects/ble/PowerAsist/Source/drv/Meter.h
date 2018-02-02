@@ -18,7 +18,6 @@ extern bool GetShuntVoltage(uint8 *mVInt, uint16 *mVFrac);
 extern bool GetLoadCurrentAdcValue(uint16 *adc);
 extern bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac);
 
-extern bool GetLoadPowerAdcValue(uint16 *adc);
 extern bool GetLoadPower(uint8 *WInt, uint16 *WFrac);
 
 extern void GetDPVoltage(uint8 *VInt, uint16 *VFrac);

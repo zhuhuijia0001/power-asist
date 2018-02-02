@@ -58,6 +58,14 @@ typedef enum
 
 static current_method s_currentMethod = CURRENT_METHOD_NORMAL;
 
+//power method
+typedef enum
+{
+	POWER_METHOD_NORMAL = 0,
+	
+	POWER_METHOD_CALIBRATED,
+} power_method;
+
 static const CalibrationItem *s_voltageCaliItem = NULL;
 
 static const CalibrationItem *s_currentCaliItem = NULL;
@@ -341,7 +349,7 @@ static bool GetLoadCurrentNormal(uint8 *AInt, uint16 *AFrac)
 }
 
 static bool GetLoadCurrentCalibrated(uint8 *AInt, uint16 *AFrac)
-{
+{	
 	uint16 adc;
 
 	if (!GetLoadCurrentAdcValue(&adc))
@@ -429,23 +437,13 @@ bool GetLoadCurrent(uint8 *AInt, uint16 *AFrac)
 	return s_getLoadCurrentFun[s_currentMethod](AInt, AFrac);
 }
 
-bool GetLoadPowerAdcValue(uint16 *adc)
-{
-	SetINA226Addr(INA226_REG_POWER);
-	bool res = ReadINA226Data(adc);
-	if (!res)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool GetLoadPower(uint8 *WInt, uint16 *WFrac)
+static bool GetLoadPowerNormal(uint8 *WInt, uint16 *WFrac)
 {
 	uint16 adc;
 	
-	if (!GetLoadPowerAdcValue(&adc))
+	SetINA226Addr(INA226_REG_POWER);
+	bool res = ReadINA226Data(&adc);
+	if (!res)
 	{
 		return false;
 	}
@@ -465,6 +463,80 @@ bool GetLoadPower(uint8 *WInt, uint16 *WFrac)
 	}
 
 	return true;
+}
+
+static bool GetLoadPowerCalibrated(uint8 *WInt, uint16 *WFrac)
+{
+	uint8 VDec;
+	uint16 VFrac;
+	
+	if (!s_getBusVoltageFun[s_voltageMethod](&VDec, &VFrac))
+	{
+		return false;
+	}
+
+	uint8 ADec;
+	uint16 AFrac;
+	if (!s_getLoadCurrentFun[s_currentMethod](&ADec, &AFrac))
+	{
+		return false;
+	}
+
+	//calculate
+	uint8 dec;
+	uint16 frac;
+
+	uint32 val = VFrac;
+	val *= AFrac;
+
+	val /= 10000;
+	frac = val;
+
+	val = VDec;
+	val *= AFrac;
+	frac += val;
+
+	val = ADec;
+	val *= VFrac;
+	frac += val;
+
+	dec = frac / 10000ul;
+	frac %= 10000ul;
+
+	val = VDec;
+	val *= ADec;
+	dec += val;
+
+	if (WInt != NULL)
+	{
+		*WInt = dec;
+	}
+
+	if (WFrac != NULL)
+	{
+		*WFrac = frac;
+	}
+	
+	return true;
+}
+
+static bool (*const s_getLoadPowerFun[])(uint8 *WInt, uint16 *WFrac) = 
+{
+	[POWER_METHOD_NORMAL] = GetLoadPowerNormal,
+
+	[POWER_METHOD_CALIBRATED] = GetLoadPowerCalibrated,
+};
+
+bool GetLoadPower(uint8 *WInt, uint16 *WFrac)
+{
+	power_method method = POWER_METHOD_NORMAL;
+	if (s_voltageMethod == VOLTAGE_METHOD_CALIBRATED
+		|| s_currentMethod == CURRENT_METHOD_CALIBRATED)
+	{
+		method = POWER_METHOD_CALIBRATED;
+	}
+
+	return s_getLoadPowerFun[method](WInt, WFrac);
 }
 
 static void GetADCVoltage(uint8 channel, uint8 *VInt, uint16 *VFrac)
