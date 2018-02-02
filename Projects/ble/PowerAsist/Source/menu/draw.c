@@ -576,7 +576,7 @@ void DrawDetailWhDelta(uint16 dec, uint16 frac, uint16 fc)
 {
 	if (dec != s_detailWhDec)
 	{
-		DrawDetailWhAhDec(DETAIL_WH_LEFT, DETAIL_WH_TOP, dec, frac);
+		DrawDetailWhAhDec(DETAIL_WH_LEFT, DETAIL_WH_TOP, dec, fc);
 		
 		s_detailWhDec = dec;
 	}

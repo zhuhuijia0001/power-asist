@@ -481,7 +481,7 @@ static bool GetLoadPowerCalibrated(uint8 *WInt, uint16 *WFrac)
 	{
 		return false;
 	}
-
+	
 	//calculate
 	uint8 dec;
 	uint16 frac;
@@ -506,7 +506,7 @@ static bool GetLoadPowerCalibrated(uint8 *WInt, uint16 *WFrac)
 	val = VDec;
 	val *= ADec;
 	dec += val;
-
+	
 	if (WInt != NULL)
 	{
 		*WInt = dec;
