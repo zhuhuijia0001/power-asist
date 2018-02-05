@@ -76,7 +76,7 @@ static const CalibrationData s_defaultCalibration =
 		},
 	},
 	
-	.voltageCaliItemCount = 3,
+	.voltageCaliItemCount = 0,
 
 	.currentCaliItem = 
 	{
@@ -125,7 +125,7 @@ static const CalibrationData s_defaultCalibration =
 		},
 	},
 	
-	.currentCaliItemCount = 4,
+	.currentCaliItemCount = 0,
 };
 
 bool LoadParameter()
